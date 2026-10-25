@@ -261,7 +261,7 @@ window.G = window.G || {};
   function tamIsle() {
     var b = tamBekle; tamBekle = null;
     if (!b || !G.tamEkran) return;
-    if (b === 'gir') G.tamEkran.gir(); else if (b === 'oto') G.tamEkran.otoGir(); else if (b === 'degistir') G.tamEkran.degistir();
+    if (b === 'gir') G.tamEkran.gir(); else if (b === 'yatay') G.tamEkran.yatay(); else if (b === 'oto') G.tamEkran.otoGir(); else if (b === 'degistir') G.tamEkran.degistir();
   }
   function hudTikla(p) {
     for (var ad in hudAlan) {
@@ -305,7 +305,9 @@ window.G = window.G || {};
     var d = G.d; if (!d) return;
     e.preventDefault();
     if (G.ses && G.ses.ac) G.ses.ac();
-    if (G.dikey) return;
+    // Dikey ekranda dokunuş: tam ekran + yatay yön kilidi iste. Telefonun döndürme kilidi açıkken
+    // tarayıcı yan çevirmeyi hiç görmez; Android Chrome tam ekranda lock('landscape') ile ekranı kendisi çevirir.
+    if (G.dikey) { tamBekle = 'yatay'; return; }
     for (var i = 0; i < e.changedTouches.length; i++) {
       var tc = e.changedTouches[i], p = konum(tc);
       if (G.ayarlar && G.ayarlar.acik) { if (ayarId === null) { ayarId = tc.identifier; G.ayarlar.dokun(p.x, p.y, 'bas'); } continue; }
@@ -1039,8 +1041,9 @@ window.G = window.G || {};
     c.moveTo(ex + 16, ey - 2); c.lineTo(ex - 6, ey - 16); c.lineTo(ex - 8, ey + 12); c.closePath(); c.fill();
     c.restore();
     var fs = Math.max(22, Math.min(40, w / 11));
-    konturYazi(c, 'Telefonu yan çevir', w / 2, h * 0.4 + 150 * u, fs, '#ffe14d', '#2b1b4a');
-    yazi(c, 'Döndürünce kaldığın yerden devam eder.', w / 2, h * 0.4 + 150 * u + fs * 1.3, Math.max(12, Math.min(18, w / 24)), '#cfd8ff', 'center', false);
+    konturYazi(c, 'Ekrana dokun', w / 2, h * 0.4 + 150 * u, fs, '#ffe14d', '#2b1b4a');
+    yazi(c, 'Oyun yatay açılır, telefonu yan çevir.', w / 2, h * 0.4 + 150 * u + fs * 1.3, Math.max(12, Math.min(18, w / 24)), '#cfd8ff', 'center', false);
+    if (G.yatayHata) yazi(c, 'Olmadıysa: telefonda otomatik döndürmeyi aç.', w / 2, h * 0.4 + 150 * u + fs * 2.3, Math.max(11, Math.min(15, w / 28)), '#ffb3a8', 'center', false);
   }
 
   function duraklatCiz(c, d) {

@@ -35,6 +35,23 @@ G.tamEkran = (function () {
     } catch (h) { }
   }
   function otoGir() { if (!cikti) gir(); }
+  // Dikey ekranda dokununca: tam ekran + yatay kilit. Telefonun otomatik döndürmesi kapalı olsa da
+  // Android Chrome tam ekranda kilidi uygular. Başarısızsa G.yatayHata ile ipucu gösterilir.
+  function yatay() {
+    cikti = false; G.yatayHata = false;
+    function kilit() {
+      try {
+        if (!(screen.orientation && screen.orientation.lock)) { G.yatayHata = true; return; }
+        screen.orientation.lock('landscape').catch(function () { G.yatayHata = true; });
+      } catch (h) { G.yatayHata = true; }
+    }
+    var tam = !!(document.fullscreenElement || document.webkitFullscreenElement);
+    if (tam || !istek || uygulamaModu()) { kilit(); return; }
+    try {
+      var p = istek.call(kok, { navigationUI: 'hide' });
+      if (p && p.then) p.then(kilit).catch(function () { G.yatayHata = true; }); else kilit();
+    } catch (h) { G.yatayHata = true; }
+  }
   function cik() {
     cikti = true;
     if (!(document.fullscreenElement || document.webkitFullscreenElement || document.msFullscreenElement)) return;
@@ -46,5 +63,5 @@ G.tamEkran = (function () {
   document.addEventListener('fullscreenchange', bildir);
   document.addEventListener('webkitfullscreenchange', bildir);
   // F11 tuşu tarayıcının kendi tam ekranıdır; F tuşunu oyunda kullanmıyoruz (F = fırlat), o yüzden kısayol yok.
-  return { gir: gir, otoGir: otoGir, kayit: kayit, cik: cik, degistir: degistir, acikMi: acikMi, destek: destek, mobil: mobil, uygulamaModu: uygulamaModu };
+  return { gir: gir, otoGir: otoGir, yatay: yatay, kayit: kayit, cik: cik, degistir: degistir, acikMi: acikMi, destek: destek, mobil: mobil, uygulamaModu: uygulamaModu };
 })();
