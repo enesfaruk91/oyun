@@ -1207,6 +1207,61 @@
     ogretmen: { top: '#e9a23b', pant: '#5f6f8f', shoe: '#7a4a38', sole: '#e9ddc8', sock: '#5f6f8f', leg: 'dress', tw: 1.06, tz: 1 },
     mudur:  { top: '#27355a', pant: '#222c48', shoe: '#17141a', sole: '#0c0a0d', sock: '#222c48', leg: 'long', tw: 1.26, tz: 1.12 }
   };
+  // Telefon performansı: bir animasyon grubunun statik mesh'lerini tek BufferGeometry'de (vertex color) birleştirir.
+  // animSet içindeki gruplar (kol, bacak, kafa, göz...) ayrı kalır; göz grupları kafaya taşınır (blink ölçeği korunur).
+  var mM = new T.Matrix4(), mN = new T.Matrix3();
+  function birlestirGrup(g, animSet) {
+    var kayit = {}, tasinan = [];
+    (function gez(node, rel) {
+      node.children.slice().forEach(function (c) {
+        if (animSet.has(c)) { if (node !== g) tasinan.push([c, rel.clone()]); return; }
+        c.updateMatrix();
+        var m = new T.Matrix4().multiplyMatrices(rel, c.matrix);
+        if (c.isMesh) {
+          var mt = c.material, k = mt.roughness + '|' + mt.metalness + '|' + (mt.emissive ? mt.emissive.getHex() : 0) + '|' + (mt.emissiveIntensity || 0);
+          (kayit[k] = kayit[k] || { mt: mt, list: [] }).list.push([c, m]);
+        } else gez(c, m);
+      });
+    })(g, new T.Matrix4());
+    var yeni = [];
+    Object.keys(kayit).forEach(function (k) {
+      var L = kayit[k].list, nv = 0, ni = 0;
+      L.forEach(function (e) { nv += e[0].geometry.attributes.position.count; ni += e[0].geometry.index ? e[0].geometry.index.count : e[0].geometry.attributes.position.count; });
+      var pos = new Float32Array(nv * 3), nor = new Float32Array(nv * 3), col = new Float32Array(nv * 3), idx = new Uint32Array(ni), vo = 0, io = 0;
+      L.forEach(function (e) {
+        var ge = e[0].geometry, pa = ge.attributes.position, na = ge.attributes.normal, c = e[0].material.color, m = e[1], i;
+        mN.getNormalMatrix(m);
+        var flip = m.determinant() < 0;
+        for (i = 0; i < pa.count; i++) {
+          v3.set(pa.getX(i), pa.getY(i), pa.getZ(i)).applyMatrix4(m); pos[(vo + i) * 3] = v3.x; pos[(vo + i) * 3 + 1] = v3.y; pos[(vo + i) * 3 + 2] = v3.z;
+          v3.set(na.getX(i), na.getY(i), na.getZ(i)).applyMatrix3(mN).normalize(); nor[(vo + i) * 3] = v3.x; nor[(vo + i) * 3 + 1] = v3.y; nor[(vo + i) * 3 + 2] = v3.z;
+          col[(vo + i) * 3] = c.r; col[(vo + i) * 3 + 1] = c.g; col[(vo + i) * 3 + 2] = c.b;
+        }
+        var n = ge.index ? ge.index.count : pa.count;
+        for (i = 0; i < n; i += 3) {
+          var a = ge.index ? ge.index.getX(i) : i, b = ge.index ? ge.index.getX(i + 1) : i + 1, d2 = ge.index ? ge.index.getX(i + 2) : i + 2;
+          idx[io++] = vo + a; idx[io++] = vo + (flip ? d2 : b); idx[io++] = vo + (flip ? b : d2);
+        }
+        vo += pa.count;
+      });
+      var bg = new T.BufferGeometry();
+      bg.setAttribute('position', new T.BufferAttribute(pos, 3)); bg.setAttribute('normal', new T.BufferAttribute(nor, 3));
+      bg.setAttribute('color', new T.BufferAttribute(col, 3)); bg.setIndex(new T.BufferAttribute(idx, 1));
+      var o = kayit[k].mt, vm = new T.MeshStandardMaterial({ vertexColors: true, roughness: o.roughness, metalness: o.metalness });
+      if (o.emissive && o.emissive.getHex()) { vm.emissive = o.emissive.clone(); vm.emissiveIntensity = o.emissiveIntensity; }
+      var mesh = new T.Mesh(bg, vm); mesh.castShadow = true; mesh.receiveShadow = true; yeni.push(mesh);
+    });
+    g.children.slice().forEach(function (c) { if (!animSet.has(c)) g.remove(c); });
+    yeni.forEach(function (m) { g.add(m); });
+    tasinan.forEach(function (e) {   // göz gibi iç içe animasyon grupları doğrudan g'nin altına
+      e[0].parent.remove(e[0]); e[0].updateMatrix(); e[0].matrix.premultiply(e[1]);
+      e[0].matrix.decompose(e[0].position, e[0].quaternion, e[0].scale); g.add(e[0]);
+    });
+  }
+  function rigBirlestir(gruplar) {
+    var set = new Set(gruplar);
+    gruplar.forEach(function (g) { birlestirGrup(g, set); });
+  }
   function rig(kind) {
     var root = new T.Group(), body = new T.Group(), head = new T.Group();
     root.add(body); head.position.y = 1.11; body.add(head);
@@ -1334,6 +1389,7 @@
       cyl(cap, 0.36, 0.36, 0.08, 0, 0.23, 0, '#fff4ea'); ball(cap, 0.13, 0.13, 0.13, 0.1, 0.68, 0, '#fff4ea');
     }
     head.add(cap); cap.visible = false;
+    rigBirlestir([body, head, cap].concat(arms, elbows, legs, knees, head.userData.eyes));
     var mats = []; root.traverse(function (o) { if (o.isMesh) { o.material = o.material.clone(); mats.push(o.material); } });
     var shadow = new T.Mesh(new T.CircleGeometry(0.42, 20), new T.MeshBasicMaterial({ color: '#152015', transparent: true, opacity: 0.16, depthWrite: false }));
     shadow.rotation.x = -PI / 2; shadow.position.y = 0.015; shadow.renderOrder = 1;
@@ -1512,6 +1568,7 @@
       caps(nx, 0.042 - ti * 0.005, 0.08, 0, 0.06, 0, ti === 2 ? PAZ : KUR);
       tailSegs.push(nx); tp = nx;
     }
+    rigBirlestir([body, head, tail].concat(legList, tailSegs, eyes));
     var mats = []; root.traverse(function (o2) { if (o2.isMesh) { o2.material = o2.material.clone(); mats.push(o2.material); } });
     var shadow = new T.Mesh(new T.CircleGeometry(0.3, 16), new T.MeshBasicMaterial({ color: '#152015', transparent: true, opacity: 0.16, depthWrite: false }));
     shadow.rotation.x = -PI / 2; shadow.position.y = 0.015; shadow.renderOrder = 1;

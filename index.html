@@ -17,26 +17,39 @@
 </style>
 </head>
 <body>
+<div id="yukleniyor" style="position:fixed;inset:0;z-index:20;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#3b2a6b;color:#ffe14d;font:bold 26px 'Trebuchet MS',sans-serif;text-align:center;transition:opacity .4s">
+  <div style="width:64px;height:64px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#ffd36b,#f07a2e);animation:ziplat .6s ease-in-out infinite alternate"></div>
+  <div>Anne Babadan Kaçmacılık</div>
+  <div style="font-size:15px;color:#cfd8ff">Yükleniyor…</div>
+  <style>@keyframes ziplat{from{transform:translateY(0)}to{transform:translateY(-26px)}}</style>
+</div>
 <canvas id="oyun"></canvas>
-<script src="vendor/three.min.js?v=20261025-0852"></script>
-<script src="assets/modeller.js?v=20261025-0852"></script>
-<script src="js/bolum.js?v=20261025-0852"></script>
-<script src="js/harita.js?v=20261025-0852"></script>
-<script src="js/cizim.js?v=20261025-0852"></script>
-<script src="js/komsu.js?v=20261025-0852"></script>
-<script src="js/uyanan.js?v=20261025-0852"></script>
-<script src="js/oyuncu.js?v=20261025-0852"></script>
-<script src="js/surum.js?v=20261025-0852"></script>
-<script src="js/tamekran.js?v=20261025-0852"></script>
-<script src="js/logo.js?v=20261025-0852"></script>
-<script src="js/muzik.js?v=20261025-0852"></script>
-<script src="js/ayarlar.js?v=20261025-0852"></script>
-<script src="js/ses.js?v=20261025-0852"></script>
-<script src="js/kardesler.js?v=20261025-0852"></script>
-<script src="js/kedi.js?v=20261025-0852"></script>
-<script src="js/arayuz.js?v=20261025-0852"></script>
-<script src="js/girdi.js?v=20261025-0852"></script>
-<script src="js/cizim3d.js?v=20261025-0852"></script>
-<script src="js/oyun.js?v=20261025-0852"></script>
+<script src="vendor/three.min.js?v=20261025-0904"></script>
+<script src="assets/modeller.js?v=20261025-0904"></script>
+<script src="js/bolum.js?v=20261025-0904"></script>
+<script src="js/harita.js?v=20261025-0904"></script>
+<script src="js/cizim.js?v=20261025-0904"></script>
+<script src="js/komsu.js?v=20261025-0904"></script>
+<script src="js/uyanan.js?v=20261025-0904"></script>
+<script src="js/oyuncu.js?v=20261025-0904"></script>
+<script src="js/surum.js?v=20261025-0904"></script>
+<script src="js/tamekran.js?v=20261025-0904"></script>
+<script src="js/logo.js?v=20261025-0904"></script>
+<script src="js/muzik.js?v=20261025-0904"></script>
+<script src="js/ayarlar.js?v=20261025-0904"></script>
+<script src="js/ses.js?v=20261025-0904"></script>
+<script src="js/kardesler.js?v=20261025-0904"></script>
+<script src="js/kedi.js?v=20261025-0904"></script>
+<script src="js/arayuz.js?v=20261025-0904"></script>
+<script src="js/girdi.js?v=20261025-0904"></script>
+<script src="js/cizim3d.js?v=20261025-0904"></script>
+<script src="js/oyun.js?v=20261025-0904"></script>
+<script>
+  // Yükleniyor ekranını ilk çizimden sonra kaldır
+  requestAnimationFrame(function () { requestAnimationFrame(function () {
+    var y = document.getElementById('yukleniyor'); if (!y) return;
+    y.style.opacity = '0'; setTimeout(function () { y.remove(); }, 450);
+  }); });
+</script>
 </body>
 </html>
