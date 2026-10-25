@@ -403,6 +403,7 @@ window.G = window.G || {};
   }
 
   function kovalamaBasla(duyuruVar) {
+    if (G.minikMi()) { G.minikSelam(k, G.d.oyuncu); return; }
     var onceki = k.durum;
     durumDegis('kovalama');
     k.uyari = 1;
@@ -417,6 +418,7 @@ window.G = window.G || {};
   }
 
   function yakala() {
+    if (G.minikSelam && G.minikSelam(k, G.d.oyuncu)) return;
     durumDegis('yakaladi');
     k.hareket = false;
     k.uyari = 1;
@@ -427,6 +429,7 @@ window.G = window.G || {};
 
   // ---------- algı ----------
   function oyuncuGoruyor(o, konili, ekMesafe) {
+    if (G.minikSelam && G.minikSelam(k, o)) return false;
     if (!o || o.saklandi || o.korunan || s.isinma > 0) return false;
     var dist = Math.hypot(o.x - k.x, o.y - k.y);
     if (dist > k.gorusMesafe) return false;

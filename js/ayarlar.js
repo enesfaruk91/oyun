@@ -5,7 +5,7 @@ window.G = window.G || {};
   var MUZIK_CARPAN = 0.26;      // sürgü 0.7 (varsayılan) -> G.muzik.ses(0.18)
   var telefon = !!((window.G && G.tamEkran && G.tamEkran.mobil) || /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent) || /[?&]dokunmatik=1/.test(location.search));
   // grafik: 'yuksek' | 'dusuk' (telefonda varsayılan düşük); otoKamera: sakin anda yakın, tehdit yaklaşınca geniş plan
-  var deger = { muzik: 0.7, efekt: 1, muzikAcik: true, efektAcik: true, otoKamera: true, grafik: telefon ? 'dusuk' : 'yuksek' };
+  var deger = { minik: false, muzik: 0.7, efekt: 1, muzikAcik: true, efektAcik: true, otoKamera: true, grafik: telefon ? 'dusuk' : 'yuksek' };
   var surukle = null;            // 'muzik' | 'efekt'
   var alan = null;               // son çizimin ekran (css px) vuruş alanları
   var t0 = 0, rehberZaman = -99;
@@ -19,6 +19,7 @@ window.G = window.G || {};
         if (typeof o.efekt === 'number') deger.efekt = Math.max(0, Math.min(1, o.efekt));
         if (typeof o.muzikAcik === 'boolean') deger.muzikAcik = o.muzikAcik;
         if (typeof o.efektAcik === 'boolean') deger.efektAcik = o.efektAcik;
+        if (typeof o.minik === 'boolean') deger.minik = o.minik;
         if (typeof o.otoKamera === 'boolean') deger.otoKamera = o.otoKamera;
         if (o.grafik === 'yuksek' || o.grafik === 'dusuk') deger.grafik = o.grafik;
       }
@@ -74,16 +75,16 @@ window.G = window.G || {};
     { ad: 'muzik', yazi: 'Müzik', y: -125, renk: '#ffb02e', ikon: 'nota' },
     { ad: 'efekt', yazi: 'Oyun Sesleri', y: -5, renk: '#34c26a', ikon: 'hop' }
   ];
-  var TX0 = -250, TX1 = 80, KAPAT = { x: 90, y: 160, w: 220, h: 58 }, REHBER = { x: -330, y: 160, w: 400, h: 58 }, TOG = { x: 200, w: 115, h: 54 }, HR = 36;
-  function olcek(w, h) { return Math.max(0.3, Math.min(w / 760, h / 520, 1.3)); }
+  var TX0 = -250, TX1 = 80, KAPAT = { x: 90, y: 240, w: 220, h: 58 }, REHBER = { x: -330, y: 240, w: 400, h: 58 }, TOG = { x: 200, w: 115, h: 54 }, HR = 36;
+  function olcek(w, h) { return Math.max(0.3, Math.min(w / 760, h / 620, 1.3)); }
 
   function ciz(c, d) {
     t0 += 1 / 60;
     var w = d && d.ekran ? d.ekran.w : c.canvas.clientWidth, h = d && d.ekran ? d.ekran.h : c.canvas.clientHeight;
-    var s = olcek(w, h), cx = w / 2, cy = h / 2;
+    var s = olcek(w, h), cx = w / 2, cy = h / 2 - 33*s;
     c.fillStyle = 'rgba(14,22,45,0.78)'; c.fillRect(0, 0, w, h);
     c.save(); c.translate(cx, cy); c.scale(s, s);
-    panel(c, -350, -252, 700, 490, 28, 'rgba(30,40,80,0.95)', '#7da2ff', 4);
+    panel(c, -350, -252, 700, 570, 28, 'rgba(30,40,80,0.95)', '#7da2ff', 4);
     konturYazi(c, 'AYARLAR', 0, -208, 40, '#ffe14d', '#2b1b4a');
     alan = { s: s, cx: cx, cy: cy, satir: [], kapat: null, ikili: [] };
     for (var i = 0; i < SATIR.length; i++) {
@@ -127,6 +128,10 @@ window.G = window.G || {};
       yazi(c, op.deg, op.x + ow - 69, oy + 37, 20, '#fff', 'center');
       alan.ikili.push({ ad: op.ad, x: cx + (op.x + ow - 130) * s, y: cy + (oy + 6) * s, w: 122 * s, h: 62 * s });
     }
+    panel(c, -330, 158, 660, 66, 18, deger.minik ? '#258559' : '#596383', '#fff', 2);
+    yazi(c, 'Minik mod · ' + (deger.minik ? 'AÇIK' : 'KAPALI'), 0, 180, 24, '#fff', 'center');
+    yazi(c, 'Süre yok · Tek dokunuş · Yakalanma yok', 0, 207, 17, '#fff', 'center');
+    alan.minik = { x: cx - 330*s, y: cy + 158*s, w: 660*s, h: 66*s };
     panel(c, KAPAT.x, KAPAT.y, KAPAT.w, KAPAT.h, 20, '#3d8bff', '#fff', 3);
     yazi(c, 'Kapat', KAPAT.x + KAPAT.w / 2, KAPAT.y + KAPAT.h / 2, 30, '#fff', 'center');
     var rok = t0 - rehberZaman < 2.2;
@@ -147,6 +152,7 @@ window.G = window.G || {};
     if (!G.ayarlar.acik) return false;
     if (!alan) return true;
     if (tip === 'bas') {
+      if (alan.minik && icinde(alan.minik, x, y, 0)) { G.ayarlar.minikDegistir(); return true; }
       if (icinde(alan.kapat, x, y, 4)) { G.ayarlar.kapat(); return true; }
       if (alan.rehber && icinde(alan.rehber, x, y, 4)) { try { if (G.arayuz && G.arayuz.rehberTekrar) G.arayuz.rehberTekrar(); } catch (h) { } rehberZaman = t0; return true; }
       for (var oi = 0; oi < alan.ikili.length; oi++) {
@@ -177,6 +183,9 @@ window.G = window.G || {};
   yukle();
   G.ayarlar = {
     acik: false, deger: deger,
+    minikDegistir: function () { deger.minik = !deger.minik;
+      if (!deger.minik && G.harita) (G.harita.aramaNoktalari || []).forEach(function (n) { if (n.minikIpucu) { n.ipucu = false; n.minikIpucu = false; } });
+      degisti(); if (G.girdi) G.girdi.temizle(); },
     ac: function () { this.acik = true; surukle = null; },
     kapat: function () { this.acik = false; surukle = null; kaydet(); },
     ciz: ciz, dokun: dokun, uygula: uygula, yukle: yukle, kaydet: kaydet,

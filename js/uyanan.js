@@ -246,6 +246,7 @@ window.G = window.G || {};
 
   // ---------- görme ----------
   function goruyor(o) {
+    if (G.minikSelam && G.minikSelam(u, o)) return false;
     if (!o || o.saklandi || o.korunan || (o.gorunmez > 0)) return false;
     if ((o.gorunurluk == null ? 1 : o.gorunurluk) <= 0) return false;
     var dist = Math.hypot(o.x - u.x, o.y - u.y);
@@ -301,6 +302,7 @@ window.G = window.G || {};
     }
   }
   function yakala(d) {
+    if (G.minikSelam && G.minikSelam(u, G.d.oyuncu)) return;
     durumDegis('yakaladi');
     u.hareket = false; u.uyari = 1;
     say(SOZ.yakala[u.kim] || 'Yakaladım!', 3, true);

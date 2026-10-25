@@ -137,7 +137,7 @@ G.oyuncu = (function () {
       if (m <= ETKI_MESAFE && m < enMes) { enMes = m; enYakin = an[i]; }
     }
     if (enYakin) {
-      return { tur: 'ara', metin: (enYakin.ad || 'Burayı') + ' ara (basılı tut)', x: enYakin.x, y: enYakin.y, nesne: enYakin };
+      return { tur: 'ara', metin: (enYakin.ad || 'Burayı') + (G.minikMi() ? ' ara' : ' ara (basılı tut)'), x: enYakin.x, y: enYakin.y, nesne: enYakin };
     }
     // 3) saklanma yeri
     var es = h.esyalar || [];
@@ -160,14 +160,14 @@ G.oyuncu = (function () {
   // ---- eylemler ----
   function esyaAl(o, tp) {
     var atilabilir = atilabilirMi(tp.tur);
-    if (o.envanter.length >= ENV_MAX) {
+    if (!G.minikMi() && o.envanter.length >= ENV_MAX) {
       G.mesaj('Çantan dolu! Önce bir şey at (F).');
       return;
     }
     if (atilabilir) {
       var say = 0;
       for (var i = 0; i < o.envanter.length; i++) if (atilabilirMi(o.envanter[i])) say++;
-      if (say >= ATILABILIR_MAX) {
+      if (!G.minikMi() && say >= ATILABILIR_MAX) {
         G.mesaj('Elin dolu! En fazla ' + ATILABILIR_MAX + ' şey taşıyabilirsin. Birini at (F).');
         return;
       }
@@ -253,6 +253,7 @@ G.oyuncu = (function () {
     else if (h.tur === 'kapi') kapiEtkilesim(o, h.nesne);
     else if (h.tur === 'saklan') saklan(o, h.nesne);
     else if (h.tur === 'merdiven') katBaslat(o, d, h.nesne);
+    else if (h.tur === 'ara' && G.minikMi()) aramaBitir(o, d, h.nesne);
     else if (h.tur === 'ara') G.mesaj(G.dokunmatik ? 'Aramak için el düğmesini basılı tut!' : 'Aramak için E tuşunu basılı tut!', 1.6);
   }
 
@@ -283,6 +284,7 @@ G.oyuncu = (function () {
   // ---- arama (EK-8): E basılı tutulunca ilerleme halkası dolar ----
   var ARAMA_SURE = 1.2, aramaSesT = 0;
   function aramaTick(o, d, dt) {
+    if (G.minikMi()) { o.aramaIl = 0; o.aramaN = null; return false; }
     var basili = !!(G.girdi && G.girdi.etkiBasili);
     var hd = (!o.saklandi && basili) ? hedefBul(o, d) : null;
     if (hd && hd.tur === 'ara') {
@@ -321,6 +323,7 @@ G.oyuncu = (function () {
   // Uzun süre bulunamazsa doğru noktada parıltı ipucu (Gökçe fısıldar)
   // Süreler bolum.js'teki G.bolumBilgi().ipucu = [nabız belirginleşir, yön oku gerçek noktaya, parıltı] (sn)
   function ipucuSureleri() {
+    if (G.minikMi()) return [0, 0, 0];
     var b = G.bolumBilgi && G.bolumBilgi();
     return (b && b.ipucu) || [25, 45, 60];
   }
@@ -340,7 +343,7 @@ G.oyuncu = (function () {
     var gercek = null, g = gr[gerekli];
     for (var j = 0; j < g.length; j++) if (g[j].gercek && !g[j].bakildi) gercek = g[j];
     if (!gercek || gercek.ipucu) return;
-    gercek.ipucu = true;
+    gercek.ipucu = true; gercek.minikIpucu = G.minikMi();
     G.mesaj('Gökçe fısıldadı: "Parıldayan yere bak!"', 4);
     G.olay('ipucu', { nokta: gercek });
   }
@@ -558,7 +561,7 @@ G.oyuncu = (function () {
   function ipucuDurum(d) {
     var o = d && d.oyuncu, h = H();
     if (!o) return null;
-    if (ipC.z === d.zaman && ipC.x === o.x && ipC.y === o.y) return ipC.v;
+    if (!G.minikMi() && ipC.z === d.zaman && ipC.x === o.x && ipC.y === o.y) return ipC.v;
     var r = ipucuDurum0(d);
     if (r && r.hedef && h.katSayisi > 1 && h.katOf(r.hedef.y) !== h.katOf(o.y) && h.yolBul) {
       var yl = null;

@@ -134,6 +134,7 @@ G.kedi = (function () {
   }
 
   function yakala() {
+    if (G.minikSelam && G.minikSelam(k, G.d.oyuncu)) return;
     durumDegis('yakaladi');
     k.hareket = false;
     k.uyari = 1;
@@ -143,6 +144,7 @@ G.kedi = (function () {
 
   // ---------- algı ----------
   function oyuncuGoruyor(o) {
+    if (G.minikSelam && G.minikSelam(k, o)) return false;
     if (!o || o.saklandi || (o.gorunmez > 0) || s.isinma > 0) return false;
     var dist = Math.hypot(o.x - k.x, o.y - k.y);
     if (dist > 340) return false;

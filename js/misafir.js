@@ -264,12 +264,14 @@ G.misafir = (function () {
     if (onceki !== 'kovalama') { olay('komsu_gordu', {}); say(r, rnd(['Dur bakalım evladım!', 'Gel bakalım, şeker vereceğim!', 'Yakalayacağım seni!']), 2.2, true); }
   }
   function recepYakala(r, d) {
+    if (G.minikSelam && G.minikSelam(r, G.d.oyuncu)) return;
     r.durum = 'yakaladi'; r.hareket = false; r.uyari = 1;
     say(r, 'Yakaladım seni!', 3, true);
     d.sonYakalanma = { kim: 'recepdede', sebep: 'yakalandi' };
     olay('yakalandi', { kim: 'recepdede' });
   }
   function recepGoruyor(r, o) {
+    if (G.minikSelam && G.minikSelam(r, o)) return false;
     if (!o || o.saklandi || o.korunan || (o.gorunmez > 0) || r.s.isinma > 0) return false;
     if (katOf(o.y) !== katOf(r.y)) return false;
     var dist = Math.hypot(o.x - r.x, o.y - r.y);

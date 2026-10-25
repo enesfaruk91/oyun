@@ -4,6 +4,7 @@ window.G = window.G || {};
   var dinleyiciler = {};
   G.dinle = function (ad, fn) { (dinleyiciler[ad] = dinleyiciler[ad] || []).push(fn); };
   G.olay = function (ad, veri) {
+    if (ad === 'yakalandi' && G.minikMi && G.minikMi()) return;
     (dinleyiciler[ad] || []).forEach(function (fn) {
       try { fn(veri || {}); } catch (h) { console.error('olay ' + ad, h); }
     });
@@ -188,7 +189,7 @@ window.G = window.G || {};
       d.zaman += dt;
       // Bölüm süresi (bolum.js sure) + ilk aşımda ek süre (nazik uyarı); ikinci aşımda 'SÜRE DOLDU'.
       var limit = (d.sureLimiti || 180) + (d.ekSure || 0);
-      if (!d.sureBitti && d.zaman >= limit) {
+      if (!G.minikMi() && !d.sureBitti && d.zaman >= limit) {
         if (!d.ekSure) {
           d.ekSure = d.ekSureHakki || 60; d.ekKullandi = true;
           d.mesaj = { metin: 'Biraz daha süre verdim, acele et!', sure: 3.6 };

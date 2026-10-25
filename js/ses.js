@@ -390,6 +390,7 @@ window.G = window.G || {};
     });
     G.dinle('uyandi', function () { efekt('uyandi'); });
     G.dinle('arama_ses', function () { efekt('aramaHis'); });
+    G.dinle('minik_selam', function () { efekt('bebekKikir', 0.45); });
     G.dinle('arama_bitti', function (e) { if (e && !e.bulundu) efekt('bosArama'); });
     G.dinle('ipucu', function () { efekt('ipucu'); });
     G.dinle('zil', function () { efekt('zil'); });

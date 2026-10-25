@@ -450,6 +450,7 @@ G.kardesler = (function () {
     }
   }
   function kazaKosul(d) {
+    if (G.minikMi()) return false;
     var o = d.oyuncu, k = d.komsu;
     if (!o || o.saklandi || gokceAktif(d) || d.kaza || d.mod !== 'oyun' || kacamakAktif(d)) return false;
     if (k && k.durum === 'kovalama') return false;
@@ -555,7 +556,7 @@ G.kardesler = (function () {
       }
     } else if (K.asama === 'dustu') {
       K.x = kd.x; K.y = kd.y;
-      K.kalan -= dt;
+      if (!G.minikMi()) K.kalan -= dt;
       kazaGurT += dt; kazaKonT += dt;
       if (kazaGurT >= 3) { kazaGurT -= 3; G.gurultuYap(kd.x, kd.y, 320, 'esya'); }
       if (kazaKonT >= 3 && !kd.konusma) { kazaKonT = 0; kazaDinleSira = (kazaDinleSira + 1) % AGLA.length; kd.konusma = { metin: AGLA[kazaDinleSira], sure: 2.8 }; }

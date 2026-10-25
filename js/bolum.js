@@ -145,6 +145,7 @@ window.G = window.G || {};
   };
   // Yeni bir kovalama başlayabilir mi? Kedi en düşük öncelikli: nöbetçi/uyanan başlayacaksa ve yer yoksa kedi bırakır.
   G.kovalamaIzni = function (d, kim) {
+    if (G.minikMi()) return false;
     d = d || G.d;
     if (G.kovalayanSayisi(d, kim) < G.KOVALAYAN_MAX) return true;
     if (kim !== 'kedi' && d && d.kedi && d.kedi.durum === 'takip' && G.kedi && G.kedi.birak) { G.kedi.birak(d); return G.kovalayanSayisi(d, kim) < G.KOVALAYAN_MAX; }
@@ -191,3 +192,20 @@ window.G = window.G || {};
     kaydet: function () { try { localStorage.setItem('abk_bolum' + Math.min(G.SON_BOLUM || 2, (G.bolum || 1) + 1), '1'); } catch (h) { } }
   };
 })();
+
+// Minik mod bütün arayıcılar için aynı ayarı okur.
+G.minikMi = function () { return !!(G.ayarlar && G.ayarlar.deger.minik); };
+G.minikSelam = function (e, o) {
+  if (!G.minikMi()) return false;
+  if (!e || !o || e.pasif || o.saklandi) return true;
+  var d = G.d, dx = o.x - e.x, dy = o.y - e.y, fark = Math.atan2(dy, dx) - (e.yon || 0);
+  fark = Math.atan2(Math.sin(fark), Math.cos(fark));
+  if (Math.hypot(dx, dy) < (e.gorusMesafe || 300) && Math.abs(fark) < 1.2 &&
+      !G.harita.gorusEngeli(e.x, e.y, o.x, o.y) && (!e.minikSelamT || d.zaman >= e.minikSelamT)) {
+    e.konusma = { metin: 'Seni gördüm! Hihihi!', sure: 2.8 }; e.minikSelamT = d.zaman + 6;
+    G.olay('minik_selam', { kim: e.kim });
+  }
+  if (e.durum === 'kovalama' || e.durum === 'yakaladi' || e.durum === 'takip') e.durum = 'devriye';
+  e.uyari = 0;
+  return true;
+};
