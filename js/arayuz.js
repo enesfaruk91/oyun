@@ -30,6 +30,7 @@ window.G = window.G || {};
     c.restore();
   }
   function yazi(c, s, x, y, boyut, renk, hiza, golge) {
+    s = G.karakter.metin(s);
     c.save();
     c.font = 'bold ' + boyut + 'px ' + FONT; c.textAlign = hiza || 'left'; c.textBaseline = 'middle';
     if (golge !== false) { c.fillStyle = 'rgba(0,0,0,0.45)'; c.fillText(s, x + Math.max(1, boyut * 0.06), y + Math.max(2, boyut * 0.08)); }
@@ -37,6 +38,7 @@ window.G = window.G || {};
     c.restore();
   }
   function konturYazi(c, s, x, y, boyut, renk, kontur, hiza) {
+    s = G.karakter.metin(s);
     c.save();
     c.font = '900 ' + boyut + 'px ' + FONT; c.textAlign = hiza || 'center'; c.textBaseline = 'middle';
     c.lineJoin = 'round'; c.lineWidth = boyut * 0.16; c.strokeStyle = kontur || '#2b1b4a';
@@ -69,7 +71,7 @@ window.G = window.G || {};
     c.restore();
   }
   function sigdir(c, s, maxW, boyut) { var w = olc(c, s, boyut); return w > maxW ? Math.max(10, boyut * maxW / w) : boyut; }
-  function olc(c, s, boyut) { c.save(); c.font = 'bold ' + boyut + 'px ' + FONT; var w = c.measureText(s).width; c.restore(); return w; }
+  function olc(c, s, boyut) { s = G.karakter.metin(s); c.save(); c.font = 'bold ' + boyut + 'px ' + FONT; var w = c.measureText(s).width; c.restore(); return w; }
   function tus(c, s, x, y, boyut) {   // klavye tuşu kutusu; genişlik döner
     c.save();
     c.font = 'bold ' + boyut + 'px ' + FONT;
@@ -381,6 +383,7 @@ window.G = window.G || {};
     function icinde(a) { return p && a && p.x >= a.x && p.x <= a.x + a.w && p.y >= a.y && p.y <= a.y + a.h; }
     if (d.mod === 'menu') {
       sonOnay = now; if (G.ses && G.ses.ac) G.ses.ac();
+      if (p && menuAlan.karakterler) for (var kk = 0; kk < menuAlan.karakterler.length; kk++) { if (icinde(menuAlan.karakterler[kk].a)) { G.karakter.sec(menuAlan.karakterler[kk].kim); return true; } }
       if (icinde(menuAlan.minik)) { G.ayarlar.minikDegistir(); return true; }
       if (icinde(menuAlan.ayarlar)) { if (G.ayarlar) G.ayarlar.ac(); return true; }
       if (p && menuAlan.kartlar) for (var ki = 0; ki < menuAlan.kartlar.length; ki++) {
@@ -535,6 +538,22 @@ window.G = window.G || {};
     konturYazi(c, 'Ogeday, Atılay ve Giray', 0, -36, 18, '#ffffff', '#2b1b4a');
     dugme(c, dokunmatik ? 'DOKUN: BAŞLA' : 'BAŞLA', 0, 12, 300, 56, yan, '#a8430b', true);
     menuAlan.basla = ekranAlani(w, h, s, -22, 0, 12, 300, 56);
+    // Ana karakter seçimi: BAŞLA'nın sağında üç yuvarlak kafa
+    var kcx = 268;
+    c.save(); c.font = 'bold 13px ' + FONT; c.textAlign = 'center'; c.textBaseline = 'middle'; c.lineJoin = 'round'; c.lineWidth = 3; c.strokeStyle = 'rgba(14,22,45,0.9)';
+    c.strokeText('Ana karakter', kcx, -16); c.fillStyle = '#ffe9a8'; c.fillText('Ana karakter', kcx, -16);
+    menuAlan.karakterler = [];
+    G.karakter.kimler.forEach(function (kim, ki) {
+      var x = kcx + (ki - 1) * 66, y = 18, sc = G.karakter.secili === kim, Rk = 24;
+      if (sc) { var nb2 = 0.5 + 0.5 * Math.sin(t * 5); c.fillStyle = 'rgba(255,225,77,' + (0.3 + 0.2 * nb2).toFixed(2) + ')'; c.beginPath(); c.arc(x, y, Rk + 7 + nb2 * 2, 0, 7); c.fill(); }
+      c.fillStyle = 'rgba(0,0,0,0.3)'; c.beginPath(); c.arc(x + 1, y + 3, Rk, 0, 7); c.fill();
+      c.save(); c.globalAlpha = sc ? 1 : 0.7; G.karakter.portre(c, kim, x, y, Rk); c.restore();
+      c.lineWidth = sc ? 5 : 2.5; c.strokeStyle = sc ? '#ffe14d' : '#ffffff'; c.beginPath(); c.arc(x, y, Rk, 0, 7); c.stroke();
+      c.font = 'bold 13px ' + FONT; c.lineWidth = 3; c.strokeStyle = 'rgba(14,22,45,0.9)'; c.strokeText(G.karakter.ad(kim), x, y + Rk + 14);
+      c.fillStyle = sc ? '#ffe14d' : '#ffffff'; c.fillText(G.karakter.ad(kim), x, y + Rk + 14);
+      menuAlan.karakterler.push({ kim: kim, a: ekranAlani(w, h, s, -22, x, y + 7, 62, 78) });
+    });
+    c.restore();
     // Giroş-Atoş modu: BAŞLA'nın altında küçük aç/kapa
     panel(c, -90, 44, 180, 22, 11, G.minikMi() ? '#258559' : '#596383', '#fff', 2);
     yazi(c, 'GİROŞ-ATOŞ: ' + (G.minikMi() ? 'AÇIK' : 'KAPALI'), 0, 56, 12, '#fff', 'center', false);
@@ -595,7 +614,8 @@ window.G = window.G || {};
     c.lineWidth = 2.5; c.strokeStyle = kullanildi ? '#cfd3dc' : '#fff'; c.stroke();
     if (!kullanildi) {
       c.save(); c.beginPath(); c.arc(0, 0, Rn - 2, 0, 7); c.clip();
-      if (G.cizim && G.cizim.ikon) { try { G.cizim.ikon(c, 'gokce', 0, -2, Rn * 1.5); } catch (h2) { gokceYedek(c, Rn); } }
+      if (G.karakter.gorunum('yardimci') !== 'gokce') G.karakter.portre(c, G.karakter.gorunum('yardimci'), 0, 0, Rn - 2);
+      else if (G.cizim && G.cizim.ikon) { try { G.cizim.ikon(c, 'gokce', 0, -2, Rn * 1.5); } catch (h2) { gokceYedek(c, Rn); } }
       else gokceYedek(c, Rn);
       c.restore();
     } else yazi(c, hak > 0 ? '...' : 'bitti', 0, 0, tel ? 9 : 10, '#fff', 'center', false);
@@ -1476,7 +1496,7 @@ window.G = window.G || {};
     c.save(); c.translate(250, -20 + Math.abs(Math.sin(t * 3.5 + 1)) * -18);
     ikon(c, 'top_hazine', 0, 0, 70); c.restore();
     if (G.bolumBilgi().ayikoyu) {
-      ['Ogeday','Atılay','Giray','Gökçe'].forEach(function (ad,i) { var xx=-123+i*82, yy=-5+Math.sin(t*3+i)*4; rc(c,xx,yy,25,['#ffbb45','#62a9ff','#76c974','#c48bea'][i]); rc(c,xx-7,yy-3,2,'#443044'); rc(c,xx+7,yy-3,2,'#443044'); c.beginPath();c.arc(xx,yy+1,8,0,Math.PI);c.strokeStyle='#443044';c.lineWidth=2;c.stroke();yazi(c,ad,xx,yy+38,13,'#4a2f12','center',false); });
+      ['Ogeday','Atılay','Giray','Gökçe'].forEach(function (ad,i) { var xx=-123+i*82, yy=-5+Math.sin(t*3+i)*4; rc(c,xx,yy,25,({ogeday:'#ffbb45',atilay:'#62a9ff',giray:'#76c974',gokce:'#c48bea'})[G.karakter.gorunum(['oyuncu','atilay','takipci','yardimci'][i])]); rc(c,xx-7,yy-3,2,'#443044'); rc(c,xx+7,yy-3,2,'#443044'); c.beginPath();c.arc(xx,yy+1,8,0,Math.PI);c.strokeStyle='#443044';c.lineWidth=2;c.stroke();yazi(c,ad,xx,yy+38,13,'#4a2f12','center',false); });
     }
     yazi(c, G.bolumBilgi().kazandiAlt, 0, 62, sigdir(c, G.bolumBilgi().kazandiAlt, 600, 21), '#4a2f12', 'center', false);
     yazi(c, 'Süre: ' + sureYazi(d.istatistik && d.istatistik.sure) + '   Yakalanma: ' + d.yakalanma + '   Çıkartma: ' + (d.cikartmaSay || 0) + '/' + (d.cikartmaToplam || 3), 0, 100, 22, '#2b3355', 'center', false);
