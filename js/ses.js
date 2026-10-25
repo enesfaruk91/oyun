@@ -87,6 +87,14 @@ window.G = window.G || {};
       [523, 659, 784, 1047, 1319].forEach(function (f, i) { ton(sfx, f, t + i * 0.08, 0.35, 'triangle', 0.16, 0.005); ton(sfx, f * 2, t + i * 0.08, 0.2, 'sine', 0.04, 0.005); });
       vurus(sfx, t + 0.4, 0.3, 0.05, 'highpass', 6000);
     },
+    cikartma: function () {
+      var t = ctx.currentTime;
+      ton(sfx, 988, t, 0.12, 'square', 0.07, 0.003); ton(sfx, 1319, t + 0.07, 0.12, 'square', 0.07, 0.003); ton(sfx, 1976, t + 0.14, 0.3, 'triangle', 0.13, 0.004);
+    },
+    yildiz: function (i) {
+      var t = ctx.currentTime, f = [784, 988, 1319][Math.max(0, Math.min(2, i | 0))];
+      ton(sfx, f, t, 0.35, 'triangle', 0.17, 0.004); ton(sfx, f * 2, t, 0.25, 'sine', 0.05, 0.004); ton(sfx, f * 3, t + 0.03, 0.12, 'sine', 0.025, 0.004);
+    },
     aramaHis: function () { var t = ctx.currentTime; vurus(sfx, t, 0.22, 0.12, 'bandpass', 2200, 1400, 0.8); },
     bosArama: function () { var t = ctx.currentTime; ton(sfx, 392, t, 0.12, 'triangle', 0.1, 0.01); ton(sfx, 330, t + 0.12, 0.2, 'triangle', 0.1, 0.01); },
     ipucu: function () { var t = ctx.currentTime; [1568, 1976, 2349].forEach(function (f, i) { ton(sfx, f, t + i * 0.09, 0.3, 'sine', 0.08, 0.004); }); },
@@ -307,6 +315,8 @@ window.G = window.G || {};
     G.dinle('kilit_acildi', function () { efekt('kilitAcildi'); });
     G.dinle('esya_al', function (e) { efekt('bling'); if (e && (e.tur === 'anahtar_mavi' || e.tur === 'anahtar_kirmizi' || e.tur === 'top_hazine')) efekt('anahtarSevinc'); });
     G.dinle('firlat', function () { efekt('firlat'); });
+    G.dinle('cikartma_al', function () { efekt('cikartma'); });
+    G.dinle('yildiz_ses', function (e) { efekt('yildiz', e && e.i); });
     G.dinle('esya_dustu', function () { efekt('tak'); });
     G.dinle('saklan', function () { efekt('hisirti'); });
     G.dinle('saklanmadan_cik', function () { efekt('hisirti'); });

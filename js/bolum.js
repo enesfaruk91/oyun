@@ -66,6 +66,30 @@ window.G = window.G || {};
       kisiler: 'Ayşe Hanım · Kemal Bey'
     }
   };
+
+  // Gizli çıkartmalar (rozet): konumlar harita.js CIKARTMA_YER'de (aynı sırayla). r = arayuz.js rozet çizim adı.
+  G.bolumler[1].cikartma = [{ r: 'dino', ad: 'Dinozor' }, { r: 'top', ad: 'Top' }, { r: 'roket', ad: 'Roket' }];
+  G.bolumler[2].cikartma = [{ r: 'tavuk', ad: 'Tavuk' }, { r: 'kurabiye', ad: 'Kurabiye' }, { r: 'yumak', ad: 'Yumak' }];
+  G.bolumler[3].cikartma = [{ r: 'kedi', ad: 'Patili' }, { r: 'agac', ad: 'Ağaç' }, { r: 'ordek', ad: 'Ördek' }];
+  G.bolumler[4].cikartma = [{ r: 'kalem', ad: 'Kalem' }, { r: 'basket', ad: 'Basketbol topu' }, { r: 'yildiz', ad: 'Yıldız' }];
+
+  // Kalıcı kayıt: yıldızlar (abk_yildiz_b{n}), çıkartmalar (abk_cikartma), rehber (abk_rehber). localStorage yoksa bellek.
+  var bellek = {};
+  function oku(k) { try { var v = localStorage.getItem(k); if (v !== null && v !== undefined) return v; } catch (h) { } return bellek[k] === undefined ? null : bellek[k]; }
+  function yaz(k, v) { bellek[k] = String(v); try { localStorage.setItem(k, String(v)); } catch (h) { } }
+  function cikartmaTum() { try { var o = JSON.parse(oku('abk_cikartma') || '{}'); return o && typeof o === 'object' ? o : {}; } catch (h) { return {}; } }
+  G.kayit = {
+    yildiz: function (n) { var v = parseInt(oku('abk_yildiz_b' + n), 10); return v >= 1 && v <= 3 ? v : 0; },
+    yildizYaz: function (n, y) { var e = this.yildiz(n); if (y > e) { yaz('abk_yildiz_b' + n, y); e = y; } return e; },
+    yildizToplam: function () { var t = 0; for (var n = 1; n <= G.SON_BOLUM; n++) t += this.yildiz(n); return t; },
+    yildizEnYuksek: function () { return 3 * G.SON_BOLUM; },
+    ilkOyunBitti: function () { return this.yildizToplam() > 0; },
+    cikartma: function (n) { var l = cikartmaTum()[n]; return Array.isArray(l) ? l : []; },
+    cikartmaVar: function (n, i) { return this.cikartma(n).indexOf(i) >= 0; },
+    cikartmaYaz: function (n, i) { var o = cikartmaTum(); var l = Array.isArray(o[n]) ? o[n] : []; if (l.indexOf(i) < 0) l.push(i); o[n] = l; yaz('abk_cikartma', JSON.stringify(o)); },
+    rehber: function () { return oku('abk_rehber') || ''; },
+    rehberYaz: function (v) { yaz('abk_rehber', v); }
+  };
   // Aynı anda en fazla 2 aktif kovalayan (nöbetçi, uyanan ebeveyn, kedi): çocuk sıkışmasın. haric = sayıma katılmayan ('komsu'|'uyanan'|'kedi').
   G.KOVALAYAN_MAX = 2;
   G.kovalayanSayisi = function (d, haric) {

@@ -8,7 +8,7 @@ window.G = window.G || {};
   var deger = { muzik: 0.7, efekt: 1, muzikAcik: true, efektAcik: true, otoKamera: true, grafik: telefon ? 'dusuk' : 'yuksek' };
   var surukle = null;            // 'muzik' | 'efekt'
   var alan = null;               // son çizimin ekran (css px) vuruş alanları
-  var t0 = 0;
+  var t0 = 0, rehberZaman = -99;
 
   function yukle() {
     try {
@@ -74,7 +74,7 @@ window.G = window.G || {};
     { ad: 'muzik', yazi: 'Müzik', y: -125, renk: '#ffb02e', ikon: 'nota' },
     { ad: 'efekt', yazi: 'Oyun Sesleri', y: -5, renk: '#34c26a', ikon: 'hop' }
   ];
-  var TX0 = -250, TX1 = 80, KAPAT = { x: -110, y: 160, w: 220, h: 58 }, TOG = { x: 200, w: 115, h: 54 }, HR = 36;
+  var TX0 = -250, TX1 = 80, KAPAT = { x: 90, y: 160, w: 220, h: 58 }, REHBER = { x: -330, y: 160, w: 400, h: 58 }, TOG = { x: 200, w: 115, h: 54 }, HR = 36;
   function olcek(w, h) { return Math.max(0.3, Math.min(w / 760, h / 520, 1.3)); }
 
   function ciz(c, d) {
@@ -128,7 +128,11 @@ window.G = window.G || {};
       alan.ikili.push({ ad: op.ad, x: cx + (op.x + ow - 130) * s, y: cy + (oy + 6) * s, w: 122 * s, h: 62 * s });
     }
     panel(c, KAPAT.x, KAPAT.y, KAPAT.w, KAPAT.h, 20, '#3d8bff', '#fff', 3);
-    yazi(c, 'Kapat', 0, KAPAT.y + KAPAT.h / 2, 30, '#fff', 'center');
+    yazi(c, 'Kapat', KAPAT.x + KAPAT.w / 2, KAPAT.y + KAPAT.h / 2, 30, '#fff', 'center');
+    var rok = t0 - rehberZaman < 2.2;
+    panel(c, REHBER.x, REHBER.y, REHBER.w, REHBER.h, 20, rok ? '#34c26a' : '#f0a020', '#fff', 3);
+    yazi(c, rok ? 'Rehber tekrar gösterilecek' : 'Rehberi tekrar göster', REHBER.x + REHBER.w / 2, REHBER.y + REHBER.h / 2, 26, '#fff', 'center');
+    alan.rehber = { x: cx + REHBER.x * s, y: cy + REHBER.y * s, w: REHBER.w * s, h: REHBER.h * s };
     alan.kapat = { x: cx + KAPAT.x * s, y: cy + KAPAT.y * s, w: KAPAT.w * s, h: KAPAT.h * s };
     c.restore();
   }
@@ -144,6 +148,7 @@ window.G = window.G || {};
     if (!alan) return true;
     if (tip === 'bas') {
       if (icinde(alan.kapat, x, y, 4)) { G.ayarlar.kapat(); return true; }
+      if (alan.rehber && icinde(alan.rehber, x, y, 4)) { try { if (G.arayuz && G.arayuz.rehberTekrar) G.arayuz.rehberTekrar(); } catch (h) { } rehberZaman = t0; return true; }
       for (var oi = 0; oi < alan.ikili.length; oi++) {
         if (icinde(alan.ikili[oi], x, y, 6)) {
           if (alan.ikili[oi].ad === 'otoKamera') deger.otoKamera = !deger.otoKamera; else deger.grafik = deger.grafik === 'dusuk' ? 'yuksek' : 'dusuk';

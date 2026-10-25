@@ -195,6 +195,14 @@ window.G = window.G || {};
     ['kurabiye1', 'kurabiye', 13, 16], ['kurabiye2', 'kurabiye', 18, 5]
   ];
 
+  // Gizli çıkartmalar [tx, ty] (bolum.js G.bolumler[n].cikartma ile aynı sıra). Yan yollar; yalnız B4 3. çıkartma mavi kapı (Öğretmenler Odası) arkasında.
+  var CIKARTMA_YER = {
+    1: [[4, 15], [36, 12], [40, 17]],
+    2: [[36, 17], [28, 19], [6, 33]],
+    3: [[14, 28], [40, 14], [7, 10]],
+    4: [[23, 26], [34, 17], [11, 26]]
+  };
+
   var ODALAR1 = [
     { ad: 'Gökçe\'nin Odası', x: 12, y: 18, w: 3, h: 3 }, { ad: 'Mutfak', x: 12, y: 3, w: 7, h: 6 }, { ad: 'Banyo', x: 20, y: 3, w: 4, h: 6 },
     { ad: 'Yatak Odası', x: 25, y: 3, w: 8, h: 6 }, { ad: 'Koridor', x: 12, y: 10, w: 21, h: 3 },
@@ -593,6 +601,10 @@ window.G = window.G || {};
     for (var j = 0; j < TOPLA_VERI.length; j++) {
       var t = TOPLA_VERI[j];
       harita.toplanabilir.push({ id: t[0], tur: t[1], x: merkez(t[2]), y: merkez(t[3]), alindi: false });
+    }
+    var cy = CIKARTMA_YER[harita.bolum] || [];
+    for (var ci = 0; ci < cy.length; ci++) {
+      harita.toplanabilir.push({ id: 'cikartma' + ci, tur: 'cikartma', cikartma: true, no: ci, x: merkez(cy[ci][0]), y: merkez(cy[ci][1]), alindi: false });
     }
     aramaKur();
   };

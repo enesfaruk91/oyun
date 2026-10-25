@@ -36,7 +36,7 @@ window.G = window.G || {};
       kamera: { x: 0, y: 0, olcek: 1 },
       oyuncu: null, komsu: null,
       sesler: [], firlatilanlar: [], mesaj: null,
-      yakalanma: koru.yakalanma || 0, istatistik: { sure: 0 }
+      yakalanma: koru.yakalanma || 0, bolumYak0: koru.yakalanma || 0, ekKullandi: false, yildiz: 0, istatistik: { sure: 0 }
     };
     boyutla();
     guvenli('harita.init', function () { G.harita.init(G.bolum); });
@@ -58,7 +58,7 @@ window.G = window.G || {};
     // Telefon dikey görünüyorsa (çoğu zaman döndürme kilidi açık, tarayıcı yan çevirmeyi algılamıyor):
     // beklemeden oyunu 90° döndürülmüş çiz; telefon yan çevrilince görüntü düz olur. Dokunuşlar arayuz.js konum()'da çevrilir.
     var donuk = !!(G.tamEkran && G.tamEkran.mobil && h > w);
-    if (donuk !== !!G.donuk && donuk && G.mesaj) setTimeout(function () { G.mesaj('📱 Telefonu yan çevir', 3); }, 300);
+    if (donuk !== !!G.donuk && donuk && G.tamEkran && G.tamEkran.donIpucu) G.tamEkran.donIpucu();
     G.donuk = donuk;
     var kok = document.documentElement;
     kok.classList.toggle('donuk', donuk);
@@ -115,9 +115,22 @@ window.G = window.G || {};
     kameraTakip(1);
     G.d.mod = 'oyun'; G.girdi.temizle();
   });
+  // Yıldız: 1 = bitirdin; 2 = bu bölümde 2'den az yakalanma; 3 = hiç yakalanmadan ve ek süreye kalmadan, ya da 3 çıkartmanın hepsi.
+  function yildizHesapla(d) {
+    var yak = d.yakalanma - (d.bolumYak0 || 0), tl = (G.harita && G.harita.toplanabilir) || [], say = 0, top = 0;
+    for (var i = 0; i < tl.length; i++) if (tl[i].cikartma) { top++; if (tl[i].alindi) say++; }
+    var y = 1;
+    if (yak < 2) y = 2;
+    if ((yak === 0 && !d.ekKullandi) || (top > 0 && say >= top)) y = 3;
+    d.yildiz = y; d.bolumYakalanma = yak; d.cikartmaSay = say; d.cikartmaToplam = top;
+    d.yildizEski = G.kayit ? G.kayit.yildiz(G.bolum) : 0;
+    if (G.kayit) G.kayit.yildizYaz(G.bolum, y);
+    G.olay('yildiz_hesaplandi', { bolum: G.bolum, yildiz: y, yakalanma: yak, cikartma: say });
+  }
   G.dinle('kazandi', function () {
     if (G.d.mod !== 'oyun') return;
     G.d.istatistik.sure = G.d.oncekiSure + G.d.zaman;
+    guvenli('yildiz', function () { yildizHesapla(G.d); });
     if (G.bolum < G.SON_BOLUM) {
       G.d.mod = 'bolumBitti';
       if (G.ilerleme) G.ilerleme.kaydet();
@@ -168,7 +181,7 @@ window.G = window.G || {};
       var limit = (d.sureLimiti || 180) + (d.ekSure || 0);
       if (!d.sureBitti && d.zaman >= limit) {
         if (!d.ekSure) {
-          d.ekSure = d.ekSureHakki || 60;
+          d.ekSure = d.ekSureHakki || 60; d.ekKullandi = true;
           d.mesaj = { metin: 'Biraz daha süre verdim, acele et!', sure: 3.6 };
           if (G.ses && G.ses.cal) guvenli('ses', function () { G.ses.cal('uyari'); });
         } else {

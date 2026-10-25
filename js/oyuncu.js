@@ -96,7 +96,7 @@ G.oyuncu = (function () {
     var tp = h.toplanabilir || [];
     enYakin = null; enMes = ETKI_MESAFE + 1;
     for (i = 0; i < tp.length; i++) {
-      if (!tp[i] || tp[i].alindi || tp[i].gizli) continue;   // gizli anahtar yalnız aramayla bulunur (E basılı tut)
+      if (!tp[i] || tp[i].alindi || tp[i].gizli || tp[i].cikartma) continue;   // gizli anahtar yalnız aramayla bulunur (E basılı tut)
       m = Math.hypot(tp[i].x - o.x, tp[i].y - o.y);
       if (m <= ETKI_MESAFE && m < enMes) { enMes = m; enYakin = tp[i]; }
     }
@@ -374,6 +374,24 @@ G.oyuncu = (function () {
   }
 
   // ---- ana güncelleme ----
+  // Gizli çıkartma: yaklaşınca kendiliğinden alınır, envanterde yer kaplamaz.
+  var CIKARTMA_MESAFE = 34;
+  function cikartmaTopla(o, d) {
+    var tl = H().toplanabilir || [];
+    for (var i = 0; i < tl.length; i++) {
+      var c = tl[i];
+      if (!c || !c.cikartma || c.alindi) continue;
+      if (Math.hypot(c.x - o.x, c.y - o.y) > CIKARTMA_MESAFE) continue;
+      c.alindi = true;
+      var say = 0; for (var j = 0; j < tl.length; j++) if (tl[j].cikartma && tl[j].alindi) say++;
+      var tn = (G.bolumBilgi && G.bolumBilgi().cikartma) || [];
+      var yeni = true;
+      if (G.kayit) { yeni = !G.kayit.cikartmaVar(G.bolum, c.no); G.kayit.cikartmaYaz(G.bolum, c.no); }
+      G.olay('cikartma_al', { no: c.no, tur: tn[c.no] && tn[c.no].r, ad: tn[c.no] && tn[c.no].ad, say: say, toplam: tn.length || 3, yeni: yeni, x: c.x, y: c.y });
+      G.mesaj('Çıkartma ' + say + '/' + (tn.length || 3), 2);
+    }
+  }
+
   function guncelle(dt, d) {
     var o = d.oyuncu;
     if (!o) return;
@@ -383,6 +401,7 @@ G.oyuncu = (function () {
     if (G.girdi && G.girdi.al && G.girdi.al('etkilesim')) etkilesim(o, d);
     if (G.girdi && G.girdi.al && G.girdi.al('firlat')) firlat(o, d);
 
+    if (!o.saklandi) cikartmaTopla(o, d);
     if (o.saklandi) {
       var m = rectMerkez(o.saklandi);
       o.x = m.x; o.y = m.y;

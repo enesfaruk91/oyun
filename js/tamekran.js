@@ -35,6 +35,23 @@ G.tamEkran = (function () {
     } catch (h) { }
   }
   function otoGir() { if (!cikti) gir(); }
+  // Dikey açılışta kısa, düz okunan "Ekranı döndürün" yazısı (DOM; döndürülmüş sahneden bağımsız). Oyunu bekletmez.
+  var ipucuEl = null, ipucuT = null;
+  function donIpucu() {
+    if (!ipucuEl) {
+      ipucuEl = document.createElement('div');
+      ipucuEl.textContent = '📱 Ekranı döndürün';
+      ipucuEl.style.cssText = 'position:fixed;left:50%;top:50%;transform:translate(-50%,-50%);z-index:9;pointer-events:none;' +
+        'padding:14px 22px;border-radius:18px;background:rgba(43,27,74,0.92);color:#ffe14d;border:3px solid #ffb02e;' +
+        'font:bold 24px "Trebuchet MS",sans-serif;white-space:nowrap;transition:opacity .35s;opacity:1';
+      document.body.appendChild(ipucuEl);
+    }
+    clearTimeout(ipucuT);
+    ipucuEl.style.opacity = '1';
+    // Süre sayfa tamamen yüklendikten sonra işlesin; yoksa telefonda yükleme sırasında görünmeden kaybolur.
+    function zamanla() { clearTimeout(ipucuT); ipucuT = setTimeout(function () { ipucuEl.style.opacity = '0'; }, 1800); }
+    if (document.readyState === 'complete') zamanla(); else window.addEventListener('load', zamanla, { once: true });
+  }
   // Dikey ekranda dokununca: tam ekran + yatay kilit. Telefonun otomatik döndürmesi kapalı olsa da
   // Android Chrome tam ekranda kilidi uygular. Başarısızsa G.yatayHata ile ipucu gösterilir.
   function yatay() {
@@ -63,5 +80,5 @@ G.tamEkran = (function () {
   document.addEventListener('fullscreenchange', bildir);
   document.addEventListener('webkitfullscreenchange', bildir);
   // F11 tuşu tarayıcının kendi tam ekranıdır; F tuşunu oyunda kullanmıyoruz (F = fırlat), o yüzden kısayol yok.
-  return { gir: gir, otoGir: otoGir, yatay: yatay, kayit: kayit, cik: cik, degistir: degistir, acikMi: acikMi, destek: destek, mobil: mobil, uygulamaModu: uygulamaModu };
+  return { gir: gir, otoGir: otoGir, yatay: yatay, donIpucu: donIpucu, kayit: kayit, cik: cik, degistir: degistir, acikMi: acikMi, destek: destek, mobil: mobil, uygulamaModu: uygulamaModu };
 })();
