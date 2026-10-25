@@ -510,7 +510,7 @@ window.G = window.G || {};
   // Menü köşesinde sürüm + son yenilikler (uzaktan takip için; yayinla.sh doldurur)
   function surumEtiket(c, d) {
     var S = G.SURUM; if (!S) return;
-    var h = d.ekran.h, satir = ['Sürüm ' + S.surum].concat((S.notlar || []).slice(0, 3).map(function (n) { return '• ' + n; }));
+    var h = d.ekran.h, satir = ['Sürüm ' + S.surum];
     c.save(); c.textAlign = 'left'; c.textBaseline = 'alphabetic';
     for (var i = 0; i < satir.length; i++) {
       var y = h - 10 - (satir.length - 1 - i) * 15;
@@ -535,6 +535,10 @@ window.G = window.G || {};
     konturYazi(c, 'Ogeday, Atılay ve Giray', 0, -36, 18, '#ffffff', '#2b1b4a');
     dugme(c, dokunmatik ? 'DOKUN: BAŞLA' : 'BAŞLA', 0, 12, 300, 56, yan, '#a8430b', true);
     menuAlan.basla = ekranAlani(w, h, s, -22, 0, 12, 300, 56);
+    // Giroş-Atoş modu: BAŞLA'nın altında küçük aç/kapa
+    panel(c, -90, 44, 180, 22, 11, G.minikMi() ? '#258559' : '#596383', '#fff', 2);
+    yazi(c, 'GİROŞ-ATOŞ: ' + (G.minikMi() ? 'AÇIK' : 'KAPALI'), 0, 56, 12, '#fff', 'center', false);
+    menuAlan.minik = ekranAlani(w, h, s, -22, 0, 55, 180, 26);
     // alt şerit: bölüm kartları
     var R = 26, ar = 12, topW = n * 2 * R + (n - 1) * ar, x0 = -topW / 2 + R, cy = 132;
     var ad = (G.bolumler[sec] && (G.bolumler[sec].kisaAd || G.bolumler[sec].ad)) || ('Bölüm ' + sec), etw = olc(c, ad, 14) + 28;
@@ -564,13 +568,8 @@ window.G = window.G || {};
     panel(c, ax, ay, aw, ah, 16, 'rgba(122,92,255,0.95)', '#fff', 2);
     yazi(c, 'AYAR', ax + aw / 2, ay + ah / 2 + 1, 14, '#fff', 'center', false);
     menuAlan.ayarlar = { x: ax - 6, y: ay - 6, w: aw + 12, h: ah + 12 };
-    var mw = 164, mx = w - mw - 100;
-    panel(c, mx, 10, mw, 32, 16, G.minikMi() ? '#258559' : '#596383', '#fff', 2);
-    yazi(c, 'MİNİK: ' + (G.minikMi() ? 'AÇIK' : 'KAPALI'), mx + mw/2, 27, 14, '#fff', 'center', false);
-    menuAlan.minik = { x: mx, y: 10, w: mw, h: 32 };
     yildizToplamPill(c, 10, 10);
     surumEtiket(c, d);
-    yazi(c, 'Ayı Köyü: Super Bear Adventure’a selam · hayran yapımı, resmî değil', w/2, 57, Math.min(11,w/70), '#fff2c5', 'center', false);
   }
   var KART_RENK = ['#3d8bff', '#3fae4a', '#ff7a1a', '#9b4fd6', '#e0427a', '#14a3a3', '#c9a400', '#d9534f'];
 

@@ -129,7 +129,7 @@ window.G = window.G || {};
       alan.ikili.push({ ad: op.ad, x: cx + (op.x + ow - 130) * s, y: cy + (oy + 6) * s, w: 122 * s, h: 62 * s });
     }
     panel(c, -330, 158, 660, 66, 18, deger.minik ? '#258559' : '#596383', '#fff', 2);
-    yazi(c, 'Minik mod · ' + (deger.minik ? 'AÇIK' : 'KAPALI'), 0, 180, 24, '#fff', 'center');
+    yazi(c, 'Giroş-Atoş modu · ' + (deger.minik ? 'AÇIK' : 'KAPALI'), 0, 180, 24, '#fff', 'center');
     yazi(c, 'Süre yok · Tek dokunuş · Yakalanma yok', 0, 207, 17, '#fff', 'center');
     alan.minik = { x: cx - 330*s, y: cy + 158*s, w: 660*s, h: 66*s };
     panel(c, KAPAT.x, KAPAT.y, KAPAT.w, KAPAT.h, 20, '#3d8bff', '#fff', 3);
