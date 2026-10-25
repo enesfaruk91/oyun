@@ -238,7 +238,20 @@ window.G = window.G || {};
       });
       [84, 88, 91].forEach(function (m, i) { ton(sfx, hz(m), t + 0.55 + i * 0.06, 0.7, 'sine', 0.07, 0.005); });
     },
-    baslat: function () { var t = ctx.currentTime; ton(sfx, 523, t, 0.1, 'square', 0.08, 0.003); ton(sfx, 784, t + 0.08, 0.2, 'square', 0.08, 0.003); }
+    baslat: function () { var t = ctx.currentTime; ton(sfx, 523, t, 0.1, 'square', 0.08, 0.003); ton(sfx, 784, t + 0.08, 0.2, 'square', 0.08, 0.003); },
+    // EK-11: kapı zili (ding-dong), kısa selam sesi, merdiven basamakları
+    kapiZili: function () {
+      var t = ctx.currentTime;
+      [[659, 0], [523, 0.38], [659, 1.0], [523, 1.38]].forEach(function (a) { ton(sfx, a[0], t + a[1], 0.5, 'sine', 0.2, 0.004); ton(sfx, a[0] * 2, t + a[1], 0.3, 'sine', 0.06, 0.004); });
+    },
+    selamSes: function () {
+      var t = ctx.currentTime;
+      [[190, 0], [230, 0.16], [200, 0.32], [260, 0.5]].forEach(function (a) { ton(sfx, a[0], t + a[1], 0.15, 'sawtooth', 0.07, 0.01, a[0] * 1.08); });
+    },
+    merdiven: function () {
+      var t = ctx.currentTime;
+      for (var i = 0; i < 6; i++) vurus(sfx, t + i * 0.07, 0.06, 0.11, 'lowpass', 520 + i * 40, 220, 0.7);
+    }
   };
 
   var horT = 0, uhuT = 3, sonAsama = null;
@@ -301,7 +314,9 @@ window.G = window.G || {};
     G.dinle('adim', function (e) {
       if (!hazir()) return;
       if (e.kim === 'komsu') {
-        var d = G.d, dist = d && d.oyuncu ? Math.hypot(e.x - d.oyuncu.x, e.y - d.oyuncu.y) : 0;
+        var d = G.d;
+        if (e.kat != null && d && d.oyuncu && G.harita && G.harita.katOf && e.kat !== G.harita.katOf(d.oyuncu.y)) return;   // başka kattaki adım duyulmaz
+        var dist = d && d.oyuncu ? Math.hypot(e.x - d.oyuncu.x, e.y - d.oyuncu.y) : 0;
         if (dist > 520) return;
         var v = 0.5 * Math.pow(1 - dist / 520, 1.6);
         if (v > 0.01) efekt('adimKomsu', v);
@@ -310,6 +325,9 @@ window.G = window.G || {};
       }
     });
     G.dinle('kapi_ac', function () { efekt('kapiAc'); });
+    G.dinle('misafir_zil', function () { efekt('kapiZili'); setTimeout(function () { efekt('selamSes'); }, 2300); });
+    G.dinle('kat_gecti', function () { efekt('merdiven'); });
+    G.dinle('kestirme_basladi', function () { efekt('esneme'); setTimeout(function () { efekt('horlama', 0.12); }, 900); });
     G.dinle('kapi_kapa', function () { efekt('kapiKapa'); });
     G.dinle('kapi_kilitli', function () { efekt('kilitli'); });
     G.dinle('kilit_acildi', function () { efekt('kilitAcildi'); });

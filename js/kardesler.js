@@ -68,6 +68,13 @@ G.kardesler = (function () {
   }
   function gokceAktif(d) { d = d || G.d; return !!(d && d.gokce && (d.gokce.durum === 'geliyor' || d.gokce.durum === 'bagiriyor' || d.gokce.durum === 'kaciyor')); }
 
+  // Yol noktalarını kırp; portal noktasına varılınca öbür kata geç (Gökçe/Giray/Atılay de merdiven kullanır)
+  function yolKirp(ent, yol) {
+    while (yol.length > 1 && Math.hypot(yol[0].x - ent.x, yol[0].y - ent.y) < 10) {
+      var w = yol.shift();
+      if (w.portal && H().portalGec) H().portalGec(ent, w);
+    }
+  }
   function katiMi(x, y) { var h = H(); return h.kati ? !!h.kati(Math.floor(x / T), Math.floor(y / T)) : false; }
 
   function takipEt(dt, d) {
@@ -108,7 +115,7 @@ G.kardesler = (function () {
     var h = H(), tx = Math.floor(x / T), ty = Math.floor(y / T);
     if (tx < 1 || ty < 1 || tx >= (h.W || 44) - 1 || ty >= (h.H || 32) - 1) return false;
     if (h.kati && h.kati(tx, ty)) return false;
-    if (h.zemin) { var z = h.zemin(tx, ty); if (z === 'duvar' || z === 'cit' || z === 'dis') return false; }
+    if (h.zemin) { var z = h.zemin(tx, ty); if (z === 'duvar' || z === 'cit' || z === 'dis' || z === 'bosluk') return false; }
     return true;
   }
   function nobetci(d) { return (d.komsu && d.komsu.kim) || 'baba'; }
@@ -138,6 +145,7 @@ G.kardesler = (function () {
     for (var n = 0; n < 70; n++) {
       var x = (1 + Math.random() * (W - 2)) * T, y = (1 + Math.random() * (Hh - 2)) * T;
       if (!yurunur(x, y)) continue;
+      if (h.katOf && h.katOf(y) !== h.katOf(g.y)) continue;   // kendi katında kaç
       var sk = Math.hypot(x - o.x, y - o.y) * 1.0 + (k ? Math.hypot(x - k.x, y - k.y) * 0.5 : 0) - Math.hypot(x - g.x, y - g.y) * 0.1;
       if (Math.hypot(x - g.x, y - g.y) < 250) continue;
       aday.push({ x: x, y: y, sk: sk });
@@ -158,13 +166,15 @@ G.kardesler = (function () {
     if (d.gokce && d.gokce.durum === 'eveDonuyor') return false;
     if ((d.gokceHakki || 0) <= 0) { G.mesaj('Gökçe bu oyunda zaten yardım etti!', 2.5); return false; }
     if (!d.oyuncu) return false;
+    // Gökçe'nin yardım türü bölüm verisinden: 'oyala' (varsayılan) | 'kat' (arayıcıyı öbür kata çeker) | ileride 'bebek'
+    if (G.gokceYardim && G.gokceYardim() === 'kat' && H().katSayisi > 1) return gokceKatCagir(d);
     d.gokceHakki--;
     var bas = belirmeNoktasi(d), o = d.oyuncu, kim = nobetci(d);
     var eski = d.gokce;
     if (!d.efektler) d.efektler = [];
     if (eski) efektEkle(d, 'parilti', eski.x, eski.y, 1.0);
     d.gokce = { ad: 'Gökçe', x: bas.x, y: bas.y, yon: Math.atan2(o.y - bas.y, o.x - bas.x), hareket: false, adimFaz: 0, durum: 'bagiriyor', konusma: null, renk: '#9b4fd6', hedef: { x: bas.x, y: bas.y } };
-    gokceT = 0; kacYol = null; kacYolT = 0; donT = 2.5;
+    gokceMod = 'oyala'; gokceT = 0; kacYol = null; kacYolT = 0; donT = 2.5;
     var seslen = { baba: 'Babaaa', anne: 'Anneee', dede: 'Dedeee', ebe: 'Ebeee', ogretmen: 'Ayşe Öğretmenim', mudur: 'Müdür Beyyy' };
     var kisiAd = G.kisiAdi ? G.kisiAdi(kim) : (kim === 'anne' ? 'Anne' : 'Baba');
     d.gokce.konusma = { metin: (seslen[kim] || kisiAd) + '! Burdayım, yakala beni!', sure: 1.1 };
@@ -175,6 +185,46 @@ G.kardesler = (function () {
     G.olay('gokce_cagrildi', { x: bas.x, y: bas.y });
     return true;
   }
+
+  // ---- Gökçe 'kat' yardımı (EK-11): arayıcıyı merdivenle öbür kata çeker, ~20 sn orada tutar ----
+  function katHedefSec(g, hedefKat) {
+    var h = H(), en = null, ed = -1, dp = h.devriye || [], i, yl;
+    var pk = h.portallar && h.portallar[0] ? (hedefKat === 0 ? h.portallar[0].a : h.portallar[0].b) : null;
+    for (i = 0; i < dp.length; i++) {
+      if (h.katOf(dp[i].y) !== hedefKat) continue;
+      var dd = pk ? Math.hypot(dp[i].x - pk.x, dp[i].y - pk.y) : 0;
+      if (dd < 120) continue;
+      yl = null; try { yl = h.yolBul(g.x, g.y, dp[i].x, dp[i].y, true); } catch (e) { yl = null; }
+      if (!yl || !yl.length) continue;
+      if (dd > ed) { ed = dd; en = { x: dp[i].x, y: dp[i].y, yol: yl }; }
+    }
+    return en;
+  }
+  function gokceKatCagir(d) {
+    var h = H(), k = d.komsu, o = d.oyuncu;
+    var av = (k && !k.pasif && k.durum !== 'yakaladi') ? k : null;
+    if (!av) { G.mesaj('Arayıcı şu an uyuyor, Gökçe\'yi şimdi çağırma!', 2.6); return false; }
+    var kat = h.katOf(av.y), hk = 1 - kat, bas = null, n, b = (G.bolumBilgi && G.bolumBilgi()) || {};
+    for (n = 0; n < 60 && !bas; n++) {
+      var a = Math.random() * Math.PI * 2, m = 110 + Math.random() * 70, x = av.x + Math.cos(a) * m, y = av.y + Math.sin(a) * m;
+      if (yurunur(x, y) && h.katOf(y) === kat) bas = { x: x, y: y };
+    }
+    if (!bas) bas = { x: av.x + 100, y: av.y };
+    var tg = katHedefSec({ x: bas.x, y: bas.y }, hk);
+    if (!tg) { G.mesaj('Gökçe şimdi yardım edemiyor!', 2); return false; }
+    d.gokceHakki--;
+    if (!d.efektler) d.efektler = [];
+    if (d.gokce) efektEkle(d, 'parilti', d.gokce.x, d.gokce.y, 1.0);
+    d.gokce = { ad: 'Gökçe', x: bas.x, y: bas.y, yon: Math.atan2(av.y - bas.y, av.x - bas.x), hareket: false, adimFaz: 0, durum: 'bagiriyor', konusma: null, renk: '#9b4fd6', hedef: { x: bas.x, y: bas.y }, katHedef: tg, katVardi: false };
+    gokceMod = 'kat'; gokceT = 0; kacYol = null; kacYolT = 0; donT = 2.5;
+    d.gokce.konusma = { metin: hk === 1 ? 'Dede, yukarı gel, sana bir şey göstereceğim!' : 'Dede, aşağı gel, sana bir şey göstereceğim!', sure: 2.6 };
+    efektEkle(d, 'parilti', bas.x, bas.y, 1.0);
+    G.mesaj('Gökçe dikkat dağıtıyor! ' + (G.kisiAdi ? G.kisiAdi(av.kim) : 'Arayıcı') + ' öbür kata gidiyor!', 3);
+    if (G.komsu && G.komsu.pesindenGit) G.komsu.pesindenGit(d.gokce, (b.gokceKatSure || 20) + 4, 'kat');
+    G.olay('gokce_cagrildi', { x: bas.x, y: bas.y, tur: 'kat' });
+    return true;
+  }
+  var gokceMod = 'oyala';
 
   function git(g, hx, hy, hiz, dt) {
     var dx = hx - g.x, dy = hy - g.y, m = Math.hypot(dx, dy);
@@ -217,7 +267,7 @@ G.kardesler = (function () {
         }
       }
       if (donusYol && donusYol.length) {
-        while (donusYol.length > 1 && Math.hypot(donusYol[0].x - g.x, donusYol[0].y - g.y) < 10) donusYol.shift();
+        yolKirp(g, donusYol);
         var sn = donusYol.length === 1;
         if (git(g, donusYol[0].x, donusYol[0].y, KAC_HIZ, dt) && sn) donusYol = null;
       }
@@ -242,19 +292,25 @@ G.kardesler = (function () {
         g.konusma = { metin: KAC[(Math.random() * KAC.length) | 0], sure: 1.6 };
       }
     } else if (g.durum === 'kaciyor') {
-      if (gokceT >= 10) { gokceBitir(d); return; }
+      if (gokceT >= (gokceMod === 'kat' ? 24 : 10)) { gokceBitir(d); return; }
       kacYolT -= dt;
-      if (!kacYol || !kacYol.length) {
+      if (gokceMod === 'kat' && g.katVardi) { g.hareket = false; if (o) g.yon = Math.atan2(o.y - g.y, o.x - g.x); }
+      else if (!kacYol || !kacYol.length) {
         if (kacYolT <= 0) {
-          var uh = uzakHedef(d, g);
           kacYolT = 0.4;
-          if (uh) kacYol = uh.yol ? uh.yol.slice() : [{ x: uh.x, y: uh.y }];
+          if (gokceMod === 'kat') {
+            var ky = null; try { ky = H().yolBul(g.x, g.y, g.katHedef.x, g.katHedef.y, true); } catch (e0) { ky = null; }
+            kacYol = ky && ky.length ? ky.slice() : [{ x: g.katHedef.x, y: g.katHedef.y }];
+          } else {
+            var uh = uzakHedef(d, g);
+            if (uh) kacYol = uh.yol ? uh.yol.slice() : [{ x: uh.x, y: uh.y }];
+          }
         }
       }
       if (kacYol && kacYol.length) {
-        while (kacYol.length > 1 && Math.hypot(kacYol[0].x - g.x, kacYol[0].y - g.y) < 10) kacYol.shift();
+        yolKirp(g, kacYol);
         var son = kacYol.length === 1;
-        if (git(g, kacYol[0].x, kacYol[0].y, KAC_HIZ, dt) && son) kacYol = null;
+        if (git(g, kacYol[0].x, kacYol[0].y, KAC_HIZ, dt) && son) { kacYol = null; if (gokceMod === 'kat') g.katVardi = true; }
       } else g.hareket = false;
       donT -= dt;
       if (donT <= 0 && !g.konusma) {
@@ -287,9 +343,10 @@ G.kardesler = (function () {
     for (var n = 0; n < 80; n++) {
       var tx = 1 + ((Math.random() * ((h.W || 44) - 2)) | 0), ty = 1 + ((Math.random() * ((h.H || 32) - 2)) | 0);
       var z = h.zemin(tx, ty);
-      if (z === 'duvar' || z === 'cit' || z === 'dis') continue;
+      if (z === 'duvar' || z === 'cit' || z === 'dis' || z === 'bosluk') continue;
       if (h.kati && h.kati(tx, ty)) continue;
       var x = (tx + 0.5) * T, y = (ty + 0.5) * T;
+      if (h.katOf && h.katOf(y) !== h.katOf(o.y)) continue;   // ışınlanma aynı kat içinde
       if (k && Math.hypot(k.x - x, k.y - y) < 500) continue;
       if (Math.hypot(o.x - x, o.y - y) < 300) continue;
       if (!izinliOda(h.odaAdi(x, y))) continue;
@@ -354,6 +411,7 @@ G.kardesler = (function () {
   var KAZA = {
     scooter: { bin: 'Scootera binicem!', sur: 'Vınnnn!', surMsg: 'bindi!', kosMsg: ' scootera koştu!', dus: ' scooterdan düştü!', sureS: 1.0 },
     salincak: { bin: 'Salıncağa binicem!', sur: 'Uçuyorummm!', surMsg: 'salıncakta uçuyor!', kosMsg: ' salıncağa koştu!', dus: ' salıncaktan düştü!', sureS: 2.8 },
+    trabzan: { bin: 'Trabzandan kayacağım!', sur: 'Vııııt! Kayıyorum!', surMsg: 'trabzandan kayıyor!', kosMsg: ' trabzana koştu!', dus: ' trabzandan düştü!', sureS: 2.4 },
     pota: { bin: 'Smaç yapacağım!', sur: 'Tırmanıyorum, smaç!', surMsg: 'potaya tırmanıyor!', kosMsg: ' potaya koştu!', dus: ' potadan düştü!', sureS: 2.8 }
   };
   function kazaTur() { var y = H().kazaYeri; return (y && y.tur) || 'scooter'; }
@@ -365,6 +423,7 @@ G.kardesler = (function () {
     for (i = 0; i < es.length; i++) {
       e = es[i];
       if (tur === 'salincak' && e.tur === 'salincak') return { x: (e.tx + e.w / 2) * T, y: (e.ty + e.h / 2) * T, yon: Math.PI / 2 };
+      if (tur === 'trabzan' && e.tur === 'trabzan' && Math.abs((e.tx + 0.5) * T - h.kazaYeri.x) < T * 3 && Math.abs((e.ty + 0.5) * T - h.kazaYeri.y) < T * 3 && h.katOf(e.ty * T) === h.katOf(h.kazaYeri.y)) return { x: (e.tx + 0.5) * T, y: (e.ty + 0.25) * T, ex: (e.tx + 0.5) * T, ey: (e.ty + e.h - 0.25) * T, yon: Math.PI / 2 };
       if (tur === 'pota' && e.tur === 'pota' && Math.abs((e.tx + 0.5) * T - h.kazaYeri.x) < T * 2.2 && Math.abs((e.ty + 0.5) * T - h.kazaYeri.y) < T * 2.2) return { x: (e.tx + 0.5 - 0.42) * T, y: (e.ty + 0.5) * T, yon: 0 };
     }
     return { x: h.kazaYeri.x, y: h.kazaYeri.y, yon: 0 };
@@ -419,6 +478,7 @@ G.kardesler = (function () {
     K.asama = 'dustu'; kd.kaza = 'dustu'; kd.hareket = false; K.kalan = 25; kd.salincakAci = 0; kd.tirmanY = 0;
     if (tur === 'salincak') { kd.x = h.kazaYeri.x + 20; kd.y = h.kazaYeri.y + 6; }
     else if (tur === 'pota') { kd.x = h.kazaYeri.x + 6; kd.y = h.kazaYeri.y + 10; }
+    else if (tur === 'trabzan') { kd.x = (K.ex != null ? K.ex : h.kazaYeri.x) - 26; kd.y = (K.ey != null ? K.ey : h.kazaYeri.y) + 30; kd.trabzanY = null; kd.kayma = 0; }
     K.x = kd.x; K.y = kd.y;
     if (d.scooter) { d.scooter.devrik = true; d.scooter.x = kd.x + 20; d.scooter.y = kd.y; }
     kazaGurT = 0; kazaKonT = 0; kazaDinleSira = 0;
@@ -447,14 +507,14 @@ G.kardesler = (function () {
     if (K.asama === 'kosuyor') {
       var h = H();
       if (kazaYol && kazaYol.length) {
-        while (kazaYol.length > 1 && Math.hypot(kazaYol[0].x - kd.x, kazaYol[0].y - kd.y) < 10) kazaYol.shift();
+        yolKirp(kd, kazaYol);
         var son = kazaYol.length === 1;
         if (git(kd, kazaYol[0].x, kazaYol[0].y, 170, dt) && son) kazaYol = null;
       }
       if (!kazaYol || K.t > 25) {
         if (K.t > 25 || !kazaYol) { kd.x = h.kazaYeri.x; kd.y = h.kazaYeri.y; }
         K.asama = 'suruyor'; kd.kaza = 'suruyor'; kazaSurT = 0;
-        if (tur !== 'scooter') { var kn = kazaNokta(tur); kd.yon = kn.yon; kd.x = kn.x; kd.y = kn.y; K.bx = kn.x; K.by = kn.y; }
+        if (tur !== 'scooter') { var kn = kazaNokta(tur); kd.yon = kn.yon; kd.x = kn.x; kd.y = kn.y; K.bx = kn.x; K.by = kn.y; K.ex = kn.ex; K.ey = kn.ey; }
         kd.konusma = { metin: KAZA[tur].sur, sure: 2 };
       }
     } else if (K.asama === 'suruyor') {
@@ -477,6 +537,12 @@ G.kardesler = (function () {
         kd.hareket = false; K.x = kd.x; K.y = kd.y;
         if (kazaSurT > 1.3 && !kd.konusma) kd.konusma = { metin: 'Daha yüksee, daha yüksee!', sure: 1.4 };
         if (kazaSurT >= KAZA.salincak.sureS) kazaDustu(d, kd);
+      } else if (tur === 'trabzan') {
+        var kf = Math.min(1, kazaSurT / KAZA.trabzan.sureS), ke = kf * kf * (3 - 2 * kf);
+        kd.kayma = ke; kd.trabzanY = 0.55 + 1.8 * (1 - ke);
+        kd.x = K.bx; kd.y = K.by + (K.ey - K.by) * ke; kd.hareket = false; K.x = kd.x; K.y = kd.y;
+        if (kazaSurT > 0.6 && !kd.konusma) kd.konusma = { metin: 'Wiiiiii!', sure: 1.3 };
+        if (kazaSurT >= KAZA.trabzan.sureS) kazaDustu(d, kd);
       } else {
         kd.tirmanY = Math.min(1.5, kazaSurT * 0.62);
         kd.x = K.bx; kd.y = K.by; kd.hareket = false; K.x = kd.x; K.y = kd.y;
@@ -560,7 +626,7 @@ G.kardesler = (function () {
     G.olay('kacamak', { asama: 'bitti' });
   }
   function yolBoyunca(kd, yol, hiz, dt) {
-    while (yol.length > 1 && Math.hypot(yol[0].x - kd.x, yol[0].y - kd.y) < 10) yol.shift();
+    yolKirp(kd, yol);
     return git(kd, yol[0].x, yol[0].y, hiz, dt) && yol.length === 1;
   }
   // Park / okul anons sistemi: hoparlörler parkta / okulda yankılanır (kedi sese koşar, nöbetçiler merak eder)

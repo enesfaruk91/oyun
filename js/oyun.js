@@ -10,7 +10,7 @@ window.G = window.G || {};
   };
   G.mesafe = function (a, b) { return Math.hypot(a.x - b.x, a.y - b.y); };
   G.gurultuYap = function (x, y, guc, kaynak) {
-    if (G.d) G.d.sesler.push({ x: x, y: y, guc: guc, omur: 0.6, kaynak: kaynak || 'oyuncu' });
+    if (G.d) G.d.sesler.push({ x: x, y: y, guc: guc, omur: 0.6, kaynak: kaynak || 'oyuncu', kat: (G.harita && G.harita.katOf) ? G.harita.katOf(y) : 0 });
   };
   G.mesaj = function (metin, sure) { if (G.d) G.d.mesaj = { metin: metin, sure: sure || 2.5 }; };
 
@@ -46,6 +46,7 @@ window.G = window.G || {};
     guvenli('komsu.init', function () { G.komsu.init(G.d, false); });
     guvenli('kedi.init', function () { if (G.kedi) G.kedi.init(G.d, false); });
     uyananInit();
+    guvenli('misafir.init', function () { if (G.misafir) G.misafir.init(G.d, false); });
     kameraTakip(1);
   }
   function uyananInit() {
@@ -111,6 +112,7 @@ window.G = window.G || {};
     guvenli('komsu.init', function () { G.komsu.init(G.d, true); });
     guvenli('kedi.init', function () { if (G.kedi) G.kedi.init(G.d, true); });
     uyananInit();
+    guvenli('misafir.init', function () { if (G.misafir) G.misafir.init(G.d, true); });
     G.d.sesler = []; G.d.firlatilanlar = [];
     kameraTakip(1);
     G.d.mod = 'oyun'; G.girdi.temizle();
@@ -195,6 +197,7 @@ window.G = window.G || {};
       if (d.mod === 'oyun') guvenli('komsu', function () { G.komsu.guncelle(dt, d); });
       if (d.mod === 'oyun' && G.kedi) guvenli('kedi', function () { G.kedi.guncelle(dt, d); });
       if (d.mod === 'oyun' && G.uyanan && G.uyanan.guncelle) guvenli('uyanan', function () { G.uyanan.guncelle(dt, d); });
+      if (d.mod === 'oyun' && G.misafir) guvenli('misafir', function () { G.misafir.guncelle(dt, d); });
       for (var i = d.sesler.length - 1; i >= 0; i--) {
         d.sesler[i].omur -= dt;
         if (d.sesler[i].omur <= 0) d.sesler.splice(i, 1);

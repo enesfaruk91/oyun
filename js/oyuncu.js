@@ -57,8 +57,9 @@ G.oyuncu = (function () {
       hareket: false, kosuyor: false, egik: false,
       saklandi: null,
       envanter: envanteriKoru ? onceki.slice() : [],
-      adimFaz: 0, yakindaki: null, gorunurluk: 1, aramaIl: 0, aramaN: null
+      adimFaz: 0, yakindaki: null, gorunurluk: 1, aramaIl: 0, aramaN: null, katGecis: null
     };
+    d.katPerde = 0;
     d.firlatilanlar = [];
     vx = 0; vy = 0; adimT = 0; kayitKonum = null;
   }
@@ -121,6 +122,11 @@ G.oyuncu = (function () {
         metin = 'Kilitli (' + esyaAdi(enYakin.kilit).toLowerCase() + ')';
       } else metin = 'Kapıyı aç';
       return { tur: 'kapi', metin: metin, x: (enYakin.tx + 0.5) * T, y: (enYakin.ty + 0.5) * T, nesne: enYakin };
+    }
+    // 2a) merdiven (portal karosu): E ile öbür kata geç
+    if (h.portalYakin && h.katSayisi > 1) {
+      var pt = h.portalYakin(o.x, o.y, ETKI_MESAFE + 6);
+      if (pt) return { tur: 'merdiven', metin: pt.kat === 0 ? 'Merdivenden yukarı çık' : 'Merdivenden aşağı in', x: pt.x, y: pt.y, nesne: pt };
     }
     // 2b) arama noktası (anahtar saklı olabilir): E tuşunu basılı tut
     var an = h.aramaNoktalari || [];
@@ -246,7 +252,32 @@ G.oyuncu = (function () {
     else if (h.tur === 'esya') esyaAl(o, h.nesne);
     else if (h.tur === 'kapi') kapiEtkilesim(o, h.nesne);
     else if (h.tur === 'saklan') saklan(o, h.nesne);
+    else if (h.tur === 'merdiven') katBaslat(o, d, h.nesne);
     else if (h.tur === 'ara') G.mesaj(G.dokunmatik ? 'Aramak için el düğmesini basılı tut!' : 'Aramak için E tuşunu basılı tut!', 1.6);
+  }
+
+  // ---- kat geçişi (GENEL: çok katlı bölümler): karartma 0,28 sn, ışınlanma, açılma 0,3 sn. Girdi kilitli ----
+  function katBaslat(o, d, pt) {
+    if (o.katGecis || !pt || !pt.hedef) return;
+    o.katGecis = { t: 0, hedef: { x: pt.hedef.x, y: pt.hedef.y }, git: false };
+    G.gurultuYap(pt.x, pt.y, 110, 'kapi');
+    G.olay('kat_basladi', { x: pt.x, y: pt.y });
+  }
+  function katGuncelle(o, d, dt) {
+    var g = o.katGecis;
+    if (!g) { if (d.katPerde > 0) d.katPerde = Math.max(0, d.katPerde - dt * 4); return false; }
+    g.t += dt;
+    if (!g.git && g.t >= 0.28) {
+      g.git = true;
+      var x0 = o.x, y0 = o.y, h = H();
+      o.x = g.hedef.x; o.y = g.hedef.y; vx = 0; vy = 0; o.yon = Math.PI / 2;
+      var kat = h.katOf ? h.katOf(o.y) : 0;
+      G.olay('kat_gecti', { x0: x0, y0: y0, x1: o.x, y1: o.y, kat: kat });
+      if (G.mesaj && h.katAdi) G.mesaj(h.katAdi(kat), 1.6);
+    }
+    d.katPerde = g.git ? Math.max(0, 1 - (g.t - 0.28) / 0.3) : Math.min(1, g.t / 0.28);
+    if (g.git && g.t >= 0.58) { o.katGecis = null; d.katPerde = 0; }
+    return true;
   }
 
   // ---- arama (EK-8): E basılı tutulunca ilerleme halkası dolar ----
@@ -402,6 +433,12 @@ G.oyuncu = (function () {
     var gi = G.girdi || {};
     var h = H();
 
+    if (katGuncelle(o, d, dt)) {
+      if (G.girdi && G.girdi.al) { G.girdi.al('etkilesim'); G.girdi.al('firlat'); }
+      o.hareket = false; o.kosuyor = false; o.yakindaki = null; vx = 0; vy = 0;
+      firlatilanlariGuncelle(dt, d);
+      return;
+    }
     if (G.girdi && G.girdi.al && G.girdi.al('etkilesim')) etkilesim(o, d);
     if (G.girdi && G.girdi.al && G.girdi.al('firlat')) firlat(o, d);
 
@@ -484,7 +521,7 @@ G.oyuncu = (function () {
     }
     return en;
   }
-  function ipucuDurum(d) {
+  function ipucuDurum0(d) {
     var o = d && d.oyuncu, h = H();
     if (!o) return null;
     var env = o.envanter || [], gr = h.aramaGruplari || {}, i;
@@ -514,6 +551,24 @@ G.oyuncu = (function () {
     if (asama >= 2 && gercek) hedef = gercek;
     else for (i = 0; i < nok.length; i++) { var m = Math.hypot(nok[i].x - o.x, nok[i].y - o.y); if (m < em) { em = m; hedef = nok[i]; } }
     return { mod: 'ara', anahtar: tur, renk: RENK[tur], noktalar: nok, bosOlanlar: bos, hedef: { x: hedef.x, y: hedef.y, nokta: hedef }, asama: asama };
+  }
+
+  // Hedef öbür kattaysa ok merdiveni gösterir: hedef = yoldaki ilk portal karosu, merdiven:true, asil = gerçek hedef.
+  var ipC = { z: -1, x: 0, y: 0, v: null };
+  function ipucuDurum(d) {
+    var o = d && d.oyuncu, h = H();
+    if (!o) return null;
+    if (ipC.z === d.zaman && ipC.x === o.x && ipC.y === o.y) return ipC.v;
+    var r = ipucuDurum0(d);
+    if (r && r.hedef && h.katSayisi > 1 && h.katOf(r.hedef.y) !== h.katOf(o.y) && h.yolBul) {
+      var yl = null;
+      try { yl = h.yolBul(o.x, o.y, r.hedef.x, r.hedef.y, true); } catch (e) { yl = null; }
+      var wp = null;
+      if (yl) for (var i = 0; i < yl.length; i++) if (yl[i].portal) { wp = yl[i]; break; }
+      if (wp) { r.asil = r.hedef; r.hedef = { x: wp.x, y: wp.y, merdiven: true, asil: r.asil }; r.merdiven = true; }
+    }
+    ipC = { z: d.zaman, x: o.x, y: o.y, v: r };
+    return r;
   }
 
   return { init: init, guncelle: guncelle, esyaAdi: esyaAdi, ipucuDurum: ipucuDurum };

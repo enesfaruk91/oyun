@@ -117,10 +117,11 @@
     var PL = R.plan, LV = R.level, stripeA = LV === 3 ? 1 : (LV === 4 ? 0.8 : 0.45);
     var colors = { cim: '#8fad66', yol: '#6c7880', kaldirim: '#c7c5b4', parke: '#c39a6d', eski_parke: '#aa825c',
       hali: '#d69a82', kilim: '#a6675b', fayans: '#c8d9d2', bodrum: '#817b76', kiler: '#a89273', toprak: '#b59a71',
-      cakil: '#c8bca2', saha: '#4a82b4', duvar: '#d7c5a6', cit: '#91aa6d', dis: '#76965e' };
+      cakil: '#c8bca2', saha: '#4a82b4', duvar: '#d7c5a6', cit: '#91aa6d', dis: '#76965e', bosluk: '#241f2d' };
     for (y = 0; y < h.H; y++) for (x = 0; x < h.W; x++) {
       z = h.zemin(x, y); px = x * 48; py = y * 48;
       var base = colors[z] || colors.parke;
+      if (z === 'bosluk' && h.katSayisi > 1 && y < h.katSinirY / 48 + 3) base = colors.dis;   // zemin katın altındaki boşluk çimen gibi görünür
       if (PL && PL.plaza[y * h.W + x]) base = '#e3d4b1';
       else if (PL && PL.kaucuk[y * h.W + x]) base = '#c65f4b';
       c.fillStyle = shade(base, Math.round((hs(x, y, 3) - 0.5) * 10));
@@ -432,7 +433,7 @@
     var W = h.W, H = h.H, x, y, P = { W: W, H: H }, i;
     P.dusuk = !!(G.ayarlar && G.ayarlar.deger && G.ayarlar.deger.grafik === 'dusuk');
     P.dis = new Uint8Array(W * H); P.occ = new Uint8Array(W * H); P.ban = new Uint8Array(W * H); P.kul = new Uint8Array(W * H);
-    function acik(a, b) { return a >= 0 && b >= 0 && a < W && b < H && h.zemin(a, b) !== 'duvar' && !h.kapiAt(a, b); }
+    function acik(a, b) { return a >= 0 && b >= 0 && a < W && b < H && h.zemin(a, b) !== 'duvar' && h.zemin(a, b) !== 'bosluk' && !h.kapiAt(a, b); }
     var st = [];
     for (y = 0; y < H; y++) for (x = 0; x < W; x++) if ((x === 0 || y === 0 || x === W - 1 || y === H - 1) && acik(x, y)) { P.dis[y * W + x] = 1; st.push(x, y); }
     while (st.length) {
@@ -1080,7 +1081,16 @@
     bekci:  { skin: '#e8b58c', hair: '#8f9096', iris: '#3b2a1f', es: 1.08 },
     bekci2: { skin: '#efbf98', hair: '#2a2522', iris: '#3b2a1f', es: 1.12 },
     ogretmen: { skin: '#f3c8a4', hair: '#6b4328', iris: '#5a3a22', es: 1.2, lash: 1, lip: '#d4607a', glasses: 1 },
-    mudur:  { skin: '#efc29c', hair: '#b9bcc2', iris: '#3d4f66', es: 1.08 }
+    mudur:  { skin: '#efc29c', hair: '#b9bcc2', iris: '#3d4f66', es: 1.08 },
+    // Aile ve misafirler.
+    anneanne: { skin: '#f3c9a7', hair: '#e9e9ee', brow: '#c4c4cc', iris: '#6a4a30', es: 1.12, glasses: 1, gcol: '#c9803a', lash: 1, lip: '#d4707a' },
+    dedehassi: { skin: '#eebd96', hair: '#c9ccd2', brow: '#b4b7be', iris: '#3d5a6b', es: 1.08, mustache: '#c9ccd2' },
+    abariebe: { skin: '#f2c8a6', hair: '#8c4fd0', brow: '#9a9aa2', iris: '#4a3a2a', es: 1.12, lash: 1, lip: '#cf6a86' },
+    recepdede: { skin: '#e9b78f', hair: '#d9dce1', brow: '#d9dce1', iris: '#3a3f4a', es: 1.05, glasses: 1, gcol: '#2c2c34' },
+    teyze:  { skin: '#f6cba8', hair: '#4a2a22', iris: '#4a2f1d', es: 1.26, lash: 1, lip: '#d63a5e' },
+    enistee: { skin: '#e8b48a', hair: '#2b211c', iris: '#3b2a1f', es: 1.14, stubble: '#c0916c' },
+    avmgorevli: { skin: '#f3c6a0', hair: '#4a3022', iris: '#4a3a22', es: 1.22, lash: 1, lip: '#d4607a' },
+    beren:  { skin: '#ffdcc4', hair: '#7a4e34', iris: '#5a3a22', es: 1.5, open: 1, lash: 1 }
   };
   function face(g, kind) {
     var L = LOOK[kind] || LOOK.baba, sk = L.skin, es = L.es, eyes = [];
@@ -1098,18 +1108,18 @@
       if (L.lash) caps(an, 0.009, 0.03, s * 0.068 * es, 0.062 * es, 0.03, '#3a2a2a', [0, 0, s * -0.6]);
       // Kaş: hafif kavisli, iç uç yukarıda (asla çatık değil).
       var ba = anchor(g, s * 0.128, 0.115, 0.0);
-      var bk = /dede|ebe/.test(kind) ? L.hair : (L.hair === '#e6e6ea' ? '#bbb' : L.hair);
-      var thick = /dede|bekci$/.test(kind) ? 0.017 : 0.0115;
+      var bk = L.brow || (/dede|ebe/.test(kind) ? L.hair : (L.hair === '#e6e6ea' ? '#bbb' : L.hair));
+      var thick = /dede|bekci$/.test(kind) ? 0.017 : (kind === 'beren' ? 0.008 : 0.0115);
       caps(ba, thick, 0.06, 0, 0.005, 0.005, bk, [0, 0, PI / 2 - s * 0.14]);
       // Yanak.
       var ca = anchor(g, s * 0.205, -0.1, -0.006);
       ball(ca, 0.1, 0.06, 0.04, 0, 0, 0, '#ff9ea6');
       if (L.glasses) {
         var ga = anchor(g, s * 0.128, -0.025, 0.045);
-        tor(ga, 0.082, 0.0095, TAU, 0, 0, 0, '#6b5a4c');
+        tor(ga, 0.082, kind === 'recepdede' ? 0.0135 : 0.0095, TAU, 0, 0, 0, L.gcol || '#6b5a4c');
       }
     });
-    if (L.glasses) { var gb = anchor(g, 0, -0.01, 0.05); caps(gb, 0.007, 0.05, 0, 0.0, 0, '#6b5a4c', [0, 0, PI / 2]); }
+    if (L.glasses) { var gb = anchor(g, 0, -0.01, 0.05); caps(gb, 0.007, 0.05, 0, 0.0, 0, L.gcol || '#6b5a4c', [0, 0, PI / 2]); }
     // Burun.
     var na = anchor(g, 0, -0.07, 0.0); ball(na, 0.06, 0.05, 0.05, 0, 0, 0.003, sk).material = material(L.nose || shade(sk, -14));
     // Ağız: kavisli gülümseme (+ çocuklarda açık, neşeli ağız).
@@ -1131,6 +1141,19 @@
         });
       });
     }
+    if (L.mustache) {   // gür, hafif sarkık bıyık
+      var mu2 = anchor(g, 0, -0.103, 0.012);
+      [-1, 1].forEach(function (s) {
+        caps(mu2, 0.026, 0.07, s * 0.062, 0.0, 0.0, L.mustache, [0, 0, PI / 2 + s * 0.38]);
+        ball(mu2, 0.05, 0.04, 0.04, s * 0.115, -0.022, -0.004, L.mustache);
+      });
+    }
+    if (L.stubble) {    // kısa sakal: çene-yanak hattında tek, yumuşak, deriden biraz koyu gölge
+      var sb = L.stubble;
+      [[0, -0.24, 0.36, 0.1], [-0.19, -0.19, 0.13, 0.19], [0.19, -0.19, 0.13, 0.19], [-0.1, -0.225, 0.2, 0.11], [0.1, -0.225, 0.2, 0.11]].forEach(function (b) {
+        var ba2 = anchor(g, b[0], b[1], -0.002); ball(ba2, b[2], b[3], 0.04, 0, 0, 0, sb);
+      });
+    }
     if (kind === 'baba' || kind === 'dede' || kind === 'mudur' || /bekci/.test(kind)) {
       var mc = kind === 'mudur' ? '#aeb1b8' : kind === 'dede' ? '#f0f0f2' : (kind === 'bekci' ? '#9a9a9f' : L.hair), big = kind === 'bekci' ? 1.25 : 1;
       var mu = anchor(g, 0, -0.1, 0.012);
@@ -1140,7 +1163,7 @@
   function hair(g, kind, L) {
     var c = L.hair, o;
     // Ortak: kafanın üstünü ve arkasını saran hacimli taban.
-    if (kind !== 'mudur') ball(g, 0.76, 0.7, 0.72, 0, 0.065, -0.05, c);
+    if (kind !== 'mudur' && kind !== 'beren') ball(g, 0.76, 0.7, 0.72, 0, 0.065, -0.05, c);
     function fr(w, h, d, x, y, z, col) { return ball(g, w, h, d, x, y, z, col || c); }
     if (kind === 'ogeday') {
       fr(0.24, 0.14, 0.13, -0.12, 0.255, 0.2); fr(0.22, 0.13, 0.13, 0.1, 0.265, 0.19); fr(0.16, 0.11, 0.11, 0.26, 0.2, 0.14);
@@ -1191,6 +1214,76 @@
       fr(0.1, 0.16, 0.3, -0.33, 0.0, -0.02); fr(0.1, 0.16, 0.3, 0.33, 0.0, -0.02);
     } else if (kind === 'bekci2') {
       fr(0.1, 0.18, 0.3, -0.33, 0.0, -0.02); fr(0.1, 0.18, 0.3, 0.33, 0.0, -0.02); fr(0.36, 0.14, 0.14, 0.03, 0.26, 0.16);
+    } else if (kind === 'anneanne') {
+      // Gri-beyaz kısa kıvırcık saç: kafayı saran küçük bukleler.
+      var q, qa;
+      for (q = 0; q < 14; q++) { qa = q / 14 * TAU; fr(0.17, 0.16, 0.17, Math.cos(qa) * 0.31, 0.15 + hs(q, 1, 5) * 0.12, Math.sin(qa) * 0.29 - 0.04); }
+      for (q = 0; q < 7; q++) { qa = q / 7 * TAU; fr(0.16, 0.16, 0.16, Math.cos(qa) * 0.17, 0.37, Math.sin(qa) * 0.15 - 0.03); }
+      fr(0.16, 0.15, 0.15, 0, 0.43, -0.02);
+      fr(0.17, 0.14, 0.14, -0.15, 0.27, 0.19); fr(0.18, 0.14, 0.14, 0.0, 0.29, 0.21); fr(0.17, 0.14, 0.14, 0.15, 0.27, 0.19);
+      fr(0.15, 0.15, 0.15, -0.29, 0.17, 0.15); fr(0.15, 0.15, 0.15, 0.29, 0.17, 0.15);
+      [-1, 1].forEach(function (s) { fr(0.15, 0.16, 0.17, s * 0.33, -0.04, 0.0); fr(0.14, 0.14, 0.15, s * 0.31, -0.15, -0.02); });
+      fr(0.2, 0.2, 0.2, 0, 0.28, -0.3);
+    } else if (kind === 'abariebe') {
+      // Mor desenli başörtüsü: alında bant, yanlardan çeneye iniş, çene altı düğüm.
+      var bnd = '#5f2fa8', nokta = ['#ffffff', '#ffd36a'], q2, tt, pp;
+      fr(0.5, 0.11, 0.17, 0, 0.215, 0.185, bnd);
+      [-1, 1].forEach(function (s) { fr(0.15, 0.46, 0.27, s * 0.335, -0.09, 0.02); fr(0.15, 0.1, 0.25, s * 0.32, -0.3, 0.0, bnd); });
+      fr(0.66, 0.26, 0.46, 0, -0.29, -0.06);
+      fr(0.18, 0.15, 0.14, 0.2, -0.29, 0.15, bnd);
+      for (q2 = 0; q2 < 22; q2++) {
+        pp = 0.2 + hs(q2, 3, 7) * 0.85; tt = hs(q2, 5, 7) * TAU;
+        var dx = 0.4 * Math.sin(pp) * Math.cos(tt), dy = 0.065 + 0.37 * Math.cos(pp), dz = -0.05 + 0.38 * Math.sin(pp) * Math.sin(tt);
+        if (dz > 0.05 && dy < 0.24) continue;
+        fr(0.05, 0.05, 0.05, dx, dy, dz, nokta[q2 % 2]);
+      }
+      for (q2 = -2; q2 <= 2; q2++) fr(0.045, 0.045, 0.04, q2 * 0.085, 0.215 - Math.abs(q2) * 0.012, 0.268 - Math.abs(q2) * 0.03, nokta[q2 & 1 ? 1 : 0]);
+      // Alnın kenarından görünen gri saç telleri.
+      fr(0.2, 0.05, 0.05, 0, 0.17, 0.27, '#d0d0d6');
+    } else if (kind === 'dedehassi') {
+      [-1, 1].forEach(function (s) { fr(0.06, 0.2, 0.3, s * 0.332, 0.04, -0.17); });   // kafaya yapışık ince kır şerit, kulaklar açıkta
+      // Kasket: yassı tweed kubbe + öne uzanan siperlik + düğme.
+      var kc = '#9a7752';
+      fr(0.8, 0.3, 0.76, 0, 0.27, -0.02, kc); fr(0.5, 0.15, 0.5, 0.0, 0.37, 0.0, '#ab8a62');
+      var sp = fr(0.46, 0.05, 0.32, 0, 0.2, 0.31, '#6b4f33'); sp.rotation.x = 0.22;
+      fr(0.78, 0.07, 0.72, 0, 0.2, -0.02, '#6b4f33'); fr(0.06, 0.05, 0.06, 0, 0.48, 0.0, '#6b4f33');
+    } else if (kind === 'recepdede') {
+      fr(0.12, 0.26, 0.4, -0.33, 0.0, -0.03); fr(0.12, 0.26, 0.4, 0.33, 0.0, -0.03);
+      // Bordo yün bere: kıvrık krem kenar, çizgiler, ponpon.
+      var bb = '#a82f3d', bc = '#f1e6d2';
+      fr(0.8, 0.5, 0.78, 0, 0.3, -0.02, bb);
+      tor(g, 0.3, 0.055, TAU, 0, 0.19, -0.015, bc, [PI / 2, 0, 0], [1.02, 0.97, 1.3]);
+      tor(g, 0.28, 0.02, TAU, 0, 0.34, -0.02, bc, [PI / 2, 0, 0], [1.0, 0.96, 1.0]);
+      tor(g, 0.2, 0.02, TAU, 0, 0.46, -0.02, bc, [PI / 2, 0, 0], [1.0, 0.96, 1.0]);
+      fr(0.17, 0.16, 0.17, 0.02, 0.57, -0.02, bc);
+    } else if (kind === 'teyze') {
+      // Uzun, dalgalı saç + yanda büyük çiçek toka.
+      fr(0.8, 1.0, 0.4, 0, -0.22, -0.24); fr(0.6, 0.5, 0.32, 0, -0.7, -0.24); fr(0.4, 0.3, 0.24, 0, -0.93, -0.22);
+      [-1, 1].forEach(function (s) {
+        fr(0.15, 0.46, 0.2, s * 0.345, -0.1, 0.0); fr(0.14, 0.3, 0.17, s * 0.36, -0.42, -0.04); fr(0.12, 0.2, 0.14, s * 0.33, -0.62, -0.08);
+      });
+      fr(0.4, 0.17, 0.17, -0.07, 0.235, 0.2); fr(0.16, 0.28, 0.13, 0.27, 0.12, 0.19); fr(0.18, 0.15, 0.12, -0.28, 0.2, 0.15);
+      for (var fp = 0; fp < 6; fp++) { var fa = fp / 6 * TAU; fr(0.08, 0.08, 0.04, -0.26 + Math.cos(fa) * 0.06, 0.2 + Math.sin(fa) * 0.06, 0.225, '#ffb23d'); }
+      fr(0.06, 0.06, 0.05, -0.26, 0.2, 0.235, '#d63a5e');
+    } else if (kind === 'enistee') {
+      // Kısa, dağınık koyu saç.
+      fr(0.4, 0.14, 0.2, 0.0, 0.31, 0.12); fr(0.2, 0.13, 0.18, -0.2, 0.27, 0.14); fr(0.18, 0.14, 0.17, 0.2, 0.29, 0.12);
+      fr(0.1, 0.16, 0.1, -0.325, 0.0, 0.05); fr(0.1, 0.16, 0.1, 0.325, 0.0, 0.05);
+      fr(0.4, 0.1, 0.12, 0.04, 0.23, 0.2); fr(0.26, 0.12, 0.2, 0.04, 0.4, 0.02);
+    } else if (kind === 'avmgorevli') {
+      // Kurumsal şapka + arkadan çıkan kısa at kuyruğu.
+      fr(0.1, 0.18, 0.28, -0.335, 0.03, -0.03); fr(0.1, 0.18, 0.28, 0.335, 0.03, -0.03);
+      fr(0.78, 0.46, 0.72, 0, 0.27, -0.03, '#6a45c9'); fr(0.5, 0.14, 0.46, 0, 0.45, -0.03, '#7a56d8');
+      var sp2 = fr(0.46, 0.06, 0.34, 0, 0.17, 0.32, '#4b2fa0'); sp2.rotation.x = 0.2;
+      fr(0.76, 0.06, 0.7, 0, 0.19, -0.03, '#4b2fa0');
+      fr(0.13, 0.13, 0.04, 0, 0.3, 0.335, '#ffc531'); fr(0.07, 0.07, 0.03, 0, 0.3, 0.355, '#6a45c9');
+      fr(0.1, 0.08, 0.08, 0, 0.1, -0.38, '#ffc531'); fr(0.17, 0.18, 0.16, 0, 0.02, -0.43); fr(0.14, 0.2, 0.13, 0.0, -0.14, -0.43);
+    } else if (kind === 'beren') {
+      // Tek tutam saç + pembe toka (fiyonk).
+      fr(0.13, 0.15, 0.12, 0.0, 0.35, 0.1); fr(0.11, 0.12, 0.1, 0.035, 0.42, 0.1); fr(0.09, 0.09, 0.08, 0.075, 0.46, 0.09);
+      fr(0.46, 0.1, 0.1, 0, 0.29, 0.0);
+      var tk = '#ff7fb0';
+      fr(0.12, 0.09, 0.06, -0.075, 0.37, 0.2, tk); fr(0.12, 0.09, 0.06, 0.085, 0.37, 0.2, tk); fr(0.06, 0.06, 0.06, 0.005, 0.37, 0.215, '#ffd0e2');
     }
   }
   var OUT = {
@@ -1205,7 +1298,14 @@
     bekci:  { top: '#2f4a7a', pant: '#233658', shoe: '#1d1610', sole: '#0f0b08', sock: '#233658', leg: 'long', tw: 1.28, tz: 1.12 },
     bekci2: { top: '#355483', pant: '#27395f', shoe: '#1d1610', sole: '#0f0b08', sock: '#27395f', leg: 'long', tw: 1.15, tz: 1.05 },
     ogretmen: { top: '#e9a23b', pant: '#5f6f8f', shoe: '#7a4a38', sole: '#e9ddc8', sock: '#5f6f8f', leg: 'dress', tw: 1.06, tz: 1 },
-    mudur:  { top: '#27355a', pant: '#222c48', shoe: '#17141a', sole: '#0c0a0d', sock: '#222c48', leg: 'long', tw: 1.26, tz: 1.12 }
+    mudur:  { top: '#27355a', pant: '#222c48', shoe: '#17141a', sole: '#0c0a0d', sock: '#222c48', leg: 'long', tw: 1.26, tz: 1.12 },
+    anneanne: { top: '#e8864f', pant: '#a85a46', shoe: '#7a4a38', sole: '#e9ddc8', sock: '#f3c9a7', leg: 'dress', tw: 1.12, tz: 1.06 },
+    dedehassi: { top: '#c4473a', pant: '#3a4f73', shoe: '#4a3426', sole: '#d9ceb8', sock: '#3a4f73', leg: 'long', tw: 1.2, tz: 1.1 },
+    abariebe: { top: '#6dbf9a', pant: '#2f4f7f', shoe: '#3b2c34', sole: '#d8c6d2', sock: '#2f4f7f', leg: 'dress', tw: 1.14, tz: 1.08 },
+    recepdede: { top: '#5b6f86', pant: '#3f4552', shoe: '#2c2622', sole: '#d9ceb8', sock: '#3f4552', leg: 'long', tw: 1.24, tz: 1.14 },
+    teyze:  { top: '#ffb23d', pant: '#8a5ad0', shoe: '#ff7aa8', sole: '#ffffff', sock: '#8a5ad0', leg: 'long', tw: 1.0, tz: 1 },
+    enistee: { top: '#2f7bd0', pant: '#383d4a', shoe: '#f2f4f8', sole: '#ff6a3d', sock: '#383d4a', leg: 'long', tw: 1.2, tz: 1.08 },
+    avmgorevli: { top: '#f4f6fa', pant: '#34384a', shoe: '#f2f4f8', sole: '#6a45c9', sock: '#34384a', leg: 'long', tw: 1.06, tz: 1.02 }
   };
   // Telefon performansı: bir animasyon grubunun statik mesh'lerini tek BufferGeometry'de (vertex color) birleştirir.
   // animSet içindeki gruplar (kol, bacak, kafa, göz...) ayrı kalır; göz grupları kafaya taşınır (blink ölçeği korunur).
@@ -1262,12 +1362,98 @@
     var set = new Set(gruplar);
     gruplar.forEach(function (g) { birlestirGrup(g, set); });
   }
+  // Beren: emekleyen bebek. Gövde kalça eksenli (body pivotu kalçada), kafa büyük; arayüz diğer rig'lerle aynı.
+  function rigBeren() {
+    var kind = 'beren', root = new T.Group(), body = new T.Group(), head = new T.Group();
+    root.add(body); head.position.set(0, 0.4, 0); body.add(head); head.scale.setScalar(0.72);
+    var L = LOOK.beren, skin = L.skin, TU = '#8fdcc0', TU2 = '#ffffff', PK = '#ff8fb8';
+    var arms = [], legs = [], knees = [], elbows = [];
+    [-1, 1].forEach(function (s) {
+      var leg = new T.Group(); leg.position.set(s * 0.068, 0, 0); body.add(leg);
+      caps(leg, 0.056, 0.05, 0, -0.085, 0, TU);
+      var knee = new T.Group(); knee.position.set(0, -0.17, 0); leg.add(knee);
+      ball(knee, 0.11, 0.11, 0.11, 0, 0, 0, TU);
+      caps(knee, 0.05, 0.04, 0, -0.06, 0, TU);
+      ball(knee, 0.12, 0.09, 0.15, 0, -0.125, 0.03, TU2); ball(knee, 0.08, 0.06, 0.06, 0, -0.135, 0.09, PK);
+      legs.push(leg); knees.push(knee);
+    });
+    ball(body, 0.3, 0.24, 0.29, 0, 0.02, -0.02, TU);   // bez/tulum kalçası
+    caps(body, 0.118, 0.08, 0, 0.16, 0, TU, null, [1.05, 1, 0.98]);
+    tor(body, 0.1, 0.022, TAU, 0, 0.3, 0, TU2, [PI / 2, 0, 0]);
+    [[-0.055, 0.2], [0.06, 0.12], [-0.02, 0.08], [0.07, 0.25], [-0.07, 0.11]].forEach(function (p2) { ball(body, 0.03, 0.03, 0.02, p2[0], p2[1], 0.118, TU2); });
+    ball(body, 0.05, 0.04, 0.02, -0.02, 0.255, 0.121, PK); ball(body, 0.05, 0.04, 0.02, 0.02, 0.255, 0.121, PK);
+    [-1, 1].forEach(function (s) {
+      var arm = new T.Group(); arm.position.set(s * 0.15, 0.26, 0); body.add(arm);
+      ball(arm, 0.11, 0.11, 0.11, 0, 0, 0, TU);
+      caps(arm, 0.042, 0.04, 0, -0.055, 0, TU);
+      var elbow = new T.Group(); elbow.position.set(0, -0.1, 0); arm.add(elbow);
+      caps(elbow, 0.04, 0.025, 0, -0.04, 0, TU);
+      tor(elbow, 0.04, 0.014, TAU, 0, -0.07, 0, PK, [PI / 2, 0, 0]);
+      ball(elbow, 0.1, 0.095, 0.1, 0, -0.105, 0, skin);
+      arms.push(arm); elbows.push(elbow);
+    });
+    face(head, kind);
+    var cap = new T.Group(); head.add(cap); cap.visible = false;
+    rigBirlestir([body, head, cap].concat(arms, elbows, legs, knees, head.userData.eyes));
+    var mats = []; root.traverse(function (o) { if (o.isMesh) { o.material = o.material.clone(); mats.push(o.material); } });
+    var shadow = new T.Mesh(new T.CircleGeometry(0.3, 18), new T.MeshBasicMaterial({ color: '#152015', transparent: true, opacity: 0.16, depthWrite: false }));
+    shadow.rotation.x = -PI / 2; shadow.position.y = 0.015; shadow.renderOrder = 1;
+    R.actors.add(root); R.actors.add(shadow);
+    return { root: root, body: body, head: head, arms: arms, legs: legs, knees: knees, elbows: elbows,
+      cap: cap, mats: mats, kind: kind, rotY: null, px: null, pz: null, hiz: 0, seed: hs(kind.length, kind.charCodeAt(0), 3) * 9, shadow: shadow };
+  }
+  // Beren pozları: emekleme (gövde yatay, çapraz el-diz), oturma (ent.oturuyor), kucakta (ent.kucakta).
+  function berenPoz(a, ent, d, sc) {
+    var t = d.zaman, i, s, b = a.body, h = a.head;
+    var sit = !!ent.oturuyor, tut = !!ent.kucakta && !sit;
+    var em = (ent.hareket && !sit && !tut) ? Math.max(0.75, Math.min(1.2, a.hiz / 1.3)) : 0;
+    var ph = (ent.adimFaz != null ? ent.adimFaz : t * 10) * 0.8;
+    a.root.rotation.z = 0;
+    if (sit) {
+      var c = 0.5 + 0.5 * Math.sin(t * 5 + a.seed);
+      a.root.position.y = 0.04;
+      b.position.y = 0.11; b.rotation.set(0.1 + Math.sin(t * 1.6) * 0.02, 0, Math.sin(t * 1.1) * 0.03);
+      h.position.set(0, 0.4, 0); h.rotation.set(-0.06 + Math.sin(t * 1.3) * 0.04, Math.sin(t * 0.8 + a.seed) * 0.3, Math.sin(t * 1.2) * 0.06);
+      for (i = 0; i < 2; i++) {
+        s = i ? 1 : -1;
+        a.legs[i].rotation.set(-1.42, 0, s * 0.34); a.knees[i].rotation.x = 0.3 + (i ? 0.1 : 0);
+        a.arms[i].rotation.set(-1.0 - c * 0.15, 0, s * (0.55 - 0.85 * c)); a.elbows[i].rotation.x = -0.95;
+      }
+    } else if (tut) {
+      a.root.position.y = 0.04 + (ent.kucakY != null ? ent.kucakY : 0.5) * sc;
+      b.position.y = 0.1; b.rotation.set(-0.14, 0, Math.sin(t * 1.4) * 0.03);
+      h.position.set(0, 0.4, 0); h.rotation.set(0.05, Math.sin(t * 0.9 + a.seed) * 0.35, Math.sin(t * 1.2) * 0.06);
+      for (i = 0; i < 2; i++) {
+        s = i ? 1 : -1;
+        a.legs[i].rotation.set(-0.55 + Math.sin(t * 3 + i * 2) * 0.12, 0, s * 0.36); a.knees[i].rotation.x = 0.55;
+        a.arms[i].rotation.set(-2.25, 0, s * 0.32 + (i ? Math.sin(t * 6) * 0.22 : 0)); a.elbows[i].rotation.x = -0.45;
+      }
+    } else {
+      var th = 1.5, sa, sl;
+      a.root.position.y = 0.04;
+      b.position.y = 0.23 + Math.abs(Math.sin(ph)) * 0.012 * em + Math.sin(t * 1.9) * 0.004;
+      b.rotation.set(th + Math.sin(ph * 2) * 0.03 * em, Math.sin(ph) * 0.05 * em, Math.sin(ph) * 0.07 * em);
+      h.position.set(0, 0.38, -0.2);
+      h.rotation.set(-th - 0.1 + Math.sin(t * 1.3) * 0.05, Math.sin(t * 0.8 + a.seed) * 0.2 * (1 - em * 0.8), -Math.sin(ph) * 0.05 * em);
+      for (i = 0; i < 2; i++) {
+        s = i ? 1 : -1;
+        sa = Math.sin(ph + i * PI); sl = Math.sin(ph + (1 - i) * PI);
+        a.arms[i].rotation.set(-th - 0.5 * sa * em, 0, s * 0.1);
+        a.elbows[i].rotation.x = -0.08 - Math.max(0, sa) * 0.6 * em;
+        a.legs[i].rotation.set(-th - 0.35 * sl * em, 0, s * 0.1);
+        a.knees[i].rotation.x = 1.57 + 0.35 * sl * em + Math.max(0, sl) * 0.5 * em;
+      }
+    }
+    a.head.scale.setScalar(0.72);
+  }
   function rig(kind) {
+    if (kind === 'beren') return rigBeren();
+    if (AYI[kind]) return ayiRig(kind);
     var root = new T.Group(), body = new T.Group(), head = new T.Group();
     root.add(body); head.position.y = 1.11; body.add(head);
     var L = LOOK[kind] || LOOK.baba, O = OUT[kind] || OUT.baba, skin = L.skin, col = O.top;
     var arms = [], legs = [], knees = [], elbows = [];
-    var isDress = O.leg === 'dress', big = O.tw > 1.1, longS = kind === 'ebe' || kind === 'ogretmen';
+    var isDress = O.leg === 'dress', big = O.tw > 1.1, longS = kind === 'ebe' || kind === 'ogretmen' || kind === 'abariebe';
     // Bacaklar: kısa tombul uyluk + incik + yuvarlak burunlu ayakkabı.
     [-1, 1].forEach(function (s) {
       var leg = new T.Group(); leg.position.set(s * 0.1, 0.42, 0); body.add(leg);
@@ -1285,21 +1471,22 @@
     // Gövde: yumuşak kapsül.
     caps(body, 0.185, 0.12, 0, 0.62, 0, col, null, [O.tw, 1, 0.9 * O.tz]);
     // Kollar: omuz topu + üst kol + ön kol + yuvarlak el.
-    var sleeve = (kind === 'dede') ? '#f3ead6' : (kind === 'ebe' ? '#f3e8d4' : col);
+    var sleeve = (kind === 'dede') ? '#f3ead6' : (kind === 'ebe' ? '#f3e8d4' : (kind === 'dedehassi' ? '#b53f34' : col));
     if (kind === 'ogeday' || kind === 'atilay' || kind === 'giray' || kind === 'gokce') sleeve = col;
     [-1, 1].forEach(function (s) {
       var arm = new T.Group(); arm.position.set(s * (0.2 * O.tw + 0.045), 0.8, 0); body.add(arm);
       ball(arm, 0.125, 0.125, 0.125, 0, 0, 0, sleeve);
       caps(arm, 0.057, 0.07, 0, -0.1, 0, sleeve);
       var elbow = new T.Group(); elbow.position.set(0, -0.19, 0); arm.add(elbow);
-      var kisa = (kind === 'ogeday' || kind === 'atilay' || kind === 'giray' || kind === 'gokce' || kind === 'anne');
+      var kisa = (kind === 'ogeday' || kind === 'atilay' || kind === 'giray' || kind === 'gokce' || kind === 'anne' || kind === 'teyze' || kind === 'enistee' || kind === 'avmgorevli');
       caps(elbow, 0.052, 0.06, 0, -0.075, 0, kisa ? skin : sleeve);
       ball(elbow, 0.13, 0.125, 0.125, 0, -0.17, 0, skin);
       arms.push(arm); elbows.push(elbow);
     });
     face(head, kind);
     // Yaka (çene altında).
-    var yaka = ({ ogeday: '#ffffff', atilay: '#ffffff', giray: '#ffffff', gokce: '#ffffff', baba: '#f6f1e4', anne: '#fff4ec', dede: '#f3ead6', ebe: '#9b4f6d', ogretmen: '#fff4e6', mudur: '#f6f6fa', bekci: '#e8ecf4', bekci2: '#e8ecf4' })[kind];
+    var yaka = ({ ogeday: '#ffffff', atilay: '#ffffff', giray: '#ffffff', gokce: '#ffffff', baba: '#f6f1e4', anne: '#fff4ec', dede: '#f3ead6', ebe: '#9b4f6d', ogretmen: '#fff4e6', mudur: '#f6f6fa', bekci: '#e8ecf4', bekci2: '#e8ecf4',
+      anneanne: '#fff1da', dedehassi: '#a53a30', abariebe: '#f5eefc', recepdede: '#cfe4f2', teyze: '#27b5a4', enistee: '#1e62b0', avmgorevli: '#e8ecf4' })[kind];
     tor(body, 0.15 * O.tw, 0.032, TAU, 0, 0.79, 0.0, yaka, [PI / 2, 0, 0], [1, 1, 1.0]);
     // Etek / elbise.
     if (kind === 'anne') {
@@ -1335,6 +1522,85 @@
       ball(body, 0.1, 0.07, 0.03, -0.14, 0.65, 0.2, '#1c2747'); caps(body, 0.008, 0.05, -0.14, 0.7, 0.21, '#e8c24a');
       star(body, 0.06, 0.13, 0.72, 0.2, '#f2c14e');
       caps(body, 0.2, 0.0, 0, 0.42, 0, '#141d30', [0, 0, 0], [O.tw, 0.3, 1.1]);
+    }
+    if (kind === 'anneanne') {
+      // Sıcak mercan hırka (önü açık, içinde krem bluz), çiçek desenleri, uzun etek, inci kolye.
+      cyl(body, 0.2, 0.34, 0.34, 0, 0.42, 0, O.pant); tor(body, 0.335, 0.03, TAU, 0, 0.26, 0, '#d98a62', [PI / 2, 0, 0]);
+      ball(body, 0.15, 0.36, 0.05, 0, 0.66, 0.172, '#fff1da');
+      [-1, 1].forEach(function (s) { caps(body, 0.02, 0.3, s * 0.085, 0.64, 0.19, '#c96a3a', [0, 0, s * 0.06]); });
+      [[-0.1, 0.7], [0.12, 0.62], [-0.13, 0.54], [0.08, 0.76], [-0.02, 0.5]].forEach(function (f, i) {
+        for (var pt = 0; pt < 5; pt++) { var pa2 = pt / 5 * TAU; ball(body, 0.032, 0.032, 0.02, f[0] + Math.cos(pa2) * 0.026, f[1] + Math.sin(pa2) * 0.026, 0.186 + (i & 1) * 0.002, i % 2 ? '#fff4c8' : '#ffd0de'); }
+        ball(body, 0.026, 0.026, 0.025, f[0], f[1], 0.192, i % 2 ? '#e0903a' : '#ffc83d');
+      });
+      for (var pr = 0; pr < 9; pr++) { var pra = (pr / 8 - 0.5) * 2.2; ball(body, 0.03, 0.03, 0.03, Math.sin(pra) * 0.13, 0.775 - Math.cos(pra) * 0.05 + 0.03, 0.12 + Math.cos(pra) * 0.06, '#fffaf0'); }
+      for (var cb = 0; cb < 2; cb++) tor(elbows[cb], 0.07, 0.014, TAU, 0, -0.04, 0, '#fff1da', [PI / 2, 0, 0]);
+    }
+    if (kind === 'abariebe') {
+      // Nane yeşili hırka, yer süpüren uzun etek, kemer, kol askılı el çantası.
+      cyl(body, 0.21, 0.37, 0.58, 0, 0.3, 0, O.pant); tor(body, 0.37, 0.03, TAU, 0, 0.03, 0, '#8fa9d6', [PI / 2, 0, 0]);
+      tor(body, 0.3, 0.018, TAU, 0, 0.2, 0, '#223a63', [PI / 2, 0, 0]);
+      ball(body, 0.16, 0.34, 0.05, 0, 0.67, 0.172, '#f5eefc');
+      [-1, 1].forEach(function (s) { caps(body, 0.022, 0.28, s * 0.09, 0.64, 0.19, '#3f9a77', [0, 0, s * 0.06]); });
+      for (var ab = 0; ab < 3; ab++) ball(body, 0.032, 0.032, 0.03, 0.1, 0.72 - ab * 0.1, 0.192, '#f2c14e');
+      ball(body, 0.05, 0.05, 0.04, 0, 0.455, 0.21, '#f2c14e');
+      var bag = new T.Group(); bag.position.set(0.0, -0.3, 0.02); elbows[1].add(bag);
+      ball(bag, 0.19, 0.15, 0.09, 0, 0, 0, '#a8432f'); ball(bag, 0.2, 0.05, 0.095, 0, 0.055, 0, '#8a3424');
+      tor(bag, 0.06, 0.011, PI, 0, 0.06, 0, '#5a2417'); ball(bag, 0.035, 0.035, 0.03, 0, 0.02, 0.05, '#f2c14e');
+    }
+    if (kind === 'dedehassi') {
+      // Ekose gömlek (kırmızı-koyu kırmızı-krem çizgiler) + kahverengi triko yelek.
+      var ek = '#7a1f1f', ek2 = '#f1e2c4';
+      [0.46, 0.56, 0.66, 0.76].forEach(function (yy, i) { tor(body, 0.19 * O.tw + 0.004, 0.011, TAU, 0, yy, 0, i & 1 ? ek2 : ek, [PI / 2, 0, 0], [1, 0.9 * O.tz / O.tw * 1.0, 1]); });
+      [-0.14, 0.0, 0.14].forEach(function (xx) { caps(body, 0.01, 0.28, xx * O.tw, 0.62, 0.17 + 0.03 * (1 - Math.abs(xx) * 3), ek, null); });
+      [-1, 1].forEach(function (s) {
+        caps(body, 0.06, 0.18, s * 0.19 * O.tw, 0.6, 0.07, '#6b5440', [0, 0, 0], [1.1, 1, 1.5]);
+        [0.0, -0.1].forEach(function (yy, i) { tor(arms[s > 0 ? 1 : 0], 0.058, 0.01, TAU, 0, -0.1 + yy * 0.7, 0, i ? ek2 : ek, [PI / 2, 0, 0]); });
+      });
+      caps(body, 0.2, 0.1, 0, 0.62, -0.06, '#6b5440', null, [1.3, 1.1, 0.9]);
+      for (var dh = 0; dh < 3; dh++) ball(body, 0.035, 0.035, 0.03, 0.06, 0.74 - dh * 0.1, 0.225, '#2c2118');
+      caps(body, 0.2, 0.0, 0, 0.42, 0, '#2c2118', [0, 0, 0], [1.24, 0.3, 1.12]); ball(body, 0.07, 0.045, 0.03, 0, 0.42, 0.235, '#d9ceb8');
+    }
+    if (kind === 'recepdede') {
+      // Gri-mavi ceket (yaka, düğme, cep) + açık mavi gömlek + kravat.
+      ball(body, 0.13, 0.34, 0.05, 0, 0.68, 0.172, '#cfe4f2'); caps(body, 0.022, 0.2, 0, 0.66, 0.2, '#7a2f3a', null);
+      [-1, 1].forEach(function (s) {
+        box(body, 0.045, 0.24, 0.02, s * 0.075 * O.tw, 0.69, 0.19, '#7a8ea6', [0, 0, s * -0.16]);
+        box(body, 0.1, 0.012, 0.02, s * 0.13 * O.tw, 0.47, 0.205, '#46566a');
+      });
+      caps(body, 0.008, 0.3, 0, 0.58, 0.196, '#3a4658', null);
+      for (var rb = 0; rb < 2; rb++) ball(body, 0.035, 0.035, 0.03, 0.025, 0.58 - rb * 0.1, 0.2, '#d9ceb8');
+      caps(body, 0.2, 0.0, 0, 0.4, 0, '#5b6f86', [0, 0, 0], [1.24, 0.6, 1.1]);
+      for (var rc = 0; rc < 2; rc++) tor(elbows[rc], 0.055, 0.012, TAU, 0, -0.1, 0, '#cfe4f2', [PI / 2, 0, 0]);
+    }
+    if (kind === 'teyze') {
+      // Canlı sarı üst, mor pantolon, turkuaz eşarp, kemer, bilezik.
+      tor(body, 0.15, 0.04, TAU, 0, 0.78, 0.0, '#27b5a4', [PI / 2, 0, 0]);
+      caps(body, 0.034, 0.16, 0.1, 0.66, 0.15, '#27b5a4', [0, 0, 0.1]); ball(body, 0.09, 0.07, 0.06, 0.1, 0.72, 0.15, '#27b5a4');
+      for (var ty = 0; ty < 4; ty++) ball(body, 0.05, 0.05, 0.02, -0.1 + (ty % 2) * 0.1 + ty * 0.025, 0.55 + ty * 0.04, 0.178, '#ffffff');
+      for (var tb = 0; tb < 2; tb++) tor(elbows[tb], 0.056, 0.012, TAU, 0, -0.1, 0, tb ? '#e24a78' : '#27b5a4', [PI / 2, 0, 0]);
+    }
+    if (kind === 'enistee') {
+      // Spor tişört: beyaz şerit, yaka bandı, numara; eşofman şeritleri.
+      tor(body, 0.19 * O.tw + 0.004, 0.02, TAU, 0, 0.62, 0, '#ffffff', [PI / 2, 0, 0], [1, 0.88 * O.tz / O.tw * 1.0, 1]);
+      tor(body, 0.19 * O.tw + 0.004, 0.012, TAU, 0, 0.55, 0, '#ff6a3d', [PI / 2, 0, 0], [1, 0.88 * O.tz / O.tw * 1.0, 1]);
+      ball(body, 0.1, 0.1, 0.03, -0.11, 0.7, 0.19, '#ffffff'); star(body, 0.065, -0.11, 0.7, 0.2, '#ff6a3d');
+      for (var es = 0; es < 2; es++) { tor(arms[es], 0.058, 0.014, TAU, 0, -0.14, 0, '#ffffff', [PI / 2, 0, 0]); }
+      [-1, 1].forEach(function (s) {
+        caps(legs[s > 0 ? 1 : 0], 0.014, 0.18, s * 0.071, -0.11, 0.0, '#ffffff', null);
+        caps(knees[s > 0 ? 1 : 0], 0.013, 0.07, s * 0.062, -0.065, 0.0, '#ffffff', null);
+      });
+    }
+    if (kind === 'avmgorevli') {
+      // Mor kurumsal yelek (sarı şeritli), yaka kartı + boyun ipi, khaki belden kemer.
+      [-1, 1].forEach(function (s) {
+        caps(body, 0.09, 0.22, s * 0.125 * O.tw, 0.6, 0.075, '#6a45c9', [0, 0, 0], [1.1, 1, 1.4]);
+        caps(body, 0.016, 0.3, s * 0.045 * O.tw, 0.66, 0.2, '#ffc531', [0, 0, s * -0.04]);
+      });
+      caps(body, 0.2, 0.1, 0, 0.62, -0.06, '#6a45c9', null, [1.2, 1.1, 0.9]);
+      [-1, 1].forEach(function (s) { caps(body, 0.009, 0.16, s * 0.07, 0.72, 0.19, '#ffc531', [0, 0, s * -0.3]); });
+      box(body, 0.1, 0.13, 0.02, 0.0, 0.58, 0.215, '#ffffff'); box(body, 0.1, 0.035, 0.022, 0.0, 0.631, 0.216, '#6a45c9'); ball(body, 0.032, 0.032, 0.02, -0.025, 0.575, 0.228, '#f3c6a0');
+      box(body, 0.045, 0.012, 0.022, 0.02, 0.56, 0.228, '#9a9fb0'); box(body, 0.045, 0.012, 0.022, 0.02, 0.535, 0.228, '#9a9fb0');
+      caps(body, 0.2, 0.0, 0, 0.42, 0, '#1f2233', [0, 0, 0], [1.1, 0.3, 1.04]); ball(body, 0.06, 0.04, 0.03, 0, 0.42, 0.2, '#c0c4d0');
     }
     if (kind === 'ogeday') {
       // Sırt çantası + askılar.
@@ -1402,6 +1668,41 @@
     var ph = (t * 0.28 + seed * 0.37) % 1, k = ph > 0.93 ? Math.max(0.12, Math.abs(ph - 0.965) / 0.035) : 1;
     for (var i = 0; i < e.length; i++) e[i].scale.y = k;
   }
+  // Çatal: eldeki yemek aleti (yalnız yemek yenirken görünür; tek mesh).
+  function catalKur(a) {
+    var u = new T.Group();
+    caps(u, 0.011, 0.09, 0, -0.23, 0, '#d9dde4'); box(u, 0.055, 0.03, 0.012, 0, -0.31, 0, '#d9dde4');
+    for (var k = -1; k <= 1; k++) box(u, 0.009, 0.045, 0.012, k * 0.02, -0.345, 0, '#d9dde4');
+    ball(u, 0.07, 0.06, 0.06, 0, -0.35, 0.02, '#e8a24a');
+    birlestirGrup(u, new Set());
+    u.traverse(function (o) { if (o.isMesh) a.mats.push(o.material); });
+    a.elbows[1].add(u); return u;
+  }
+  // Yetişkin oturma pozu; ent.yemek ise sağ elde çatalla yemek yeme (ele alma, ağza götürme, çiğneme).
+  function oturYe(a, ent, d, sc) {
+    var t = d.zaman, i, s;
+    a.root.position.y = 0.04 - (ent.oturY != null ? ent.oturY : 0.2 * sc);   // varsayılan: ayaklar zeminde, kalça ~0,22 birim yüksekte (oturak üstü ~0,14*ölçek)
+    a.body.position.y = 0; a.body.rotation.x = 0.07;
+    for (i = 0; i < 2; i++) {
+      s = i ? 1 : -1;
+      a.legs[i].rotation.set(-1.5, 0, s * 0.07); a.knees[i].rotation.x = 1.5;
+      a.arms[i].rotation.set(-0.85, 0, s * 0.06); a.elbows[i].rotation.x = -0.55;
+    }
+    a.head.rotation.x = 0.04;
+    var f = a.catal;
+    if (ent.yemek) {
+      if (!f) f = a.catal = catalKur(a);
+      f.visible = true;
+      var u = (t * 0.42 + a.seed * 0.13) % 1, lift;
+      function yum(x) { x = Math.max(0, Math.min(1, x)); return x * x * (3 - 2 * x); }
+      lift = u < 0.3 ? 0 : (u < 0.55 ? yum((u - 0.3) / 0.25) : (u < 0.8 ? 1 : 1 - yum((u - 0.8) / 0.2)));
+      a.arms[1].rotation.set(-0.95 - 0.35 * lift, 0, -0.04); a.elbows[1].rotation.x = -0.42 - 1.4 * lift;
+      a.arms[0].rotation.set(-0.8, 0, -0.1 * 0); a.elbows[0].rotation.x = -0.75;
+      var chew = lift >= 1 ? Math.sin(t * 15) * 0.035 : 0;
+      a.head.rotation.x = 0.16 * (1 - lift) + chew; a.head.position.y = 1.11 - (1 - lift) * 0.012;
+      a.body.rotation.x = 0.07 + 0.08 * (1 - lift);
+    } else if (f) f.visible = false;
+  }
   function updateRig(id, ent, kind, d, opts) {
     opts = opts || {};
     var a = R.rigs[id];
@@ -1410,7 +1711,7 @@
       a = R.rigs[id] = rig(kind);
     }
     if (!ent || ent.gizli) { a.root.visible = false; a.shadow.visible = false; return; }
-    var sc = opts.scale || 1, hidden = !!ent.saklandi;
+    var sc = (opts.scale || 1) * (AYI_OLCEK[kind] || 1), hidden = !!ent.saklandi;
     a.root.visible = !hidden; a.shadow.visible = !hidden;
     a.root.scale.setScalar(sc);
     a.root.position.set(ent.x / U, 0.04, ent.y / U);
@@ -1436,14 +1737,25 @@
     a.head.position.y = 1.11 + Math.abs(walk) * 0.012 * amp;
     blink(a.head, d.zaman, a.seed);
     a.body.rotation.set(0, 0, 0);
-    // Varsayılan yürüyüş.
+    if (a.kind === 'beren') {
+      a.body.scale.y = breathe; berenPoz(a, ent, d, sc);
+      if (a.cap) a.cap.visible = false;
+      a.root.rotation.x = 0;
+      opaklikUygula(a, ent, opts, d); return;
+    }
+    // Varsayılan yürüyüş (dede-tipi dinç yürüyüşte kollar biraz daha geniş sallanır).
+    var dinc = a.kind === 'dedehassi' ? 1.25 : 1;
     for (var i = 0; i < 2; i++) {
       var s = i ? 1 : -1;
       a.legs[i].rotation.set(walk * s * 0.62 * amp, 0, 0);
       a.knees[i].rotation.x = Math.max(0, -walk * s * 0.9) * amp;
-      a.arms[i].rotation.set(-walk * s * 0.55 * amp, 0, 0);
-      a.elbows[i].rotation.x = -0.08 - Math.max(0, walk * s) * 0.35 * amp;
+      a.arms[i].rotation.set(-walk * s * 0.55 * amp * dinc, 0, 0);
+      a.elbows[i].rotation.x = -0.08 - Math.max(0, walk * s) * 0.35 * amp * dinc;
     }
+    if (a.kind === 'abariebe') {   // sağ elde el çantası: kol sabit, hafif sallanır
+      a.arms[1].rotation.set(0.04 + walk * 0.1 * amp, 0, 0.06); a.elbows[1].rotation.x = -0.14;
+    }
+    if (ent.oturuyor && ent.kaza !== 'dustu') oturYe(a, ent, d, sc);
     // Scooter üstünde sürüş duruşu: ayaklar güverteye basar, eller gidona uzanır.
     // Kaza türü: scooter (varsayılan), salincak, pota. 'dustu' ve 'iyilesti' tüm türlerde aynı.
     var tur = ent.kazaTur || 'scooter', suruyor = opts.ride || (ent.kaza === 'suruyor' && tur !== 'scooter');
@@ -1460,6 +1772,19 @@
         a.elbows[i].rotation.x = -0.12;
       }
       a.head.rotation.x = 0.06 + sa * 0.1;
+    } else if (suruyor && tur === 'trabzan') {
+      // Merdiven trabzanına ata biner gibi: bacaklar iki yana sarkar, gövde hafif önde, eller önde trabzanda.
+      var tz = Math.sin(d.zaman * 3.1 + a.seed);
+      a.root.position.y = (ent.trabzanY != null ? ent.trabzanY : 0.55 * sc) + 0.04;
+      a.body.rotation.x = 0.2; a.body.position.y = 0;
+      for (i = 0; i < 2; i++) {
+        var st = i ? 1 : -1;
+        a.legs[i].rotation.set(-0.62 + tz * 0.06 * st, 0, st * 0.52);
+        a.knees[i].rotation.x = 0.95 + tz * 0.08;
+        a.arms[i].rotation.set(-1.18, 0, st * 0.1);
+        a.elbows[i].rotation.x = -0.32 - Math.max(0, tz) * 0.1;
+      }
+      a.head.rotation.x = 0.1; a.head.rotation.z = tz * 0.04;
     } else if (suruyor && tur === 'pota') {
       var ph = d.zaman * 5 + a.seed;
       a.root.position.y = 0.04 + (ent.tirmanY || 0);
@@ -1505,12 +1830,16 @@
       }
     }
     a.cap.visible = !!opts.awake || /bekci/.test(a.kind);
+    if (AYI[a.kind]) ayiEk(a, ent, d, amp, walk);
     if (opts.sleep) {
       a.root.rotation.set(-PI / 2, 0, 0); a.root.position.y = 0.46; a.root.rotation.z = 0; a.body.position.y = 0;
       a.body.rotation.set(0, 0, 0); a.shadow.visible = false;
     } else {
       a.root.rotation.x = 0; a.root.rotation.z = 0;
     }
+    opaklikUygula(a, ent, opts, d);
+  }
+  function opaklikUygula(a, ent, opts, d) {
     var opacity = (ent.gorunmez > 0 || (opts.child && d.oyuncu && d.oyuncu.gorunmez > 0)) ? 0.28 : 1;
     a.mats.forEach(function (m) {
       var trans = opacity < 1;
@@ -1623,6 +1952,223 @@
     });
   }
 
+  // ---------------------------------------------------------------- Ayı Köyü (özgün chibi ayılar + arı kraliçe)
+  // superbear / morayi: iki ayak üstünde yürüyen ayılar; rig() ile aynı arayüz (updateRig yürüme/uyku/cap/opaklık mantığı).
+  // Kol/bacak tek eklem (dirsek/diz boş gruplar) -> karakter başı ~10-11 draw call.
+  var AYI_OLCEK = { superbear: 0.86, morayi: 1.1 };
+  var AYI = {
+    superbear: { fur: '#8e5a30', dark: '#6e4322', belly: '#ecce98', ear: '#f0b896', iris: '#4a2a14', tw: 1.04, tz: 1.0 },
+    morayi:    { fur: '#8d5ec8', dark: '#6b43a3', belly: '#e0cdf7', ear: '#f4b4e4', iris: '#2e1d52', tw: 1.5, tz: 1.3 }
+  };
+  function ayiRig(kind) {
+    var P = AYI[kind], root = new T.Group(), body = new T.Group(), head = new T.Group(), tw = P.tw, tz = P.tz, mor = kind === 'morayi';
+    root.add(body); head.position.y = 1.11; body.add(head);
+    var arms = [], legs = [], knees = [], elbows = [], GOLD = '#ffcf3a', RED = '#d8343c';
+    [-1, 1].forEach(function (s) {
+      var leg = new T.Group(); leg.position.set(s * 0.1 * tw, 0.42, 0); body.add(leg);
+      caps(leg, 0.095 * (mor ? 1.1 : 1), 0.12, 0, -0.14, 0, P.fur);
+      ball(leg, 0.22 * (mor ? 1.1 : 1), 0.14, 0.3, 0, -0.355, 0.045, P.dark);
+      ball(leg, 0.12, 0.05, 0.12, 0, -0.395, 0.14, P.belly);   // ayak tabanı yastığı
+      var knee = new T.Group(); knee.position.set(0, -0.22, 0); leg.add(knee);
+      legs.push(leg); knees.push(knee);
+    });
+    caps(body, 0.2, 0.14, 0, 0.6, 0, P.fur, null, [tw, 1, 0.92 * tz]);
+    ball(body, 0.34 * tw, 0.42, 0.24 * tz, 0, 0.57, 0.1 * tz, P.belly);
+    [-1, 1].forEach(function (s) {
+      var arm = new T.Group(); arm.position.set(s * (0.2 * tw + 0.05), 0.8, 0); body.add(arm);
+      ball(arm, 0.17, 0.17, 0.17, 0, 0, 0, P.fur);
+      caps(arm, 0.075, 0.12, 0, -0.14, 0, P.fur);
+      ball(arm, 0.19, 0.19, 0.19, 0, -0.3, 0.01, P.dark);
+      ball(arm, 0.09, 0.07, 0.04, 0, -0.3, 0.095, P.belly);
+      var elbow = new T.Group(); elbow.position.set(0, -0.19, 0); arm.add(elbow);
+      arms.push(arm); elbows.push(elbow);
+    });
+    // Baş.
+    var hw = mor ? 0.82 : 0.78;
+    ball(head, hw, 0.68, 0.7, 0, 0, 0, P.fur);
+    ball(head, 0.36, 0.27, 0.26, 0, -0.105, 0.265, P.belly);              // ağız çevresi
+    caps(head, 0.03, 0.07, 0, -0.03, 0.385, '#1c1412', [0, 0, PI / 2], [1, 1, 0.8]);   // yassı dikdörtgenimsi siyah burun
+    ball(head, 0.04, 0.02, 0.02, -0.025, -0.012, 0.418, '#ffffff');
+    tor(head, 0.075, 0.0105, 2.1, 0, -0.1 + 0.047, 0.372, '#6b3a2a', [0, 0, -PI / 2 - 1.05]);   // gülümseme
+    caps(head, 0.01, 0.045, 0, -0.065, 0.385, '#6b3a2a', [0, 0, 0]);
+    var eyes = [];
+    [-1, 1].forEach(function (s) {
+      ball(head, hw * 0.3, 0.3 * 0.7, 0.14, s * hw * 0.34, 0.29, -0.02, P.fur);   // yuvarlak kulak
+      ball(head, hw * 0.19, 0.19 * 0.7, 0.07, s * hw * 0.34, 0.29, 0.04, P.ear);
+      var eg = new T.Group(); eg.position.set(s * 0.15, 0.07, 0.3); eg.rotation.y = s * 0.3; head.add(eg);
+      ball(eg, 0.17, 0.215, 0.08, 0, 0, 0, '#ffffff');
+      ball(eg, 0.135, 0.18, 0.07, 0, -0.004, 0.02, P.iris);
+      ball(eg, 0.082, 0.115, 0.07, 0, -0.004, 0.035, '#140c12');
+      ball(eg, 0.05, 0.05, 0.03, -0.028, 0.045, 0.066, '#ffffff'); ball(eg, 0.024, 0.024, 0.02, 0.03, -0.04, 0.066, '#ffffff');
+      eyes.push(eg);
+      ball(head, 0.11, 0.065, 0.05, s * 0.27, -0.09, 0.225, '#ff9ea6');   // yanak
+      // Kaş: kahramanda kararlı-yumuşak, morda yüksek ve şaşkın (iç uçlar yukarı, asimetrik).
+      var by = mor ? (s < 0 ? 0.255 : 0.225) : 0.2, br = mor ? 0.26 : 0.1;
+      caps(head, 0.017, 0.07, s * 0.15, by, mor ? 0.255 : 0.265, mor ? '#4a2c70' : '#5a3418', [0, 0, PI / 2 - s * br]);
+    });
+    head.userData.eyes = eyes;
+    if (kind === 'superbear') {
+      // Aslına yakın: omuzlardan inen açık mavi askılar + sırtta sarı sırt çantası (turuncu gaga, mavi karın).
+      [-1, 1].forEach(function (s) { caps(body, 0.04, 0.3, s * 0.115, 0.66, 0.17, '#7fcbf2', [0.12, 0, s * -0.08]); });
+      box(body, 0.34, 0.36, 0.14, 0, 0.62, -0.25, '#ffd23c');
+      ball(body, 0.26, 0.2, 0.06, 0, 0.56, -0.33, '#6fb4e8');
+      part(body, 'cone', [0.07, 0.12, 4], [0, 0.7, -0.35], '#ff9a3c', [-PI / 2, 0, 0]);
+      [-1, 1].forEach(function (s) { ball(body, 0.05, 0.05, 0.03, s * 0.06, 0.78, -0.32, '#1c1412'); });
+    }
+    var capeA = null, capeB = null;
+    // Gece şapkası (uyku/uyanık mantığı yetişkinlerle aynı).
+    var cap = new T.Group();
+    var cc = mor ? '#6f8be0' : '#e8749a';
+    part(cap, 'cone', [0.3, 0.44, 10], [0.0, 0.45, -0.04], cc, [0, 0, -0.3]);
+    cyl(cap, 0.35, 0.35, 0.09, 0, 0.23, 0, '#fff4ea'); ball(cap, 0.13, 0.13, 0.13, 0.1, 0.68, 0, '#fff4ea');
+    cap.position.y = -0.05; head.add(cap); cap.visible = false;
+    var grp = [body, head].concat(arms, legs, eyes); 
+    rigBirlestir(grp.concat([cap]));
+    var mats = []; root.traverse(function (o) { if (o.isMesh) { o.material = o.material.clone(); mats.push(o.material); } });
+    var shadow = new T.Mesh(new T.CircleGeometry(0.42, 20), new T.MeshBasicMaterial({ color: '#152015', transparent: true, opacity: 0.16, depthWrite: false }));
+    shadow.rotation.x = -PI / 2; shadow.position.y = 0.015; shadow.renderOrder = 1;
+    R.actors.add(root); R.actors.add(shadow);
+    return { root: root, body: body, head: head, arms: arms, legs: legs, knees: knees, elbows: elbows, 
+      cap: cap, mats: mats, kind: kind, rotY: null, px: null, pz: null, hiz: 0, seed: hs(kind.length, kind.charCodeAt(0), 3) * 9, shadow: shadow };
+  }
+  // updateRig içinden çağrılır: kahraman eğimi, Mor Ayı'nın tombul sallanışı.
+  function ayiEk(a, ent, d, amp, walk) {
+    var t = d.zaman, f = Math.min(1, amp);
+    if (a.kind === 'superbear') {
+      a.body.rotation.x += 0.05 + 0.1 * f;   // koşarken öne eğilir
+    } else if (a.kind === 'morayi') {
+      a.body.rotation.z += Math.sin(walk * 1.0) * 0.07 * f;   // tombul ördek yürüyüşü
+      a.body.rotation.x += 0.04 * f;
+      a.head.rotation.z += Math.sin(t * 2.4 + a.seed) * 0.05;   // meraklı baş eğme
+    }
+  }
+
+  // ---------------------------------------------------------------- arı (Kraliçe Beatrice + küçük işçi arılar)
+  var ARI_SARI = '#ffd23c', ARI_SIYAH = '#2b2230', ARI_KANAT = '#dff4ff';
+  function ariRig(tip) {
+    tip = tip === 'ari' ? 'ari' : 'beatrice';
+    var root = new T.Group(), body = new T.Group(), head = null, eyes = [], wings = [], wandArm = null, gruplar;
+    root.add(body);
+    var wingMats = [];
+    if (tip === 'ari') {
+      // Küçük işçi: tek birleşik gövde meshi + tek kanat çifti (ölçekle çırpılır) -> 2-3 draw call.
+      ball(body, 0.34, 0.3, 0.4, 0, 0, 0, ARI_SARI);
+      [-0.1, 0.02, 0.14].forEach(function (z) { tor(body, 0.135 * Math.sqrt(1 - Math.pow(z / 0.2, 2)) + 0.004, 0.026, TAU, 0, 0, -z, ARI_SIYAH); });
+      part(body, 'cone', [0.06, 0.12, 5], [0, 0, -0.23], ARI_SIYAH, [-PI / 2, 0, 0]);
+      ball(body, 0.27, 0.25, 0.25, 0, 0.03, 0.2, '#ffe47a');
+      [-1, 1].forEach(function (s) {
+        ball(body, 0.085, 0.1, 0.05, s * 0.065, 0.06, 0.31, '#ffffff'); ball(body, 0.06, 0.075, 0.05, s * 0.065, 0.055, 0.325, '#1a1420');
+        ball(body, 0.022, 0.022, 0.02, s * 0.06 - 0.01, 0.085, 0.35, '#ffffff');
+        caps(body, 0.008, 0.07, s * 0.05, 0.19, 0.24, ARI_SIYAH, [0.3, 0, -s * 0.35]);
+        ball(body, 0.05, 0.05, 0.05, s * 0.065, 0.015, 0.27, '#ff9ea6');
+      });
+      var w = new T.Group(); w.position.set(0, 0.17, -0.02); body.add(w);
+      [-1, 1].forEach(function (s) { ball(w, 0.26, 0.018, 0.14, s * 0.15, 0.015, -0.01, ARI_KANAT).rotation.set(0, s * -0.25, s * 0.12); });
+      wings.push(w);
+      gruplar = [body, w];
+    } else {
+      // Kraliçe: tombul, büyük kafalı. Gövde +z ileri bakar.
+      ball(body, 0.5, 0.48, 0.46, 0, 0.0, 0.0, ARI_SARI);                      // göğüs
+      tor(body, 0.215, 0.05, TAU, 0, 0.0, 0.08, ARI_SIYAH, [0, 0, 0], [1, 1, 1]);
+      ball(body, 0.5, 0.46, 0.62, 0, -0.09, -0.36, ARI_SARI);                  // karın
+      [-0.17, 0.0, 0.17].forEach(function (z) {
+        var r = 0.25 * Math.sqrt(1 - Math.pow(z / 0.31, 2)) + 0.006;
+        tor(body, r, 0.036, TAU, 0, -0.09, -0.36 - z, ARI_SIYAH, null, [0.98, 0.93, 1]);
+      });
+      part(body, 'cone', [0.1, 0.2, 6], [0, -0.1, -0.74], ARI_SIYAH, [-PI / 2, 0, 0]);
+      [-1, 1].forEach(function (s) {
+        caps(body, 0.032, 0.07, s * 0.09, -0.3, 0.02, ARI_SIYAH, [0.2, 0, s * 0.18]);
+        ball(body, 0.08, 0.05, 0.1, s * 0.09, -0.4, 0.05, ARI_SIYAH);
+      });
+      wandArm = new T.Group(); wandArm.position.set(0.26, -0.02, 0.1); body.add(wandArm);
+      ball(wandArm, 0.12, 0.12, 0.12, 0, 0, 0, ARI_SARI);
+      ball(wandArm, 0.1, 0.1, 0.1, 0.02, -0.07, 0.03, ARI_SIYAH);
+      ball(body, 0.12, 0.12, 0.12, -0.25, -0.02, 0.1, ARI_SARI);                // sol el
+      head = new T.Group(); head.position.set(0, 0.5, 0.1); body.add(head);
+      ball(head, 0.68, 0.6, 0.6, 0, 0, 0, '#ffe27a');
+      ball(head, 0.2, 0.13, 0.1, 0, -0.17, 0.26, '#fff0b0');
+      tor(head, 0.062, 0.011, 2.1, 0, -0.205 + 0.04, 0.3, '#8a3a3a', [0, 0, -PI / 2 - 1.05]);
+      ball(head, 0.07, 0.05, 0.04, 0, -0.085, 0.3, '#e08a5a');
+      [-1, 1].forEach(function (s) {
+        var eg = new T.Group(); eg.position.set(s * 0.16, 0.01, 0.25); eg.rotation.y = s * 0.3; head.add(eg);
+        ball(eg, 0.21, 0.26, 0.09, 0, 0, 0, '#ffffff');
+        ball(eg, 0.17, 0.22, 0.08, 0, -0.004, 0.02, '#4a2a60');
+        ball(eg, 0.105, 0.145, 0.08, 0, -0.004, 0.04, '#140c18');
+        ball(eg, 0.065, 0.065, 0.04, -0.034, 0.055, 0.078, '#ffffff'); ball(eg, 0.03, 0.03, 0.03, 0.037, -0.05, 0.078, '#ffffff');
+        eyes.push(eg);
+        ball(head, 0.13, 0.075, 0.05, s * 0.28, -0.1, 0.19, '#ff9ea6');
+        caps(head, 0.011, 0.06, s * 0.16, 0.21, 0.22, '#7a5a2a', [0, 0, PI / 2 - s * 0.12]);
+        caps(head, 0.011, 0.16, s * 0.1, 0.38, 0.05, ARI_SIYAH, [0.35, 0, -s * 0.35]);   // anten
+        ball(head, 0.07, 0.07, 0.07, s * 0.15, 0.47, 0.1, '#ffcf3a');
+      });
+      // Altın taç.
+      cyl(head, 0.2, 0.22, 0.09, 0, 0.3, -0.02, '#ffc72c');
+      for (var ti = 0; ti < 5; ti++) {
+        var an = (ti - 2) * 0.55, tx = Math.sin(an) * 0.2, tzz = -0.02 + Math.cos(an) * 0.2 - 0.2;
+        part(head, 'cone', [0.085, 0.16, 4], [tx, 0.4, tzz], '#ffc72c', [0, 0, 0]);
+        ball(head, 0.045, 0.045, 0.045, tx, 0.495, tzz, ti % 2 ? '#ff5a7a' : '#6ad8ff');
+      }
+      ball(head, 0.07, 0.07, 0.05, 0, 0.31, 0.2, '#ff5a7a');
+      [-1, 1].forEach(function (s) {
+        var w2 = new T.Group(); w2.position.set(s * 0.1, 0.2, -0.12); body.add(w2);
+        ball(w2, 0.66, 0.03, 0.4, s * 0.34, 0.06, -0.06, ARI_KANAT).rotation.set(0, s * -0.3, 0);
+        ball(w2, 0.42, 0.025, 0.26, s * 0.22, 0.03, -0.38, ARI_KANAT).rotation.set(0, s * -0.55, 0);
+        wings.push(w2);
+      });
+      gruplar = [body, head, wandArm].concat(eyes, wings);
+    }
+    rigBirlestir(gruplar);
+    wings.forEach(function (w) {   // saydamımsı kanat
+      w.traverse(function (o) { if (o.isMesh) { o.material.transparent = true; o.material.opacity = 0.55; o.material.depthWrite = false; o.material.side = T.DoubleSide; o.castShadow = false; } });
+    });
+    var mats = []; root.traverse(function (o) { if (o.isMesh) { o.material = o.material.clone(); mats.push(o.material); } });
+    var shadow = new T.Mesh(new T.CircleGeometry(tip === 'ari' ? 0.18 : 0.36, 16), new T.MeshBasicMaterial({ color: '#152015', transparent: true, opacity: 0.16, depthWrite: false }));
+    shadow.rotation.x = -PI / 2; shadow.position.y = 0.015; shadow.renderOrder = 1;
+    R.actors.add(root); R.actors.add(shadow);
+    return { root: root, body: body, head: head, eyes: eyes, wings: wings, wandArm: wandArm, mats: mats, kind: tip, rotY: null, px: null, pz: null, hiz: 0,
+      seed: Math.random() * 9, shadow: shadow, shadowBase: tip === 'ari' ? 0.16 : 0.18 };
+  }
+  // ent: { x, y, yon, hareket, yukseklik (dünya birimi, irtifa), olcek }. tip: 'beatrice' (varsayılan) | 'ari'.
+  function updateAri(id, ent, d, dt, tip) {
+    tip = tip === 'ari' ? 'ari' : 'beatrice';
+    dt = Math.max(0.001, dt || 0.016);
+    var a = R.rigs[id];
+    if (!a || a.kind !== tip) {
+      if (a) { R.actors.remove(a.root); R.actors.remove(a.shadow); a.mats.forEach(function (m) { m.dispose(); }); if (a.shadow) a.shadow.material.dispose(); }
+      a = R.rigs[id] = ariRig(tip);
+    }
+    if (!ent || ent.gizli) { a.root.visible = false; a.shadow.visible = false; return; }
+    a.root.visible = true; a.shadow.visible = true;
+    var sc = ent.olcek || (tip === 'ari' ? 1 : 1.25), t = d.zaman, ph = t + a.seed;
+    var irt = ent.yukseklik != null ? ent.yukseklik : (tip === 'ari' ? 0.9 : 1.35);
+    var bob = Math.sin(ph * (tip === 'ari' ? 3.1 : 2.2)) * (tip === 'ari' ? 0.05 : 0.09) * sc;
+    a.root.scale.setScalar(sc);
+    a.root.position.set(ent.x / U, 0.04 + irt + bob, ent.y / U);
+    a.shadow.position.set(ent.x / U, 0.018, ent.y / U);
+    a.shadow.scale.setScalar(sc * Math.max(0.5, 1 - irt * 0.12));
+    a.shadow.material.opacity = Math.max(0.07, 0.17 - irt * 0.03);
+    var targetRot = PI / 2 - (ent.yon || 0);
+    if (a.rotY == null) a.rotY = targetRot;
+    var diff = ((targetRot - a.rotY + PI) % TAU + TAU) % TAU - PI;
+    a.rotY += diff * Math.min(1, dt * 9);
+    a.root.rotation.y = a.rotY;
+    var dx = a.px == null ? 0 : ent.x - a.px, dz = a.pz == null ? 0 : ent.y - a.pz;
+    a.px = ent.x; a.pz = ent.y;
+    a.hiz += (Math.min(8, Math.hypot(dx, dz) / U / dt) - a.hiz) * Math.min(1, dt * 7);
+    var amp = Math.min(1, a.hiz / 2.5);
+    a.body.rotation.set(0.12 + 0.28 * amp + Math.sin(ph * 1.7) * 0.04, 0, Math.sin(ph * 1.3) * 0.07);   // uçarken öne eğilir
+    // Hızlı kanat çırpma.
+    var fl = Math.sin(t * (tip === 'ari' ? 52 : 44) + a.seed);
+    if (tip === 'ari') {
+      a.wings[0].scale.set(0.45 + 0.55 * Math.abs(fl), 1, 1);
+    } else {
+      a.wings[0].rotation.z = -(0.55 + fl * 0.5); a.wings[1].rotation.z = (0.55 + fl * 0.5);
+      a.wandArm.rotation.set(0.1 + Math.sin(ph * 2.6) * 0.18, 0, Math.sin(ph * 3.2) * 0.25);
+      a.head.rotation.set(-0.1 + Math.sin(ph * 1.2) * 0.04, Math.sin(ph * 0.8) * 0.2, Math.sin(ph * 1.5) * 0.05);
+      blink(a.head, t, a.seed);
+    }
+  }
+
   // ---------------------------------------------------------------- toplanabilirler
   // Çıkartma rozeti: arayuz.js'in 2D rozet çizimi dokuya basılır, kameraya dönük sprite olarak durur.
   var rozetDoku = {};
@@ -1685,7 +2231,7 @@
       var m = new T.MeshBasicMaterial({ color: '#a97a12', transparent: true, opacity: 0.38, side: T.DoubleSide, depthWrite: false });
       mesh = new T.Mesh(g, m); mesh.frustumCulled = false; R.scene.add(mesh); R.cones[index] = mesh;
     }
-    mesh.visible = !!n && !/yorgun|yakaladi/.test(n.durum); if (!mesh.visible) return;
+    mesh.visible = !!n && !n.pasif && !/yorgun|yakaladi|selam|oyalan/.test(n.durum); if (!mesh.visible) return;
     mesh.material.opacity = n.durum === 'kovalama' ? 0.46 : (n.durum === 'suphe' ? 0.42 : 0.38);
     var buf = mesh.geometry.attributes.position.array, a = n.gorusAci || 1.2, dist = (n.gorusMesafe || 300) / U, px = n.x / U, pz = n.y / U, pts = [];
     for (var i = 0; i <= 36; i++) {
@@ -1699,7 +2245,7 @@
       buf[j + 6] = pts[i + 1][0]; buf[j + 7] = 0.075; buf[j + 8] = pts[i + 1][1];
     }
     mesh.geometry.attributes.position.needsUpdate = true;
-    mesh.material.color.set(n.durum === 'kovalama' ? '#c23a2a' : n.durum === 'suphe' ? '#b06a10' : n.kim === 'ebe' ? '#6f4a95' : n.kim === 'ogretmen' ? '#a8467a' : n.kim === 'mudur' ? '#3f6e52' : /bekci/.test(n.kim) ? '#2f4f8a' : n.kim === 'dede' ? '#2f6b8f' : '#b07f16');
+    mesh.material.color.set(n.durum === 'kovalama' ? '#c23a2a' : n.durum === 'suphe' ? '#b06a10' : n.kim === 'ebe' ? '#6f4a95' : n.kim === 'ogretmen' ? '#a8467a' : n.kim === 'mudur' ? '#3f6e52' : /bekci/.test(n.kim) ? '#2f4f8a' : n.kim === 'dede' ? '#2f6b8f' : n.kim === 'recepdede' ? '#4f6f86' : n.kim === 'dedehassi' ? '#a8452f' : '#b07f16');
   }
 
   // ---------------------------------------------------------------- ekran yazıları
@@ -1727,6 +2273,8 @@
     return lines.slice(0, 3);
   }
   var etGor = new Map();   // varlık -> ekrana ilk girdiği an (telefonda isim etiketi 2 sn)
+  function hmapKat1() { return G.harita && G.harita.katSayisi > 1; }
+  function ayniKat(e) { var hm = G.harita; return !(hm && hm.katSayisi > 1 && e && typeof e.y === 'number' && hm.katOf(e.y) !== R.kat); }
   function labels(ctx, d) {
     var tel = !!G.dokunmatik, simdi = performance.now(), gorulen = new Set();
     ctx.save(); ctx.setTransform(d.ekran.dpr, 0, 0, d.ekran.dpr, 0, 0);
@@ -1737,7 +2285,7 @@
     if (d.mod === 'menu') { ctx.restore(); return; }
     var list = [], boxes = [];
     function ekle(e, ad, height, prio, renk) {
-      if (!e || e.gizli || e.saklandi) return;
+      if (!e || e.gizli || e.saklandi || e.pasif || !ayniKat(e)) return;
       var p = project(e.x, e.y, height);
       if (!p.visible || p.x < -90 || p.x > R.width + 90 || p.y < -40 || p.y > R.height + 90) return;
       gorulen.add(e);
@@ -1755,6 +2303,9 @@
     if (d.komsu) ekle(d.komsu, G.kisiAdi(d.komsu.kim), 1.98, 70, '#ffe2bb');
     if (d.uyanan) ekle(d.uyanan, G.kisiAdi(d.uyanan.kim), 2.05, 72, '#ffd0c0');
     if (d.kedi) ekle(d.kedi, 'Duman', 0.62, 66, '#d7dde2');
+    if (d.recep) ekle(d.recep, 'Recep Dede', 2.02, 71, '#cfe4f2');
+    if (d.anneanne) ekle(d.anneanne, 'Anneanne', 1.9, 62, '#ffd9b8');
+    if (d.abari) ekle(d.abari, 'Abari Ebe', 1.9, 62, '#e3d2f7');
     if (d.uyuyan && !tel) ekle(d.uyuyan, G.kisiAdi(d.uyuyan.kim) + ' (uyuyor)', 1.2, 40, '#c8d8e8');
     etGor.forEach(function (v, k) { if (!gorulen.has(k)) etGor.delete(k); });
     list.sort(function (a, b) { return b.prio - a.prio; });
@@ -1781,17 +2332,20 @@
     // Konuşma balonları; isim etiketleriyle çakışmayacak şekilde yukarı kaydırılır.
     var bubbles = [];
     function balonEkle(e, ad, height, prio) {
-      if (!e || e.gizli || e.saklandi || !e.konusma || !e.konusma.metin) return;
+      if (!e || e.gizli || e.saklandi || e.pasif || !ayniKat(e) || !e.konusma || !e.konusma.metin) return;
       var p = project(e.x, e.y, height); if (!p.visible) return;
       bubbles.push({ e: e, p: p, prio: prio });
     }
-    var kovK = function (e) { return (e === d.komsu || e === d.uyanan) && e.durum === 'kovalama'; };
+    var kovK = function (e) { return (e === d.komsu || e === d.uyanan || e === d.recep) && e.durum === 'kovalama'; };
     balonEkle(d.oyuncu, null, 1.62, 100);
     if (d.komsu) balonEkle(d.komsu, null, 1.98, kovK(d.komsu) ? 98 : 70);
     if (d.uyanan) balonEkle(d.uyanan, null, 2.05, kovK(d.uyanan) ? 98 : 72);
     (d.kardesler || []).forEach(function (e, i) { balonEkle(e, null, i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84); });
     if (d.gokce) balonEkle(d.gokce, null, 1.55, 80);
     if (d.kedi) balonEkle(d.kedi, null, 0.62, 68);
+    if (d.recep) balonEkle(d.recep, null, 2.02, d.recep.durum === 'kovalama' ? 97 : 71);
+    if (d.anneanne) balonEkle(d.anneanne, null, 1.9, 76);
+    if (d.abari) balonEkle(d.abari, null, 1.9, 74);
     bubbles.sort(function (a, b) { return b.prio - a.prio; });
     var balonBox = [], balonSay = 0, balonMax = tel ? 2 : 3;
     bubbles.forEach(function (b) {
@@ -1824,7 +2378,7 @@
       for (var l = 0; l < lines.length; l++) ctx.fillText(lines[l], bx + bw / 2, by + 5 + lh / 2 + l * lh);
       ctx.restore();
     });
-    if (d.uyuyan) {
+    if (d.uyuyan && ayniKat(d.uyuyan)) {
       var p = project(d.uyuyan.x, d.uyuyan.y, 1.1);
       ctx.font = 'bold ' + (tel ? 13 : 15) + 'px sans-serif'; ctx.fillStyle = '#f8f3db';
       ctx.fillText('z Z', p.x + 12, p.y - Math.sin(d.zaman * 2) * 5);
@@ -1837,6 +2391,7 @@
     }
     // Dünya koordinatlı ses halkaları.
     (d.sesler || []).forEach(function (s) {
+      if (hmapKat1() && s.kat != null && s.kat !== R.kat) return;
       var p = project(s.x, s.y, 0.1), rad = (1 - s.omur / 0.6) * 38 + 8;
       ctx.strokeStyle = 'rgba(255,239,182,' + Math.max(0, s.omur / 0.8) + ')'; ctx.lineWidth = 2;
       ctx.beginPath(); ctx.ellipse(p.x, p.y, rad, rad * 0.45, 0, 0, 7); ctx.stroke();
@@ -1868,6 +2423,7 @@
     R.plan = dekorPlan(h);
     // Haritanın dışında kalan çayır: kamera kenara yaklaşınca boşluk görünmez.
     var outer = new T.Mesh(new T.PlaneGeometry(h.W + 90, h.H + 90), material('#7d9a60', { roughness: 1 }));
+    R.outer = outer; R.hills = []; R.katOnce = -1;
     outer.rotation.x = -PI / 2; outer.position.set(h.W / 2, -0.42, h.H / 2); outer.receiveShadow = true; R.world.add(outer);
     box(temp, h.W + 0.5, 0.7, h.H + 0.5, h.W / 2, -0.4, h.H / 2, '#617b51');
     var plane = new T.Mesh(new T.PlaneGeometry(h.W, h.H), new T.MeshStandardMaterial({ map: floorTexture(h), roughness: 1 }));
@@ -1900,6 +2456,8 @@
         var cM = '#ead9b9', cT = '#b48c63', cB = '#8e7050';
         if (ext && R.level === 4) { cM = pal4[Math.floor((ext[1] ? w.tx : w.ty) / 2) % 4]; cT = '#d6503c'; cB = '#6b7d92'; }
         else if (ext && R.level === 3) { cM = '#f3e2bc'; cT = '#d6845c'; cB = '#a07f5b'; }
+        else if (ext && R.level === 5) { cM = '#f1dcc0'; cT = '#b4533f'; cB = '#8a6d55'; }
+        else if (R.level === 5 && w.ty >= 37) { cM = '#e3d4ee'; cT = '#8a62b0'; cB = '#6b5380'; }
         if (R.wallMesh) R.wallMesh.setColorAt(i, new T.Color(cM));
         if (R.wallTrim) R.wallTrim.setColorAt(i, new T.Color(cT));
         if (R.wallBase) R.wallBase.setColorAt(i, new T.Color(cB));
@@ -1945,7 +2503,7 @@
       var hill = new T.Mesh(geometry('sphere'), material('#7a9a62', { roughness: 1 }));
       hill.position.set(h.W / 2 + Math.cos(ang) * hr, -2.5, h.H / 2 + Math.sin(ang) * hr);
       hill.scale.set(16 + hs(hi, 5, 8) * 14, 4 + hs(hi, 6, 9) * 3, 16 + hs(hi, 7, 10) * 12);
-      hill.receiveShadow = true; R.world.add(hill);
+      hill.receiveShadow = true; R.world.add(hill); R.hills.push(hill);
     }
     dekorKur(h, R.plan);
     R.dirty = false; R.ready = true; R.renderer.shadowMap.needsUpdate = true;
@@ -2027,6 +2585,23 @@
     R.yaw += (R.wantYaw - R.yaw) * Math.min(1, dt * 10);
     var o = d.oyuncu, hmap = G.harita;
     var ox = o ? o.x / U : hmap.W / 2, oz = o ? o.y / U : hmap.H / 2;
+    // Katlar: oyuncunun katı görünür, öbür kat kesme düzlemiyle gizlenir (arayıcı başka kattayken görünmez)
+    R.kat = (hmap.katSayisi > 1 && o) ? hmap.katOf(o.y) : 0;
+    if (hmap.katSayisi > 1) {
+      var sy = hmap.katSinirY / U, kz0 = sy + 3;   // zemin kat çimeni 3 satır daha görünür (dünya kenarı kameraya girmesin)
+      if (!R.clipP) R.clipP = new T.Plane(new T.Vector3(0, 0, -1), sy);
+      R.clipP.normal.set(0, 0, R.kat ? 1 : -1); R.clipP.constant = R.kat ? -sy : kz0;
+      R.renderer.clippingPlanes = [R.clipP];
+      if (R.katOnce !== R.kat) {
+        R.katOnce = R.kat;
+        if (!R.ustArka) R.ustArka = new T.Color('#2b2438');
+        R.scene.background = R.kat ? R.ustArka : skyTexture();
+        R.scene.fog.color.set(R.kat ? '#2b2438' : '#e8eccb');
+        if (R.outer) R.outer.visible = !R.kat;
+        (R.hills || []).forEach(function (hl) { hl.visible = !R.kat; });
+        R.renderer.shadowMap.needsUpdate = true;
+      }
+    } else if (R.renderer.clippingPlanes && R.renderer.clippingPlanes.length) { R.renderer.clippingPlanes = []; R.katOnce = -1; }
     if (!R.readyTarget || d.mod === 'menu' || Math.hypot(R.target.x - ox, R.target.z - oz) > 15) { R.target.set(ox, 0, oz); R.readyTarget = true; }
     else R.target.lerp(v3.set(ox, 0, oz), Math.min(1, dt * 7));
     // Bakış yönüne hafif önceden bakış (kamera takibi daha akıcı hissettirir).
@@ -2037,16 +2612,17 @@
       else R.look.multiplyScalar(1 - Math.min(1, dt * 2));
     }
     if (o) { R.prevPX = o.x; R.prevPZ = o.y; }
-    var kov = (d.komsu && d.komsu.durum === 'kovalama') || (d.uyanan && d.uyanan.durum === 'kovalama');
+    var kov = (d.komsu && d.komsu.durum === 'kovalama') || (d.uyanan && d.uyanan.durum === 'kovalama') || (d.recep && d.recep.durum === 'kovalama');
     if (R.testCamera) R.zoom = R.testCamera.zoom;
     else {
       var oto = !G.ayarlar || !G.ayarlar.deger || G.ayarlar.deger.otoKamera !== false;
       if (oto && d.mod !== 'menu') {
         // Dinamik kamera: sakinken yakın plan, tehdit yaklaşınca / kovalamada geniş plan.
-        var enYakin = 99, ths = [d.komsu, d.uyanan, d.kedi];
+        var enYakin = 99, ths = [d.komsu, d.uyanan, d.kedi, d.recep];
         for (var ti = 0; ti < ths.length; ti++) {
           var th = ths[ti];
-          if (!th || th.gizli || th.uyuyor || !o) continue;
+          if (!th || th.gizli || th.uyuyor || th.pasif || !o) continue;
+          if (hmap.katSayisi > 1 && hmap.katOf(th.y) !== R.kat) continue;
           var dd2 = Math.hypot(th.x - o.x, th.y - o.y) / U; if (dd2 < enYakin) enYakin = dd2;
         }
         var hedefF = kov ? 1 : Math.max(0, Math.min(1, (14 - enYakin) / 6));   // 14 kare ve ötesi: yakın, 8 kare ve içi: geniş
@@ -2068,7 +2644,9 @@
     if (!R.testCamera) {
       var halfH = zoom / 2, halfW = zoom * w / h / 2;
       if (halfW < hmap.W / 2) tar.x = Math.max(halfW - 0.6, Math.min(hmap.W - halfW + 0.6, tar.x)); else tar.x = hmap.W / 2;
-      if (halfH < hmap.H / 2) tar.z = Math.max(halfH - 0.6, Math.min(hmap.H - halfH + 0.6, tar.z)); else tar.z = hmap.H / 2;
+      var zLo = 0, zHi = hmap.H;
+      if (hmap.katSayisi > 1) { var sz = hmap.katSinirY / U; if (R.kat) zLo = sz; else zHi = sz; }
+      if (halfH < (zHi - zLo) / 2) tar.z = Math.max(zLo + halfH - 0.6, Math.min(zHi - halfH + 0.6, tar.z)); else tar.z = (zLo + zHi) / 2;
     }
     R.camera.left = -zoom * w / h / 2; R.camera.right = zoom * w / h / 2; R.camera.top = zoom / 2; R.camera.bottom = -zoom / 2; R.camera.updateProjectionMatrix();
     var sh = R.shake;
@@ -2113,7 +2691,10 @@
     (d.kardesler || []).forEach(function (k, i) {
       updateRig('k' + i, k, i ? 'giray' : 'atilay', d, { scale: i ? 0.8 : 0.65, child: true, ride: k.kaza === 'suruyor', dt: dt });
     });
-    if (d.komsu) updateRig('n', d.komsu, d.komsu.kim, d, { scale: 1.12, dt: dt });
+    if (d.komsu && !d.komsu.pasif) updateRig('n', d.komsu, d.komsu.kim, d, { scale: 1.12, dt: dt });
+    if (d.recep) updateRig('r', d.recep, 'recepdede', d, { scale: 1.12, dt: dt });
+    if (d.anneanne) updateRig('an', d.anneanne, 'anneanne', d, { scale: 1.06, dt: dt });
+    if (d.abari) updateRig('ab', d.abari, 'abariebe', d, { scale: 1.06, dt: dt });
     if (d.uyanan) updateRig('u', d.uyanan, d.uyanan.kim, d, { scale: 1.12, awake: true, dt: dt });
     if (d.uyuyan) updateRig('s', d.uyuyan, d.uyuyan.kim, d, { scale: 1.02, sleep: true, dt: dt });
     if (d.gokce) updateRig('g', d.gokce, 'gokce', d, { scale: 0.96, dt: dt });
@@ -2223,7 +2804,7 @@
     var swOn = !!(kz && kz.tur === 'salincak' && kz.asama === 'suruyor' && sal && d.kardesler[kz.idx]);
     R.swing.visible = swOn;
     if (swOn) { R.swing.position.set(sal.tx + sal.w / 2, 1.6, sal.ty + sal.h / 2); R.swing.rotation.x = -(d.kardesler[kz.idx].salincakAci || 0) * 0.7; }
-    cone(0, d.komsu); cone(1, d.uyanan);
+    cone(0, d.komsu); cone(1, d.uyanan); cone(2, d.recep);
     // Parçacıklar.
     for (var pi = R.parts.length - 1; pi >= 0; pi--) {
       var pp = R.parts[pi]; pp.life -= dt;
@@ -2251,6 +2832,9 @@
     // Test amaçlı: karakter iskeletini dışarıdan üretmeye yarar (galeri testleri).
     karakterRig: rig,
     kediRig: kediRig,
+    ariRig: ariRig,
+    updateAri: updateAri,   // oyun: d.beatrice -> updateAri('beatrice', ent, d, dt); işçi arılar -> updateAri('ari1', ent, d, dt, 'ari')
+    modelKur: model,   // test: dünya modeli (örn. 'puset') üretir
     updateRig: updateRig,
     rapor: function () {
       return {

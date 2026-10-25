@@ -14,6 +14,9 @@ window.G = window.G || {};
     kayip: { ogretmen: 'Nereye saklandı bu tatlı yaramaz?', mudur: 'Nereye gitti bu evlat?', baba: 'Nereye kayboldu bu yaramaz?', anne: 'Nereye saklandınız bakalım?', dede: 'Nereye gitti bu kuzu?', ebe: 'Nereye saklandı bu yavru?', bekci: 'Nereye saklandı bu yaramaz çocuk?', bekci2: 'Nereden çıktı bu kuzu kuş?' }
   };
 
+  SOZ.kovala.dedehassi = 'Gel kuzum gel, sarılacağım!'; SOZ.yakala.dedehassi = 'Yakaladım seni! Gıdı gıdı gıdı!';
+  SOZ.bakin.dedehassi = 'Diafondan kim bağırdı? Gözlüğüm nerede?'; SOZ.kayip.dedehassi = 'Nereye gitti bu kuzu?';
+  function tekKisi() { try { return !!(G.bolumBilgi && G.bolumBilgi().tekKisi); } catch (e) { return false; } }
   function zor() { try { return (G.bolumBilgi && G.bolumBilgi().zorluk) || null; } catch (e) { return null; } }
   function anonsB() { try { return (G.bolumBilgi && G.bolumBilgi().anons) || {}; } catch (e) { return {}; } }
   function hizK() { var z = zor(); return z && z.kovalama ? z.kovalama - 5 : HIZ.kovalama; }
@@ -81,7 +84,7 @@ window.G = window.G || {};
   // ---------- yol ----------
   function yolSet(p) {
     s.yol = p; s.yolI = 0; s.takilma = 0; s.stuckT = 0; s.birak = false;
-    if (p && p.length && Math.hypot(p[0].x - u.x, p[0].y - u.y) < 10) s.yolI = 1;
+    if (p && p.length && !p[0].portal && Math.hypot(p[0].x - u.x, p[0].y - u.y) < 10) s.yolI = 1;
   }
   function yolHesapla(x, y) {
     var h = H(), p = null;
@@ -139,6 +142,7 @@ window.G = window.G || {};
   }
 
   function adimAt(dt, hiz, hx, hy, donHizi) {
+    if (s.portalBekle > 0) { s.portalBekle -= dt; u.hareket = false; return; }
     var dx = hx - u.x, dy = hy - u.y, L = Math.hypot(dx, dy);
     if (L < 0.001) return;
     var ux = dx / L, uy = dy / L, st = Math.min(hiz * dt, L);
@@ -172,7 +176,10 @@ window.G = window.G || {};
     var guard = 0;
     while (s.yolI < s.yol.length && guard++ < 4) {
       var p = s.yol[s.yolI], son = s.yolI === s.yol.length - 1;
-      if (Math.hypot(p.x - u.x, p.y - u.y) < (son ? 8 : 12)) s.yolI++; else break;
+      if (Math.hypot(p.x - u.x, p.y - u.y) < (son ? 8 : 12)) {
+        if (p.portal && H().portalGec) { H().portalGec(u, p); s.portalBekle = 0.4; s.stuckX = u.x; s.stuckY = u.y; s.stuckT = 0; }
+        s.yolI++;
+      } else break;
     }
     if (yolBitti()) return true;
     var q = s.yol[s.yolI];
@@ -239,7 +246,7 @@ window.G = window.G || {};
 
   // ---------- görme ----------
   function goruyor(o) {
-    if (!o || o.saklandi || (o.gorunmez > 0)) return false;
+    if (!o || o.saklandi || o.korunan || (o.gorunmez > 0)) return false;
     if ((o.gorunurluk == null ? 1 : o.gorunurluk) <= 0) return false;
     var dist = Math.hypot(o.x - u.x, o.y - u.y);
     if (dist > u.gorusMesafe) return false;
@@ -373,7 +380,7 @@ window.G = window.G || {};
       if (o && !o.saklandi && !(o.gorunmez > 0)) { don(Math.atan2(o.y - u.y, o.x - u.x), 8, dt); s.sonGorulen = { x: o.x, y: o.y }; }
       return;
     }
-    var temas = o && !o.saklandi && !(o.gorunmez > 0) && dist < 34 && !engel(u.x, u.y, o.x, o.y);
+    var temas = o && !o.saklandi && !o.korunan && !(o.gorunmez > 0) && dist < 34 && !engel(u.x, u.y, o.x, o.y);
     if (temas) { yakala(d); return; }
     if (gor) {
       s.kayipT = 0;
@@ -428,13 +435,17 @@ window.G = window.G || {};
       // yakalanma / yeni oyun: uyanan yatağa geri konur
       var kim = d.uyanan.kim;
       d.uyanan = null;
-      uyuyanKur(d, kim);
+      if (!tekKisi()) uyuyanKur(d, kim);
     }
     if (d) d.uyanan = null;
     u = null; s = null;
     if (!kuruldu && G.dinle) {
       kuruldu = true;
       G.dinle('mikrofon', function (e) { if (G.d) uyandir(G.d, e); });
+      G.dinle('kat_gecti', function (v) {   // kovalarken çocuğun merdivene bindiğini gördüyse peşinden gider
+        if (!u || !s || !G.d || G.d.uyanan !== u || u.durum !== 'kovalama') return;
+        if (Math.hypot(v.x0 - u.x, v.y0 - u.y) < u.gorusMesafe && !engel(u.x, u.y, v.x0, v.y0)) { s.sonGorulen = { x: v.x1, y: v.y1 }; s.kayipT = 0; }
+      });
     }
   }
 

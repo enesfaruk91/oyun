@@ -131,7 +131,7 @@ window.G = window.G || {};
 
   var ZEMIN = { 'D': 'dis', 'c': 'cit', '.': 'cim', '-': 'kaldirim', '=': 'yol', '#': 'duvar', 't': 'toprak',
     'p': 'parke', 'f': 'fayans', 'h': 'hali', 'b': 'bodrum', 'd': 'parke', 'M': 'parke', 'K': 'parke',
-    'k': 'kilim', 'e': 'eski_parke', 'r': 'kiler', 'g': 'cakil', 's': 'saha' };
+    'k': 'kilim', 'e': 'eski_parke', 'r': 'kiler', 'g': 'cakil', 's': 'saha', 'V': 'bosluk' };
   var KAPI_ZEMIN2 = 'eski_parke';
 
   // ---- BOLUM 1 verisi --------------------------------------------------
@@ -200,7 +200,8 @@ window.G = window.G || {};
     1: [[4, 15], [36, 12], [40, 17]],
     2: [[36, 17], [28, 19], [6, 33]],
     3: [[14, 28], [40, 14], [7, 10]],
-    4: [[23, 26], [34, 17], [11, 26]]
+    4: [[23, 26], [34, 17], [11, 26]],
+    5: [[32, 27], [13, 50], [4, 30]]
   };
 
   var ODALAR1 = [
@@ -462,6 +463,139 @@ window.G = window.G || {};
     ['anahtar_kirmizi', 7, 25, 'Dolapta sadece boş dosyalar var!'], ['anahtar_kirmizi', 12, 25, 'Dosya dolabında sadece karne zarfları!'], ['anahtar_kirmizi', 7, 28, 'Kitapların arasında sadece bir ödev kâğıdı!'], ['anahtar_kirmizi', 11, 30, 'Çekmecede sadece çay şekeri!']
   ];
 
+  // ---- BOLUM 5 verisi: Dede Hassi'nin Evi (DUBLEKS) ----------------------------------------
+  // Iki kat ayni izgarada USTUSTE: zemin kat satir 0-32, 'V' (bosluk) satirlari 33-40, ust kat satir 41-59.
+  // Kat siniri satir 37 (px: 37*48). Merdiven karolari "portal" cifti: A (zemin) <-> B (ust). 3B'de oyuncunun kati gorunur.
+  function ascii5() {
+    var GEN = 44, TOP = 63, rows = [], i, yy, xx;
+    for (yy = 0; yy < TOP; yy++) { var r = []; for (xx = 0; xx < GEN; xx++) r.push('V'); rows.push(r); }
+    function boya(x0, y0, x1, y1, ch) { for (var b = y0; b <= y1; b++) for (var a = x0; a <= x1; a++) rows[b][a] = ch; }
+    function koy(a, b, ch) { rows[b][a] = ch; }
+    // zemin kat: sokak, cit, bahce
+    boya(0, 0, 43, 32, 'D'); boya(0, 1, 43, 1, '-'); boya(0, 2, 43, 3, '='); boya(0, 4, 43, 4, '-');
+    boya(2, 5, 42, 31, 'c'); boya(3, 6, 41, 30, '.');
+    koy(10, 5, 'd'); koy(33, 5, 'd');
+    boya(10, 6, 10, 9, 'g'); boya(33, 6, 33, 9, 'g'); boya(10, 9, 33, 9, 'g');
+    // zemin kat evi (duvar dikdortgeni, sonra odalar)
+    boya(12, 10, 34, 28, '#');
+    boya(13, 11, 19, 16, 'f');            // Mutfak
+    boya(21, 11, 26, 20, 'p');            // Giris Holu
+    boya(28, 11, 33, 16, 'h');            // Salon
+    boya(13, 18, 33, 20, 'p');            // Koridor
+    boya(13, 22, 17, 27, 'r');            // Kiler
+    boya(19, 22, 22, 27, 'f');            // Banyo
+    boya(24, 22, 27, 27, 'e');            // Gokce'nin Kosesi
+    boya(29, 22, 33, 27, 'k');            // Cay Odasi
+    koy(23, 10, 'd'); koy(20, 15, 'd'); koy(27, 15, 'd'); koy(16, 17, 'd'); koy(30, 17, 'd');
+    koy(15, 21, 'K'); koy(20, 21, 'd'); koy(25, 21, 'd'); koy(31, 21, 'd'); koy(12, 19, 'd'); koy(34, 19, 'd');
+    // ust kat
+    boya(12, 41, 34, 59, '#');
+    boya(13, 42, 19, 47, 'k');            // Yatak Odasi
+    boya(21, 42, 26, 51, 'p');            // Ust Hol
+    boya(28, 42, 33, 47, 'e');            // Calisma Odasi
+    boya(13, 49, 33, 51, 'p');            // Ust Koridor
+    boya(13, 53, 18, 58, 'h');            // Misafir Odasi
+    boya(20, 53, 23, 58, 'f');            // Ust Banyo
+    boya(25, 53, 33, 58, 'k');            // Okuma Odasi
+    koy(20, 44, 'd'); koy(27, 47, 'M'); koy(16, 48, 'd'); koy(15, 52, 'd'); koy(21, 52, 'd'); koy(29, 52, 'd');
+    var out = []; for (i = 0; i < TOP; i++) out.push(rows[i].join(''));
+    return out;
+  }
+  var ASCII5 = ascii5();
+
+  // [tur, tx, ty, w, h, kati, saklanma, ad, yon]  (ilk 'yatak'/'mudur_divani' = Dede Hassi'nin kestirme yeri: divan EN ÜSTTE)
+  var ESYA5 = [
+    ['mudur_divani', 32, 12, 2, 3, 1, 0, "Dede Hassi'nin Divanı"],
+    // Salon
+    ['tv', 29, 11, 2, 1, 1, 0, 'Televizyon'], ['masa', 29, 13, 2, 1, 1, 0, 'Sehpa'], ['kanepe', 30, 15, 3, 1, 1, 0, 'Kanepe'],
+    ['sallanan_koltuk', 28, 12, 1, 1, 1, 0, 'Sallanan Koltuk'], ['saksi', 33, 16, 1, 1, 1, 0, 'Saksı'], ['duvar_saati', 28, 11, 1, 1, 1, 0, 'Duvar Saati'],
+    // Mutfak + arka merdiven
+    ['merdiven_kat', 13, 11, 2, 3, 1, 0, 'Arka Merdiven', 0], ['trabzan', 15, 11, 1, 3, 1, 0, 'Trabzan', 0],
+    ['tezgah', 16, 11, 3, 1, 1, 0, 'Tezgâh'], ['caydanlik', 17, 11, 1, 1, 0, 0, 'Çaydanlık'], ['ocak', 19, 11, 1, 1, 1, 0, 'Ocak'],
+    ['buzdolabi', 19, 12, 1, 2, 1, 0, 'Buzdolabı'], ['masa', 17, 14, 2, 2, 1, 0, 'Yemek Masası'],
+    ['sandalye', 17, 16, 1, 1, 1, 0, 'Sandalye'],
+    ['dolap', 13, 16, 1, 1, 1, 1, 'Dolap'], ['cop_kutusu', 18, 16, 1, 1, 1, 1, 'Çöp Kutusu'],
+    // Giriş Holü + ana merdiven + diafon
+    ['diafon', 21, 11, 1, 1, 1, 0, 'Kapı Diafonu'], ['duvar_saati', 22, 11, 1, 1, 1, 0, 'Duvar Saati'],
+    ['merdiven_kat', 25, 11, 2, 5, 1, 0, 'Merdiven', 0], ['trabzan', 24, 11, 1, 5, 1, 0, 'Trabzan', 0],
+    ['saksi', 21, 16, 1, 1, 1, 0, 'Saksı'], ['dolap', 21, 17, 1, 1, 1, 1, 'Palto Dolabı'],
+    // Koridor
+    ['saksi', 13, 18, 1, 1, 1, 0, 'Saksı'], ['saksi', 33, 18, 1, 1, 1, 0, 'Saksı'], ['kutu', 33, 20, 1, 1, 1, 1, 'Kutu'], ['dolap', 13, 20, 1, 1, 1, 1, 'Dolap'],
+    // Kiler (hedef oda)
+    ['raf_kavanoz', 13, 23, 1, 2, 1, 0, 'Kavanoz Rafı'], ['cuval', 17, 22, 1, 1, 1, 1, 'Çuval'], ['tursu_bidonu', 17, 26, 1, 1, 1, 1, 'Turşu Bidonu'], ['cuval', 13, 27, 1, 1, 1, 0, 'Çuval'],
+    // Banyo
+    ['lavabo', 19, 23, 1, 1, 1, 0, 'Lavabo'], ['klozet', 22, 23, 1, 1, 1, 0, 'Klozet'], ['kuvet', 21, 26, 2, 2, 1, 0, 'Küvet'], ['camasir_makinesi', 19, 26, 1, 1, 1, 0, 'Çamaşır Makinesi'],
+    // Gökçe'nin Köşesi
+    ['calisma_masasi', 25, 24, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 25, 25, 1, 1, 0, 0, 'Sandalye', 2],
+    ['kitaplik', 27, 26, 1, 1, 1, 0, 'Kitaplık'], ['saksi', 24, 22, 1, 1, 1, 0, 'Saksı'],
+    // Çay Odası (Anneanne)
+    ['masa', 30, 24, 3, 2, 1, 0, 'Çay Masası'], ['caydanlik', 31, 24, 1, 1, 0, 0, 'Çaydanlık'],
+    ['sandalye', 33, 24, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 31, 26, 1, 1, 1, 0, 'Sandalye'],
+    ['sandik', 33, 27, 1, 1, 1, 1, 'Sandık'], ['dolap', 29, 27, 1, 1, 1, 1, 'Dolap'], ['firin', 33, 22, 1, 1, 1, 0, 'Fırın'],
+    // Üst kat: Yatak Odası + arka merdiven (aşağı)
+    ['merdiven_asagi', 13, 42, 2, 3, 1, 0, 'Arka Merdiven', 0], ['trabzan', 15, 42, 1, 3, 1, 0, 'Trabzan', 0],
+    ['gardirop', 17, 42, 2, 1, 1, 1, 'Gardırop'], ['yatak', 17, 43, 2, 3, 1, 1, 'Yatak'], ['saksi', 19, 42, 1, 1, 1, 0, 'Saksı'], ['sandalye', 16, 46, 1, 1, 1, 0, 'Sandalye'],
+    // Üst Hol + ana merdiven (aşağı)
+    ['merdiven_asagi', 25, 42, 2, 5, 1, 0, 'Merdiven', 0], ['trabzan', 24, 42, 1, 5, 1, 0, 'Trabzan', 0],
+    ['saksi', 21, 42, 1, 1, 1, 0, 'Saksı'], ['duvar_saati', 22, 42, 1, 1, 1, 0, 'Duvar Saati'], ['sandik', 21, 46, 1, 1, 1, 1, 'Sandık'],
+    // Çalışma Odası (kırmızı anahtar adayları)
+    ['calisma_masasi', 30, 42, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 30, 43, 1, 1, 0, 0, 'Sandalye', 2],
+    ['kitaplik', 33, 44, 1, 1, 1, 0, 'Kitaplık'], ['orgu_sepeti', 29, 46, 1, 1, 1, 0, 'Örgü Sepeti'], ['saksi', 28, 42, 1, 1, 1, 0, 'Saksı'],
+    // Üst Koridor
+    ['saksi', 13, 49, 1, 1, 1, 0, 'Saksı'], ['saksi', 33, 49, 1, 1, 1, 0, 'Saksı'], ['kutu', 33, 51, 1, 1, 1, 1, 'Kutu'],
+    // Misafir Odası
+    ['yatak', 13, 54, 2, 3, 1, 1, 'Misafir Yatağı'], ['dolap', 18, 53, 1, 1, 1, 1, 'Dolap'], ['sandalye', 17, 57, 1, 1, 1, 0, 'Sandalye'],
+    // Üst Banyo
+    ['lavabo', 20, 54, 1, 1, 1, 0, 'Lavabo'], ['klozet', 23, 54, 1, 1, 1, 0, 'Klozet'], ['kuvet', 22, 57, 2, 2, 1, 0, 'Küvet'],
+    // Okuma Odası
+    ['koltuk', 26, 54, 1, 2, 1, 0, 'Koltuk'], ['kitaplik', 32, 53, 1, 1, 1, 0, 'Kitaplık'], ['sallanan_koltuk', 31, 56, 1, 1, 1, 0, 'Sallanan Koltuk'],
+    ['masa', 28, 56, 2, 1, 1, 0, 'Okuma Masası'], ['saksi', 33, 58, 1, 1, 1, 0, 'Saksı'], ['sandik', 25, 58, 1, 1, 1, 1, 'Sandık'],
+    // Bahçe
+    ['agac', 4, 7, 2, 2, 1, 0, 'Ağaç'], ['agac', 4, 15, 2, 2, 1, 0, 'Ağaç'], ['agac', 5, 24, 2, 2, 1, 0, 'Ağaç'], ['agac', 38, 8, 2, 2, 1, 0, 'Ağaç'],
+    ['agac', 38, 24, 2, 2, 1, 0, 'Ağaç'], ['agac', 9, 29, 2, 2, 1, 0, 'Ağaç'], ['agac', 36, 29, 2, 2, 1, 0, 'Ağaç'],
+    ['su_kuyusu', 7, 21, 2, 2, 1, 0, 'Su Kuyusu'], ['bank', 37, 19, 2, 1, 1, 0, 'Bahçe Bankı'], ['bank', 6, 11, 2, 1, 1, 0, 'Bahçe Bankı'],
+    ['cali', 3, 10, 1, 1, 0, 1, 'Çalı'], ['cali', 9, 13, 1, 1, 0, 1, 'Çalı'], ['cali', 3, 20, 1, 1, 0, 1, 'Çalı'], ['cali', 10, 26, 1, 1, 0, 1, 'Çalı'],
+    ['cali', 36, 12, 1, 1, 0, 1, 'Çalı'], ['cali', 40, 17, 1, 1, 0, 1, 'Çalı'], ['cali', 36, 22, 1, 1, 0, 1, 'Çalı'], ['cali', 41, 28, 1, 1, 0, 1, 'Çalı'],
+    ['cali', 20, 30, 1, 1, 0, 1, 'Çalı'], ['cali', 27, 29, 1, 1, 0, 1, 'Çalı'], ['cali', 15, 8, 1, 1, 0, 1, 'Çalı'],
+    ['posta_kutusu', 11, 7, 1, 1, 1, 0, 'Posta Kutusu'], ['saksi', 21, 8, 1, 1, 1, 0, 'Saksı'], ['saksi', 25, 8, 1, 1, 1, 0, 'Saksı'],
+    ['cicek', 14, 8, 1, 1, 0, 0, 'Çiçek'], ['cicek', 17, 8, 1, 1, 0, 0, 'Çiçek'], ['cicek', 29, 8, 1, 1, 0, 0, 'Çiçek'], ['cicek', 31, 7, 1, 1, 0, 0, 'Çiçek'],
+    ['cicek', 8, 17, 1, 1, 0, 0, 'Çiçek'], ['cicek', 39, 13, 1, 1, 0, 0, 'Çiçek'], ['cicek', 14, 30, 1, 1, 0, 0, 'Çiçek'], ['cicek', 31, 30, 1, 1, 0, 0, 'Çiçek']
+  ];
+
+  var TOPLA5 = [
+    ['mavi_anahtar', 'anahtar_mavi', 16, 12], ['kirmizi_anahtar', 'anahtar_kirmizi', 31, 43], ['top', 'top_hazine', 15, 26],
+    ['elma1', 'elma', 6, 12], ['elma2', 'elma', 22, 19], ['elma3', 'elma', 38, 15],
+    ['teneke1', 'teneke', 8, 27], ['teneke2', 'teneke', 24, 50],
+    ['ordek1', 'oyuncak_ordek', 40, 20], ['ordek2', 'oyuncak_ordek', 15, 19], ['ordek3', 'oyuncak_ordek', 22, 55],
+    ['kurabiye1', 'kurabiye', 32, 23], ['kurabiye2', 'kurabiye', 31, 16], ['kurabiye3', 'kurabiye', 21, 49]
+  ];
+
+  var ODALAR5 = [
+    { ad: 'Mutfak', x: 13, y: 11, w: 7, h: 6 }, { ad: 'Giriş Holü', x: 21, y: 11, w: 6, h: 10 }, { ad: 'Salon', x: 28, y: 11, w: 6, h: 6 },
+    { ad: 'Koridor', x: 13, y: 18, w: 21, h: 3 }, { ad: 'Kiler', x: 13, y: 22, w: 5, h: 6 }, { ad: 'Banyo', x: 19, y: 22, w: 4, h: 6 },
+    { ad: "Gökçe'nin Köşesi", x: 24, y: 22, w: 4, h: 6 }, { ad: 'Çay Odası', x: 29, y: 22, w: 5, h: 6 },
+    { ad: 'Yatak Odası', x: 13, y: 42, w: 7, h: 6 }, { ad: 'Üst Hol', x: 21, y: 42, w: 6, h: 10 }, { ad: 'Çalışma Odası', x: 28, y: 42, w: 6, h: 6 },
+    { ad: 'Üst Koridor', x: 13, y: 49, w: 21, h: 3 }, { ad: 'Misafir Odası', x: 13, y: 53, w: 6, h: 6 }, { ad: 'Üst Banyo', x: 20, y: 53, w: 4, h: 6 },
+    { ad: 'Okuma Odası', x: 25, y: 53, w: 9, h: 6 }
+  ];
+
+  var DEVRIYE5 = [
+    [23, 13, 2], [30, 14, 2], [30, 19, 1], [30, 23, 1.5], [26, 23, 1.5], [20, 24, 1.5], [15, 19, 1], [16, 13, 2],
+    [23, 8, 2], [37, 20, 1.5], [23, 30, 1.5], [10, 22, 1.5], [10, 7, 1.5],
+    [23, 45, 2], [16, 45, 1.5], [22, 50, 1], [16, 55, 1.5], [30, 55, 1.5]
+  ];
+
+  var KAPI5 = { '10,5': 'bahce_kapi_bati', '33,5': 'bahce_kapi_dogu', '23,10': 'on', '20,15': 'mutfak', '27,15': 'salon', '16,17': 'mutfak_koridor',
+    '30,17': 'salon_koridor', '15,21': 'kiler', '20,21': 'banyo', '25,21': 'gokce', '31,21': 'cay_odasi', '12,19': 'arka_bati', '34,19': 'arka_dogu',
+    '20,44': 'yatak_ust', '27,47': 'calisma', '16,48': 'yatak_koridor', '15,52': 'misafir', '21,52': 'ust_banyo', '29,52': 'okuma' };
+
+  var ARAMA5 = [
+    ['anahtar_mavi', 16, 11, 'Çekmecede sadece kaşıklar var!'], ['anahtar_mavi', 30, 15, 'Kanepe minderinin altında sadece bozuk paralar!'],
+    ['anahtar_mavi', 26, 54, 'Koltukta sadece bir yün yumağı!'], ['anahtar_mavi', 37, 19, 'Bankın altında sadece bir sakız!'],
+    ['anahtar_kirmizi', 30, 42, 'Masada sadece boş kâğıtlar var!'], ['anahtar_kirmizi', 33, 44, 'Kitapların arasında sadece bir kuru yaprak!'],
+    ['anahtar_kirmizi', 29, 46, 'Sepette sadece yün yumakları!'], ['anahtar_kirmizi', 28, 42, 'Saksıda sadece toprak ve bir solucan!']
+  ];
+
   // ---- Bölüm tanımları ------------------------------------------------
   var BOLUMLER = {
     1: {
@@ -483,6 +617,16 @@ window.G = window.G || {};
       ascii: ASCII4, esya: ESYA4, topla: TOPLA4, odalar: ODALAR4, devriye: DEVRIYE4, kapi: KAPI4, kapiZemin: 'parke',
       oyuncu: [10, 7], komsu: [14, 14], kaza: [25, 11], gokce: [22, 29],
       mikrofon: [18, 30], sokakSon: 5, zil: [15, 12], arama: ARAMA4
+    },
+    5: {
+      ascii: ASCII5, esya: ESYA5, topla: TOPLA5, odalar: ODALAR5, devriye: DEVRIYE5, kapi: KAPI5, kapiZemin: 'parke',
+      oyuncu: [10, 3], komsu: [22, 14], kaza: [23, 12], gokce: [25, 25],
+      mikrofon: [21, 12], sokakSon: 5, arama: ARAMA5,
+      // Katlar: iki kat aynı ızgarada üst üste. sinir = kat sınırı satırı, dy = üst katın zemin kata göre satır kayması.
+      kat: { sinir: 37, dy: 31, ad: ['Zemin Kat', 'Üst Kat'] },
+      // Portal çiftleri [zemin tx, ty, üst tx, ty]: merdiven ayak karoları (E ile geçilir; yapay zekâ kendiliğinden geçer)
+      portal: [[25, 16, 25, 47], [26, 16, 26, 47], [13, 14, 13, 45], [14, 14, 14, 45]],
+      yardimci: [31, 23], misafirKapi: [23, 9]
     }
   };
 
@@ -511,7 +655,8 @@ window.G = window.G || {};
     gokceMasa: { x: 0, y: 0, yon: -Math.PI / 2 },
     mikrofonYeri: { x: 0, y: 0, yon: -Math.PI / 2 },
     kediBaslangic: { x: 0, y: 0 },
-    kazaYeri: null, zilYeri: null, hoparlorler: [], aramaNoktalari: [], aramaGruplari: {}
+    kazaYeri: null, zilYeri: null, hoparlorler: [], aramaNoktalari: [], aramaGruplari: {},
+    katSayisi: 1, katSinirY: 0, katDy: 0, katAdlari: [], portallar: []
   };
 
   harita.init = function (bolum, bakSadece) {
@@ -535,7 +680,7 @@ window.G = window.G || {};
         var ch = ASCII[y].charAt(x);
         grid[y].push(ch);
         kapiGrid[y].push(null);
-        if (ch === 'D' || ch === '#' || ch === 'c') solidGrid[y][x] = 1;
+        if (ch === 'D' || ch === '#' || ch === 'c' || ch === 'V') solidGrid[y][x] = 1;
       }
     }
     var kid = cur.kapi;
@@ -577,6 +722,8 @@ window.G = window.G || {};
     // kaza yeri: B1/B2 scooter, B3 salıncak, B4 pota (bolum.js kazaTur)
     var kz = cur.kaza || cur.scooter;
     harita.kazaYeri = kz ? { x: merkez(kz[0]), y: merkez(kz[1]), tur: (G.bolumler && G.bolumler[bolum] && G.bolumler[bolum].kazaTur) || 'scooter' } : null;
+    harita.yardimciYeri = cur.yardimci ? { x: merkez(cur.yardimci[0]), y: merkez(cur.yardimci[1]) } : null;
+    harita.misafirKapi = cur.misafirKapi ? { x: merkez(cur.misafirKapi[0]), y: merkez(cur.misafirKapi[1]) } : null;
     harita.zilYeri = cur.zil ? { x: merkez(cur.zil[0]), y: merkez(cur.zil[1]) } : null;
     harita.hoparlorler = harita.esyalar.filter(function (e) { return e.tur === 'hoparlor_direk' || e.tur === 'okul_hoparlor'; })
       .map(function (e) { return { x: (e.tx + e.w / 2) * T, y: (e.ty + e.h / 2) * T, tur: e.tur }; });
@@ -588,8 +735,61 @@ window.G = window.G || {};
       : (harita.bolum === 2
         ? { tx: 6, ty: 1, w: 32, h: 3, ad: 'Annemle Babamın Evi', kapiTx: 22, kapiTy: 4 }
         : null);
+    kurKatlar();
     harita.anahtarDeneme = siraAl(bolum, bakSadece);   // sayfa yüklenirken yapılan ilk init sayacı ilerletmez
     harita.sifirla();
+  };
+
+  // ---- Katlar ve portallar (GENEL: AVM gibi çok katlı bölümler de bolum verisindeki kat/portal alanlarını doldurur) ----
+  // cur.kat = {sinir: kat sınırı satırı, dy: üst katın satır kayması, ad: [kat adları]}; cur.portal = [[ax,ay,bx,by], ...]
+  // Kat, konumdan türetilir (katOf): sınırın üstü 0, altı 1; durum tutulmaz, ışınlanınca kendiliğinden değişir.
+  var portalGrid = null, portalKenar = [];
+  function kurKatlar() {
+    var kt = cur.kat, i;
+    harita.portallar = []; portalKenar = []; portalGrid = new Int32Array(W * H);
+    for (i = 0; i < portalGrid.length; i++) portalGrid[i] = -1;
+    if (!kt) { harita.katSayisi = 1; harita.katSinirY = 0; harita.katDy = 0; harita.katAdlari = ['']; return; }
+    harita.katSayisi = 2; harita.katSinirY = kt.sinir * T; harita.katDy = (kt.dy || 0); harita.katAdlari = (kt.ad || ['Zemin Kat', 'Üst Kat']).slice();
+    (cur.portal || []).forEach(function (q, n) {
+      var a = { tx: q[0], ty: q[1], x: merkez(q[0]), y: merkez(q[1]) }, b = { tx: q[2], ty: q[3], x: merkez(q[2]), y: merkez(q[3]) };
+      a.kat = harita.katOf(a.y); b.kat = harita.katOf(b.y);
+      harita.portallar.push({ id: 'portal' + n, a: a, b: b });
+      var ai = a.ty * W + a.tx, bi = b.ty * W + b.tx;
+      portalGrid[ai] = bi; portalGrid[bi] = ai;
+      portalKenar.push({ from: ai, to: bi, fk: a.kat, tk: b.kat }, { from: bi, to: ai, fk: b.kat, tk: a.kat });
+    });
+  }
+  // px y -> kat (0 zemin, 1 üst); tek katlı bölümde hep 0
+  harita.katOf = function (y) { return (harita.katSayisi > 1 && y >= harita.katSinirY) ? 1 : 0; };
+  harita.katAdi = function (k) { return (harita.katAdlari && harita.katAdlari[k]) || ''; };
+  // iki nokta aynı kattaysa düz mesafe; farklı kattaysa katlar üst üste bindirilmiş (kat dışı ses vb. için)
+  harita.katMesafe = function (x1, y1, x2, y2) {
+    var k1 = harita.katOf(y1), k2 = harita.katOf(y2);
+    if (k1 !== k2) { if (k2 > k1) y2 -= harita.katDy * T; else y2 += harita.katDy * T; }
+    return Math.hypot(x2 - x1, y2 - y1);
+  };
+  // (x,y) konumuna r px içindeki portal karosu: {x,y (karo merkezi), hedef:{x,y,kat}, kat} | null  (E ile merdiven için)
+  harita.portalYakin = function (x, y, r) {
+    var en = null, em = (r || 52) + 0.01, k = harita.katOf(y);
+    for (var i = 0; i < harita.portallar.length; i++) {
+      var p = harita.portallar[i], dir = [[p.a, p.b], [p.b, p.a]];
+      for (var j = 0; j < 2; j++) {
+        var f = dir[j][0], t = dir[j][1];
+        if (f.kat !== k) continue;
+        var m = Math.hypot(f.x - x, f.y - y);
+        if (m < em) { em = m; en = { x: f.x, y: f.y, kat: f.kat, hedef: { x: t.x, y: t.y, kat: t.kat }, mesafe: m, id: p.id }; }
+      }
+    }
+    return en;
+  };
+  // yapay zekâ geçişi: yolBul noktasındaki portal alanı ya da {x,y} hedefe ışınlar
+  harita.portalGec = function (ent, p) {
+    var dst = p && p.portal ? p.portal : p;
+    if (!ent || !dst || typeof dst.x !== 'number') return false;
+    var x0 = ent.x, y0 = ent.y;
+    ent.x = dst.x; ent.y = dst.y; ent.portalT = 0.45;
+    if (G.olay) G.olay('portal_gecti', { x0: x0, y0: y0, x: ent.x, y: ent.y, kim: ent.kim || ent.ad || '' });
+    return true;
   };
 
   harita.sifirla = function () {
@@ -682,6 +882,7 @@ window.G = window.G || {};
       var n = [[1, 0], [-1, 0], [0, 1], [0, -1]];
       for (var i = 0; i < 4; i++) { r = ara(tx + n[i][0], ty + n[i][1]); if (r) return r; }
     }
+    if (harita.bolum === 5) return ty <= cur.sokakSon ? 'Sokak' : 'Bahçe';
     if (harita.bolum === 4) return ty <= cur.sokakSon ? 'Sokak' : 'Okul Bahçesi';
     if (harita.bolum === 3) return ty <= cur.sokakSon ? 'Sokak' : 'Park';
     if (harita.bolum === 2) return ty <= cur.sokakSon ? 'Sokak' : 'Bahçe';
@@ -699,7 +900,7 @@ window.G = window.G || {};
       var tx = Math.floor(px / T), ty = Math.floor(py / T);
       if (tx < 0 || ty < 0 || tx >= W || ty >= H) return true;
       var ch = grid[ty][tx];
-      if (ch === '#' || ch === 'D') return true;
+      if (ch === '#' || ch === 'D' || ch === 'V') return true;
       if (yuksekGrid[ty][tx]) return true;
       var k = kapiGrid[ty][tx];
       if (k && !k.acik) return true;
@@ -820,9 +1021,20 @@ window.G = window.G || {};
       }
       return top;
     }
+    var gk = harita.katOf(merkez(g[1])), kenarVar = portalKenar.length > 0;
+    function oct(ax, ay, bx, by) { var ddx = Math.abs(ax - bx), ddy = Math.abs(ay - by); return Math.max(ddx, ddy) + 0.4142 * Math.min(ddx, ddy); }
     function hh(i) {
-      var dx = Math.abs((i % W) - g[0]), dy = Math.abs(((i / W) | 0) - g[1]);
-      return Math.max(dx, dy) + 0.4142 * Math.min(dx, dy);
+      var cx0 = i % W, cy0 = (i / W) | 0;
+      if (kenarVar && harita.katOf(merkez(cy0)) !== gk) {
+        var best = 1e9, ck = harita.katOf(merkez(cy0));
+        for (var e = 0; e < portalKenar.length; e++) {
+          var pe = portalKenar[e]; if (pe.fk !== ck || pe.tk !== gk) continue;
+          var v = oct(cx0, cy0, pe.from % W, (pe.from / W) | 0) + 7 + oct(pe.to % W, (pe.to / W) | 0, g[0], g[1]);
+          if (v < best) best = v;
+        }
+        return best < 1e9 ? best : oct(cx0, cy0, g[0], g[1]);
+      }
+      return oct(cx0, cy0, g[0], g[1]);
     }
     gS[si] = 0; it(si, hh(si));
     var DX = [1, -1, 0, 0, 1, 1, -1, -1], DY = [0, 0, 1, -1, 1, -1, 1, -1];
@@ -842,11 +1054,22 @@ window.G = window.G || {};
         var ng = gS[cur] + (d >= 4 ? 1.4142 : 1) + yakinGrid[ny][nx] * 0.35;
         if (ng < gS[ni]) { gS[ni] = ng; ata[ni] = cur; it(ni, ng + hh(ni)); }
       }
+      if (kenarVar && portalGrid[cur] >= 0) {   // merdiven: karo -> öbür kattaki karo (maliyet 7 karo)
+        var pi2 = portalGrid[cur];
+        if (!kapali[pi2]) { var pg2 = gS[cur] + 7; if (pg2 < gS[pi2]) { gS[pi2] = pg2; ata[pi2] = cur; it(pi2, pg2 + hh(pi2)); } }
+      }
     }
     if (!bulundu) return null;
-    var yol = [], c2 = gi;
-    while (c2 !== si && c2 !== -1) { yol.push({ x: merkez(c2 % W), y: merkez((c2 / W) | 0) }); c2 = ata[c2]; }
-    yol.reverse();
+    var hucre = [], c2 = gi;
+    while (c2 !== -1) { hucre.push(c2); if (c2 === si) break; c2 = ata[c2]; }
+    hucre.reverse();   // si ... gi
+    var yol = [];
+    for (var hi = 0; hi < hucre.length; hi++) {
+      var cc = hucre[hi], nokta = { x: merkez(cc % W), y: merkez((cc / W) | 0) };
+      if (hi + 1 < hucre.length && portalGrid[cc] === hucre[hi + 1]) { var nx2 = hucre[hi + 1]; nokta.portal = { x: merkez(nx2 % W), y: merkez((nx2 / W) | 0) }; }
+      if (hi === 0 && !nokta.portal) continue;   // başlangıç karosu yola girmez (portal karosunda duruyorsa girer)
+      yol.push(nokta);
+    }
     return yol;
   };
 
