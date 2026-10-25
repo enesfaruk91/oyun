@@ -17,7 +17,7 @@ G.misafir = (function () {
   function katOf(y) { var h = H(); return h.katOf ? h.katOf(y) : 0; }
   function engel(x1, y1, x2, y2) { var h = H(); return h.gorusEngeli ? !!h.gorusEngeli(x1, y1, x2, y2) : false; }
   function say(e, m, sure, zorla) { if (!e) return; if (!zorla && e.konusma && e.konusma.sure > 0) return; e.konusma = { metin: m, sure: sure || 2.2 }; }
-  function aktif() { var b = bilgi(); return !!(b.yardimci || b.misafir); }
+  function aktif() { var b = bilgi(); return !b.ayikoyu && !!(b.yardimci || b.misafir); }
 
   // ---------------- yürüyüş (portal ve kapı destekli) ----------------
   function yeniS() { return { yol: null, yolI: 0, hedef: null, birak: false, stuckT: 0, stuckX: 0, stuckY: 0, portalBekle: 0, acanlar: [], kapiIc: null, adimT: 0 }; }

@@ -10,6 +10,7 @@ window.G = window.G || {};
   function hizK() { var c = KISI[k && k.kim] || KISI.baba, z = zor(); return z && z.kovalama ? z.kovalama + (c.ek || 0) : c.kovalama; }
   function supheCarpan() { var z = zor(); return (z && z.suphe) || 1; }
   var KISI = {
+    morayi: { devriye: 88, kovalama: 180, gorus: 360, ek: 0 },
     avmgorevli: { devriye: 85, kovalama: 175, gorus: 350, ek: 0 },
     baba: { devriye: 85, kovalama: 170, gorus: 330, ek: 0 },
     anne: { devriye: 95, kovalama: 175, gorus: 350, ek: 5 },
@@ -156,6 +157,7 @@ window.G = window.G || {};
     ispiyon: ['Aaa! Abi! Ba-ba!', 'Abi! Nerede? Agu!', 'Hihi! Geliyorum!']
   };
   SOZK.avmgorevli = Object.assign({}, SOZK.bekci, { mirilti: ['Toplar yerinde, oyuncaklar hazır!', 'Şenlik ne güzel!'], gordu: ['Seni gördüm, küçük kaşif!'], kovala: ['Çak bir beşlik!', 'Gülerek yakalarım!'], yakala: ['Buldum! Al sana bir çıkartma!'], anons: ['Şenlik anonsu mu bu?'] });
+  SOZK.morayi = Object.assign({}, SOZK.avmgorevli, { mirilti: ['Bal şenliği başlıyor!', 'Çiçekler mis gibi!'], gordu: ['Seni gördüm, minik dostum!'], kovala: ['Ayı sarılması geliyor!', 'Hihihi! Neredesin?'], yakala: ['Kocaman bir sarılma!'], ispiyon: ['Beatrice gördü mü? Bir bakayım!'], vazgec: ['Nereye saklandı bu minik dost?'] });
   var nobetci = 'baba', uyuyanKim = 'anne';
   function bz() { return k && k.kim === 'beren' ? 0.82 : 1; }   // bebek: süphe/arama/yorgun yürüyüşü daha yavaş (emekleme)
   function bebekSes(tur) { if (k && k.kim === 'beren') olay('bebek_ses', { tur: tur, x: k.x, y: k.y }); }
@@ -818,7 +820,7 @@ window.G = window.G || {};
     k.oyalaniyor = true;
     s.pg = { h: hedef, kalan: sure > 0 ? sure : 10, rpT: 0, sozT: 0, hep: 0, kat: kat === 'kat' };
     olay('komsu_suphe', {});
-    say(kat === 'kat' ? rnd(Z('gokcekat') || Z('gokce')) : 'Gökçe! Gel buraya!', 2.4, true);
+    say(hedef.kim === 'superbear' ? 'Super Bear! Birlikte oynayalım!' : kat === 'kat' ? rnd(Z('gokcekat') || Z('gokce')) : 'Gökçe! Gel buraya!', 2.4, true);
   }
 
   function pesBitir() {
@@ -836,7 +838,7 @@ window.G = window.G || {};
     pg.kalan -= dt;
     if (pg.kalan <= 0 || h.bitti === true) { pesBitir(); return; }
     pg.sozT -= dt;
-    if (pg.sozT <= 0) { pg.sozT = 2.2; say(pg.kat ? rnd(Z('gokcekat') || Z('gokce')) : (pg.hep++ % 2 ? 'Dur bakalım küçük hanım!' : 'Gökçe! Gel buraya!'), 2, true); }
+    if (pg.sozT <= 0) { pg.sozT = 2.2; say(h.kim === 'superbear' ? 'Bal şenliğine doğru koşalım!' : pg.kat ? rnd(Z('gokcekat') || Z('gokce')) : (pg.hep++ % 2 ? 'Dur bakalım küçük hanım!' : 'Gökçe! Gel buraya!'), 2, true); }
     var HZ = hizK(), dist = Math.hypot(h.x - k.x, h.y - k.y);
     if (dist < 30) { k.hareket = false; s.stuckT = 0; don(Math.atan2(h.y - k.y, h.x - k.x), 8, dt); return; }
     if (dogrudanTemiz(h.x, h.y)) {
@@ -1113,7 +1115,7 @@ window.G = window.G || {};
   // ---------- Bölüm 6 (bebek) uçları: bebek.js çağırır ----------
   function ispiyon(x, y) {   // Teyze/Enişte çocuğu gördü: Beren o yöne yönelir
     var d = G.d;
-    if (!k || !s || !d || d.komsu !== k || k.kim !== 'beren') return false;
+    if (!k || !s || !d || d.komsu !== k || (k.kim !== 'beren' && k.kim !== 'morayi')) return false;
     if (k.pasif || s.tasi || s.pg || k.durum === 'yakaladi' || k.durum === 'kovalama' || k.durum === 'yorgun') return false;
     s.oy = null; k.oyalaniyor = false; k.oturuyor = false;
     supheBasla(x, y, false, false);

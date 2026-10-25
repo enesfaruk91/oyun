@@ -16,6 +16,8 @@ window.G = window.G || {};
 
   SOZ.kovala.dedehassi = 'Gel kuzum gel, sarılacağım!'; SOZ.yakala.dedehassi = 'Yakaladım seni! Gıdı gıdı gıdı!';
   SOZ.bakin.dedehassi = 'Diafondan kim bağırdı? Gözlüğüm nerede?'; SOZ.kayip.dedehassi = 'Nereye gitti bu kuzu?';
+  SOZ.kovala.morayi = 'Ayı sarılması geliyor!'; SOZ.yakala.morayi = 'Buldum! Kocaman sarılma!'; SOZ.bakin.morayi = 'Köy çanı mı çaldı?'; SOZ.kayip.morayi = 'Nereye saklandın minik dost?';
+  SOZ.kovala.avmgorevli = 'Çak bir beşlik!'; SOZ.yakala.avmgorevli = 'Buldum! Al sana bir çıkartma!';
   function tekKisi() { try { return !!(G.bolumBilgi && G.bolumBilgi().tekKisi); } catch (e) { return false; } }
   function zor() { try { return (G.bolumBilgi && G.bolumBilgi().zorluk) || null; } catch (e) { return null; } }
   function anonsB() { try { return (G.bolumBilgi && G.bolumBilgi().anons) || {}; } catch (e) { return {}; } }
@@ -462,6 +464,17 @@ window.G = window.G || {};
     s.toplam += dt;
     if (s.toplam > GENEL_SURE && u.durum !== 'kovalama') { yatagaYat(d); return; }
 
+    // Dost ayının çağrısında oyuncuyu kovalamak yerine ayıyı takip et.
+    if (s.yardim) {
+      var yd = s.yardim; yd.sure -= dt; yd.yolT -= dt;
+      if (yd.sure <= 0 || yd.hedef.bitti) { s.yardim = null; u.oyalaniyor = false; devriyeBasla(); return; }
+      u.uyari = 0; u.oyalaniyor = true;
+      if (Math.hypot(u.x-yd.hedef.x,u.y-yd.hedef.y)>40) {
+        if (yd.yolT<=0) { yd.yolT=.5; s.birak=false; yolKur(yd.hedef.x,yd.hedef.y); }
+        if (s.yol) yolTakip(dt, HIZ.kovalama, 6);
+      }
+      kapiKapatKontrol(); return;
+    }
     if (u.durum === 'uyaniyor') {
       s.zaman -= dt;
       u.hareket = false;
@@ -496,5 +509,14 @@ window.G = window.G || {};
     if (u && d.uyanan === u) kapiKapatKontrol();
   }
 
-  G.uyanan = { init: init, guncelle: guncelle, uyandir: function (d) { uyandir(d || G.d); }, _durum: function () { return s; } };
+  function oyala(hedef, sure) {
+    if (!u || !s || u.kim !== 'morayi' || u.durum === 'yakaladi') return false;
+    durumDegis('suphe'); s.yardim={hedef:hedef,sure:sure||14,yolT:0}; u.oyalaniyor=true; u.uyari=0;
+    say('Super Bear! Birlikte oynayalım!',2.5,true); return true;
+  }
+  function ihbar(x, y) {
+    if (!u || !s || s.yardim || u.kim !== 'morayi' || /yorgun|yakaladi|kovalama/.test(u.durum)) return false;
+    supheBasla(); s.mic = { x: x, y: y }; say('Beatrice gördü mü? Bir bakayım!', 2, true); return true;
+  }
+  G.uyanan = { oyala: oyala, ihbar: ihbar, init: init, guncelle: guncelle, uyandir: function (d) { uyandir(d || G.d); }, _durum: function () { return s; } };
 })();

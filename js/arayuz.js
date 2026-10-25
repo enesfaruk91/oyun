@@ -570,6 +570,7 @@ window.G = window.G || {};
     menuAlan.minik = { x: mx, y: 10, w: mw, h: 32 };
     yildizToplamPill(c, 10, 10);
     surumEtiket(c, d);
+    yazi(c, 'Ayı Köyü: Super Bear Adventure’a selam · hayran yapımı, resmî değil', w/2, 57, Math.min(11,w/70), '#fff2c5', 'center', false);
   }
   var KART_RENK = ['#3d8bff', '#3fae4a', '#ff7a1a', '#9b4fd6', '#e0427a', '#14a3a3', '#c9a400', '#d9534f'];
 
@@ -1011,7 +1012,19 @@ window.G = window.G || {};
     c.fillStyle = 'rgba(0,0,0,0.25)'; c.beginPath(); c.arc(0.5, 1, 10, 0, 7); c.fill();
     rc(c, 0, 0, 10, renkli ? (ROZET_BG[ad] || '#fff') : '#2e3550');
     c.lineWidth = 1.4; c.strokeStyle = renkli ? '#ffffff' : '#59627f'; c.beginPath(); c.arc(0, 0, 9.3, 0, 7); c.stroke();
-    if (ad === 'dino') {
+    if (ad === 'bal') {
+      c.fillStyle=P.y; c.fillRect(-5,-4,10,11); c.fillStyle=P.br; c.fillRect(-5.5,-6,11,3); ro(c,0,0,3.2,2.6,P.o); rl(c,-2,0,2,0,P.w,1);
+    } else if (ad === 'ari') {
+      ro(c,-3,-4,3.5,2.8,P.w); ro(c,3,-4,3.5,2.8,P.w); ro(c,0,1,6,4,P.y); rl(c,-1,-2,-1,4,P.n,1.8); rl(c,2,-2,2,4,P.n,1.8); rc(c,5,0,0.7,P.n);
+    } else if (ad === 'tac') {
+      rp(c,[[-7,-5],[-3,0],[0,-7],[3,0],[7,-5],[5,6],[-5,6]],P.y); rc(c,0,2,1.5,P.r); rl(c,-5,5,5,5,P.o,1.2);
+    } else if (ad === 'balon') {
+      ro(c,0,-2,5,6,P.r); rp(c,[[-1,4],[1,4],[0,6]],P.r); rl(c,0,6,1,9,P.n,.6);
+    } else if (ad === 'trambolin') {
+      ro(c,0,0,7,3,P.b); ro(c,0,-1,5,1.6,P.n); rl(c,-5,2,-5,7,P.p,1.3); rl(c,5,2,5,7,P.p,1.3); rc(c,0,-6,2,P.y);
+    } else if (ad === 'dondurma') {
+      rp(c,[[-4,0],[4,0],[0,9]],P.o); rc(c,-2,-3,3.6,P.p); rc(c,2,-3,3.6,P.w); rc(c,0,-6,3,P.r);
+    } else if (ad === 'dino') {
       rp(c, [[-5, 1.5], [-9, 4.6], [-4.5, 4.9]], P.g); ro(c, -0.5, 2.2, 5.6, 3.6, P.g); rp(c, [[1.5, 0.5], [3.4, -2.2], [5.2, 2], [2, 3.2]], P.g);
       c.fillStyle = P.g; c.fillRect(-2.9, 4.6, 1.9, 2.8); c.fillRect(1.4, 4.6, 1.9, 2.8); ro(c, 4.6, -2.3, 3.3, 2.5, P.g);
       rp(c, [[-3.6, -0.5], [-2.4, -3.1], [-1.1, -0.9]], P.y); rp(c, [[-1, -0.8], [0.2, -3.5], [1.4, -0.4]], P.y);
@@ -1463,6 +1476,9 @@ window.G = window.G || {};
     ikon(c, 'top_hazine', 0, 0, 70); c.restore();
     c.save(); c.translate(250, -20 + Math.abs(Math.sin(t * 3.5 + 1)) * -18);
     ikon(c, 'top_hazine', 0, 0, 70); c.restore();
+    if (G.bolumBilgi().ayikoyu) {
+      ['Ogeday','Atılay','Giray','Gökçe'].forEach(function (ad,i) { var xx=-123+i*82, yy=-5+Math.sin(t*3+i)*4; rc(c,xx,yy,25,['#ffbb45','#62a9ff','#76c974','#c48bea'][i]); rc(c,xx-7,yy-3,2,'#443044'); rc(c,xx+7,yy-3,2,'#443044'); c.beginPath();c.arc(xx,yy+1,8,0,Math.PI);c.strokeStyle='#443044';c.lineWidth=2;c.stroke();yazi(c,ad,xx,yy+38,13,'#4a2f12','center',false); });
+    }
     yazi(c, G.bolumBilgi().kazandiAlt, 0, 62, sigdir(c, G.bolumBilgi().kazandiAlt, 600, 21), '#4a2f12', 'center', false);
     yazi(c, 'Süre: ' + sureYazi(d.istatistik && d.istatistik.sure) + '   Yakalanma: ' + d.yakalanma + '   Çıkartma: ' + (d.cikartmaSay || 0) + '/' + (d.cikartmaToplam || 3), 0, 100, 22, '#2b3355', 'center', false);
     if (modZaman > 0.8) dugme(c, dokunmatik ? 'DOKUN: TEKRAR' : 'TEKRAR OYNA', 0, 168, 340, 74, '#ff7a1a', '#a8430b', true);
@@ -1625,7 +1641,7 @@ window.G = window.G || {};
       if (d.mod === 'kazandi' || d.mod === 'bolumBitti') {
         for (var yi = 0; yi < (d.yildiz || 1); yi++) if (!yildizSes[yi] && modZaman >= YILDIZ_GEC + yi * YILDIZ_ARA) { yildizSes[yi] = true; G.olay('yildiz_ses', { i: yi }); }
         var renkler = ['#ff5252', '#ffb02e', '#ffe14d', '#4cd964', '#3d9bff', '#b565ff', '#ff7ac8'];
-        konfetiBirikim += dt * (modZaman < 3 ? 110 : 55);
+        konfetiBirikim += dt * (G.bolumBilgi().ayikoyu ? (modZaman < 3 ? 170 : 75) : (modZaman < 3 ? 110 : 55));
         while (konfetiBirikim >= 1 && konfeti.length < 260) {
           konfetiBirikim -= 1;
           konfeti.push({ x: Math.random() * d.ekran.w, y: -10, vx: (Math.random() - 0.5) * 120, vy: 80 + Math.random() * 140,

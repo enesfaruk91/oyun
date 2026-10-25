@@ -1794,7 +1794,7 @@
       a.root.position.y = 0.04 + (ent.ziplaY || 0.52);
       var zip = Math.sin(d.zaman * 5);
       for (i=0;i<2;i++) { a.legs[i].rotation.x = -0.2; a.knees[i].rotation.x = 0.3 + Math.max(0,-zip)*0.5; a.arms[i].rotation.set(-0.7,0,(i ? 1 : -1)*0.9); }
-    } else if (suruyor && (tur === 'pota' || tur === 'oyunparki' || tur === 'tirmanma_agi')) {
+    } else if (suruyor && (tur === 'pota' || tur === 'oyunparki' || tur === 'tirmanma_agi' || tur === 'kovan_agaci')) {
       var ph = d.zaman * 5 + a.seed;
       a.root.position.y = 0.04 + (ent.tirmanY || 0);
       a.body.rotation.x = 0.06; a.body.position.y = Math.abs(Math.sin(ph)) * 0.015;
@@ -2246,8 +2246,8 @@
       var m = new T.MeshBasicMaterial({ color: '#a97a12', transparent: true, opacity: 0.38, side: T.DoubleSide, depthWrite: false });
       mesh = new T.Mesh(g, m); mesh.frustumCulled = false; R.scene.add(mesh); R.cones[index] = mesh;
     }
-    mesh.visible = !!n && !n.pasif && !n.kucakta && !/yorgun|yakaladi|selam|oyalan/.test(n.durum); if (!mesh.visible) return;
-    var ispk = n.kim === 'teyze' || n.kim === 'enistee';   // ispiyoncu: soluk koni (tehlike değil)
+    mesh.visible = !!n && !n.gizli && !n.pasif && !n.kucakta && !/yorgun|yakaladi|selam|oyalan/.test(n.durum); if (!mesh.visible) return;
+    var ispk = n.kim === 'teyze' || n.kim === 'enistee' || n.kim === 'beatrice';   // ispiyoncu: soluk koni (tehlike değil)
     mesh.material.opacity = ispk ? (n.durum === 'ispiyon' ? 0.3 : 0.17) : (n.durum === 'kovalama' ? 0.46 : (n.durum === 'suphe' ? 0.42 : 0.38));
     var buf = mesh.geometry.attributes.position.array, a = n.gorusAci || 1.2, dist = (n.gorusMesafe || 300) / U, px = n.x / U, pz = n.y / U, pts = [];
     for (var i = 0; i <= 36; i++) {
@@ -2316,6 +2316,8 @@
     ekle(d.oyuncu, 'Ogeday', 1.62, 100, '#ffe9a8');
     (d.kardesler || []).forEach(function (e, i) { ekle(e, e.ad, i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84, i === 0 ? '#bcdcff' : '#c8e9c0'); });
     (d.oturanlar || []).forEach(function (e) { ekle(e, G.kisiAdi(e.kim), 1.5, 50, '#fff1da'); });
+    if (d.superbear) ekle(d.superbear, 'Super Bear', 1.75, 65, '#ffe6b4');
+    if (d.beatrice) ekle(d.beatrice, 'Beatrice', d.beatrice.yukseklik + 1.6, 73, '#fff3a3');
     if (d.gokce) ekle(d.gokce, 'Gökçe', 1.55, 80, '#e6c8f2');
     if (d.komsu) ekle(d.komsu, G.kisiAdi(d.komsu.kim), d.komsu.kim === 'beren' ? 1.0 : 1.98, 70, '#ffe2bb');
     if (d.teyze) ekle(d.teyze, 'Nefise Teyze', 1.9, 63, '#ffc9e6');
@@ -2358,6 +2360,8 @@
     var kovK = function (e) { return (e === d.komsu || e === d.uyanan || e === d.recep) && e.durum === 'kovalama'; };
     balonEkle(d.oyuncu, null, 1.62, 100);
     if (d.komsu) balonEkle(d.komsu, null, d.komsu.kim === 'beren' ? 1.0 : 1.98, kovK(d.komsu) ? 98 : 70);
+    if (d.superbear) balonEkle(d.superbear, null, 1.9, 85);
+    if (d.beatrice) balonEkle(d.beatrice, null, d.beatrice.yukseklik + 1.75, 90);
     if (d.teyze) balonEkle(d.teyze, null, 1.9, d.teyze.durum === 'ispiyon' ? 90 : 66);
     if (d.eniste) balonEkle(d.eniste, null, 2.0, d.eniste.durum === 'ispiyon' ? 90 : 66);
     if (d.uyanan) balonEkle(d.uyanan, null, 2.05, kovK(d.uyanan) ? 98 : 72);
@@ -2716,6 +2720,9 @@
     });
     if (d.komsu && !d.komsu.pasif) updateRig('n', d.komsu, d.komsu.kim, d, { scale: d.komsu.kim === 'beren' ? 1.3 : 1.12, dt: dt });
     (d.oturanlar || []).forEach(function (e, i) { updateRig('oturan'+i, e, e.kim, d, { scale: 1.08, dt: dt }); });
+    if (d.superbear) updateRig('superbear', d.superbear, 'superbear', d, { scale: 1, dt: dt });
+    if (d.beatrice) updateAri('beatrice', d.beatrice, d, dt);
+    (d.arilar || []).forEach(function (e,i) { updateAri('ari'+i, e, d, dt, 'ari'); });
     if (d.teyze) updateRig('te', d.teyze, 'teyze', d, { scale: 1.08, dt: dt });
     if (d.eniste) updateRig('en', d.eniste, 'enistee', d, { scale: 1.12, dt: dt });
     if (d.recep) updateRig('r', d.recep, 'recepdede', d, { scale: 1.12, dt: dt });
@@ -2830,7 +2837,7 @@
     var swOn = !!(kz && kz.tur === 'salincak' && kz.asama === 'suruyor' && sal && d.kardesler[kz.idx]);
     R.swing.visible = swOn;
     if (swOn) { R.swing.position.set(sal.tx + sal.w / 2, 1.6, sal.ty + sal.h / 2); R.swing.rotation.x = -(d.kardesler[kz.idx].salincakAci || 0) * 0.7; }
-    cone(0, d.komsu); cone(1, d.uyanan); cone(2, d.recep); cone(3, d.teyze); cone(4, d.eniste);
+    cone(0, d.komsu); cone(1, d.uyanan); cone(2, d.recep); cone(3, d.teyze); cone(4, d.eniste); cone(5, d.beatrice);
     // Parçacıklar.
     for (var pi = R.parts.length - 1; pi >= 0; pi--) {
       var pp = R.parts[pi]; pp.life -= dt;
