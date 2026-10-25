@@ -60,11 +60,15 @@ G.kardesler = (function () {
 
   function zorluk() { try { return (G.bolumBilgi && G.bolumBilgi().zorluk) || {}; } catch (e) { return {}; } }
   function anonsB() { try { return (G.bolumBilgi && G.bolumBilgi().anons) || {}; } catch (e) { return {}; } }
-  function masa() { var m = H().gokceMasa; return (m && typeof m.x === 'number') ? m : null; }
+  function avmOyunu() { return H().bolum === 7; }
+  function masa() {
+    if (avmOyunu()) return { x: (8.5) * T, y: (7.5) * T, yon: -Math.PI / 2 };
+    var m = H().gokceMasa; return (m && typeof m.x === 'number') ? m : null;
+  }
   function masadaGokce(d) {
     var m = masa();
     if (!m) return null;
-    return { ad: 'Gökçe', x: m.x, y: m.y, yon: m.yon || 0, hareket: false, adimFaz: 0, durum: 'calisiyor', konusma: null, renk: '#9b4fd6', hedef: { x: m.x, y: m.y } };
+    return { ad: 'Gökçe', x: m.x, y: m.y, yon: m.yon || 0, hareket: false, adimFaz: 0, durum: avmOyunu() ? 'oynuyor' : 'calisiyor', oyunPoz: avmOyunu() ? 'zipla' : undefined, konusma: null, renk: '#9b4fd6', hedef: { x: m.x, y: m.y } };
   }
   function gokceAktif(d) { d = d || G.d; if (G.bolumBilgi().ayikoyu && G.ayikoyu) return G.ayikoyu.aktif(); return !!(d && d.gokce && (d.gokce.durum === 'geliyor' || d.gokce.durum === 'bagiriyor' || d.gokce.durum === 'kaciyor' || d.gokce.durum === 'bebek')); }
 
@@ -244,7 +248,7 @@ G.kardesler = (function () {
     var m = masa();
     if (!m) { d.gokce = null; return; }
     g.durum = 'eveDonuyor'; g.hareket = false; donusT = 0; donusYol = null; donusYolT = 0;
-    g.konusma = { metin: 'Ben derse dönüyorum!', sure: 2 };
+    g.konusma = avmOyunu() ? null : { metin: 'Ben derse dönüyorum!', sure: 2 };
     G.olay('gokce_doniyor', {});
   }
 
@@ -261,7 +265,7 @@ G.kardesler = (function () {
       if (!m) { d.gokce = null; return; }
       donusT += dt; donusYolT -= dt;
       if (donusT >= 8) { efektEkle(d, 'parilti', g.x, g.y, 1.0); g.x = m.x; g.y = m.y; efektEkle(d, 'parilti', m.x, m.y, 1.0); }
-      if (Math.hypot(m.x - g.x, m.y - g.y) < 6) { g.x = m.x; g.y = m.y; g.yon = m.yon || 0; g.hareket = false; g.durum = 'calisiyor'; gokceKonT = 5 + Math.random() * 4; return; }
+      if (Math.hypot(m.x - g.x, m.y - g.y) < 6) { g.x = m.x; g.y = m.y; g.yon = m.yon || 0; g.hareket = false; g.durum = avmOyunu() ? 'oynuyor' : 'calisiyor'; if (avmOyunu()) g.oyunPoz = 'zipla'; gokceKonT = 5 + Math.random() * 4; return; }
       if (!donusYol || !donusYol.length) {
         if (donusYolT <= 0) {
           donusYolT = 1;
@@ -275,6 +279,12 @@ G.kardesler = (function () {
         var sn = donusYol.length === 1;
         if (git(g, donusYol[0].x, donusYol[0].y, KAC_HIZ, dt) && sn) donusYol = null;
       }
+    } else if (g.durum === 'oynuyor') {
+      var oyunMasa = masa();
+      if (oyunMasa) { g.x = oyunMasa.x; g.y = oyunMasa.y; g.yon = oyunMasa.yon || 0; }
+      g.hareket = false; g.adimFaz += dt * 5;
+      g.oyunPoz = Math.floor(gokceT / 2.2) % 2 ? 'top' : 'zipla';
+      if (g.konusma && /ders|ödev|matematik|türkçe/i.test(g.konusma.metin)) g.konusma = null;
     } else if (g.durum === 'calisiyor') {
       var mm = masa();
       if (mm) { g.x = mm.x; g.y = mm.y; g.yon = mm.yon || 0; }

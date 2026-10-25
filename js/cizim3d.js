@@ -9,7 +9,7 @@
     renderer: null, scene: null, camera: null, world: null, actors: null, dirty: true, level: 0,
     yaw: 0.46, wantYaw: 0.46, zoom: 17, wantZoom: 17, target: new T.Vector3(), look: new T.Vector3(),
     autoF: 0, autoBekle: 0, dusuk: null, zoomVarsayilan: 17, ready: false, doors: [], items: new Map(), rigs: {}, walls: [], wallMesh: null, wallTrim: null, wallBase: null,
-    cones: [], thrownItems: new Map(), textures: [], width: 0, height: 0, last: 0, frame: 0, missing: [],
+    cones: [], thrownItems: new Map(), textures: [], width: 0, height: 0, last: 0, frame: 0, missing: [], morBallar: [],
     testCamera: null, scooter: null, scooterSpin: 0, scooterPx: null, scooterPy: null,
     shake: 0, flash: 0, parts: [], prevKaza: null, lost: false, sun: null, prevPX: null, prevPZ: null
   };
@@ -1095,7 +1095,12 @@
     teyze:  { skin: '#f6cba8', hair: '#4a2a22', iris: '#4a2f1d', es: 1.26, lash: 1, lip: '#d63a5e' },
     enistee: { skin: '#e8b48a', hair: '#2b211c', iris: '#3b2a1f', es: 1.14, stubble: '#c0916c' },
     avmgorevli: { skin: '#f3c6a0', hair: '#4a3022', iris: '#4a3a22', es: 1.22, lash: 1, lip: '#d4607a' },
-    beren:  { skin: '#ffdcc4', hair: '#7a4e34', iris: '#5a3a22', es: 1.5, open: 1, lash: 1 }
+    beren:  { skin: '#ffdcc4', hair: '#7a4e34', iris: '#5a3a22', es: 1.5, open: 1, lash: 1 },
+    cocuk_kirmizi: { skin: '#ffd2b0', hair: '#5b3822', iris: '#4d6380', es: 1.22, open: 1 },
+    cocuk_mavi: { skin: '#f6c9a6', hair: '#3b2a26', iris: '#4b7190', es: 1.2, open: 1 },
+    cocuk_yesil: { skin: '#ffd8bc', hair: '#b65e2c', iris: '#4c8a4a', es: 1.24, open: 1 },
+    ziyaretci_kadin: { skin: '#f4c7a7', hair: '#75422f', iris: '#54706e', es: 1.12, lash: 1, lip: '#c65c78' },
+    ziyaretci_erkek: { skin: '#e8b48a', hair: '#282a32', iris: '#465b75', es: 1.08 }
   };
   function face(g, kind) {
     var L = LOOK[kind] || LOOK.baba, sk = L.skin, es = L.es, eyes = [];
@@ -1170,7 +1175,18 @@
     // Ortak: kafanın üstünü ve arkasını saran hacimli taban.
     if (kind !== 'mudur' && kind !== 'beren') ball(g, 0.76, 0.7, 0.72, 0, 0.065, -0.05, c);
     function fr(w, h, d, x, y, z, col) { return ball(g, w, h, d, x, y, z, col || c); }
-    if (kind === 'ogeday') {
+    if (/^cocuk_/.test(kind)) {
+      fr(0.42, 0.14, 0.15, 0, 0.245, 0.19);
+      fr(0.15, 0.2, 0.13, -0.19, 0.32, 0.13); fr(0.15, 0.19, 0.13, 0.08, 0.36, 0.1);
+      if (kind === 'cocuk_yesil') fr(0.12, 0.22, 0.12, 0.23, 0.25, 0.12);
+    } else if (kind === 'ziyaretci_kadin') {
+      fr(0.84, 0.88, 0.5, 0, -0.2, -0.22);
+      [-1, 1].forEach(function (s) { fr(0.15, 0.36, 0.2, s * 0.34, -0.07, 0.0); fr(0.14, 0.24, 0.18, s * 0.36, -0.34, -0.03); });
+      fr(0.42, 0.16, 0.17, 0, 0.22, 0.2); fr(0.16, 0.22, 0.13, -0.27, 0.12, 0.18); fr(0.17, 0.18, 0.12, 0.27, 0.14, 0.16);
+    } else if (kind === 'ziyaretci_erkek') {
+      fr(0.38, 0.13, 0.2, 0, 0.3, 0.13); fr(0.12, 0.12, 0.13, -0.2, 0.26, 0.14); fr(0.12, 0.12, 0.13, 0.2, 0.27, 0.14);
+      fr(0.1, 0.16, 0.1, -0.325, 0.0, 0.05); fr(0.1, 0.16, 0.1, 0.325, 0.0, 0.05);
+    } else if (kind === 'ogeday') {
       fr(0.24, 0.14, 0.13, -0.12, 0.255, 0.2); fr(0.22, 0.13, 0.13, 0.1, 0.265, 0.19); fr(0.16, 0.11, 0.11, 0.26, 0.2, 0.14);
       fr(0.14, 0.22, 0.14, -0.04, 0.4, 0.0); fr(0.12, 0.2, 0.12, 0.1, 0.38, -0.05); fr(0.11, 0.18, 0.11, -0.16, 0.36, -0.04);
       fr(0.08, 0.14, 0.09, -0.33, 0.08, 0.05);
@@ -1310,7 +1326,12 @@
     recepdede: { top: '#5b6f86', pant: '#3f4552', shoe: '#2c2622', sole: '#d9ceb8', sock: '#3f4552', leg: 'long', tw: 1.24, tz: 1.14 },
     teyze:  { top: '#ffb23d', pant: '#8a5ad0', shoe: '#ff7aa8', sole: '#ffffff', sock: '#8a5ad0', leg: 'long', tw: 1.0, tz: 1 },
     enistee: { top: '#2f7bd0', pant: '#383d4a', shoe: '#f2f4f8', sole: '#ff6a3d', sock: '#383d4a', leg: 'long', tw: 1.2, tz: 1.08 },
-    avmgorevli: { top: '#f4f6fa', pant: '#34384a', shoe: '#f2f4f8', sole: '#6a45c9', sock: '#34384a', leg: 'long', tw: 1.06, tz: 1.02 }
+    avmgorevli: { top: '#f4f6fa', pant: '#34384a', shoe: '#f2f4f8', sole: '#6a45c9', sock: '#34384a', leg: 'long', tw: 1.06, tz: 1.02 },
+    cocuk_kirmizi: { top: '#e9564e', pant: '#315e9b', shoe: '#49364a', sole: '#fff4e8', sock: '#ffffff', leg: 'short', tw: 1, tz: 1 },
+    cocuk_mavi: { top: '#4b92dc', pant: '#435071', shoe: '#e9edf5', sole: '#ffffff', sock: '#ffffff', leg: 'short', tw: 1, tz: 1 },
+    cocuk_yesil: { top: '#70bd65', pant: '#756044', shoe: '#8a5a3a', sole: '#ffffff', sock: '#ffffff', leg: 'short', tw: 1.03, tz: 1 },
+    ziyaretci_kadin: { top: '#e788a1', pant: '#7d5994', shoe: '#644157', sole: '#f4dbe8', sock: '#ffffff', leg: 'dress', tw: 1.04, tz: 1 },
+    ziyaretci_erkek: { top: '#e7a841', pant: '#46546c', shoe: '#3b302d', sole: '#e9e3d6', sock: '#46546c', leg: 'long', tw: 1.16, tz: 1.08 }
   };
   // Telefon performansı: bir animasyon grubunun statik mesh'lerini tek BufferGeometry'de (vertex color) birleştirir.
   // animSet içindeki gruplar (kol, bacak, kafa, göz...) ayrı kalır; göz grupları kafaya taşınır (blink ölçeği korunur).
@@ -1451,14 +1472,48 @@
     }
     a.head.scale.setScalar(0.72);
   }
+  function kaplumbagaRig() {
+    var root = new T.Group(), body = new T.Group(), head = new T.Group(), shell = new T.Group();
+    root.add(body); body.add(shell); head.position.set(0, 0.43, 0.34); body.add(head);
+    // Alçak poligonlu sevimli kaplumbağa: kubbeli kabuk, karın plakası, baş ve dört ayrı ayak.
+    ball(body, 0.42, 0.16, 0.58, 0, 0.26, -0.02, '#77a85b');
+    ball(shell, 0.51, 0.49, 0.61, 0, 0.43, -0.03, '#60934e');
+    ball(shell, 0.39, 0.35, 0.48, 0, 0.51, -0.01, '#a7bd62');
+    // Kabuk plakalarının ince koyu sınırları; birkaç kavisli hat düşük poligon dilimleri oluşturur.
+    for (var si = 0; si < 6; si++) {
+      var an = si / 6 * TAU;
+      caps(shell, 0.013, 0.34, Math.cos(an) * 0.25, 0.55, Math.sin(an) * 0.29, '#6c8548', [0, -an, 0]);
+    }
+    ball(head, 0.29, 0.24, 0.3, 0, 0, 0.04, '#8fbd63');
+    [-1, 1].forEach(function (s) {
+      ball(head, 0.09, 0.12, 0.055, s * 0.105, 0.035, 0.296, '#fffdf4');
+      ball(head, 0.045, 0.07, 0.035, s * 0.105, 0.03, 0.335, '#342f2a');
+      ball(head, 0.018, 0.02, 0.015, s * 0.09, 0.058, 0.356, '#ffffff');
+    });
+    tor(head, 0.055, 0.009, 2.0, 0, -0.08, 0.316, '#5f713e', [0, 0, -PI / 2 - 1.05]);
+    var legs = [];
+    [[-1, 1], [1, 1], [-1, -1], [1, -1]].forEach(function (p) {
+      var leg = new T.Group(); leg.position.set(p[0] * 0.32, 0.2, p[1] * 0.32); body.add(leg);
+      ball(leg, 0.18, 0.14, 0.22, 0, -0.045, 0.02, '#83ae59');
+      [0, 1, 2].forEach(function (cl) { ball(leg, 0.035, 0.025, 0.045, (cl - 1) * 0.065, -0.075, 0.12, '#e6d8a7'); });
+      legs.push(leg);
+    });
+    rigBirlestir([body, head, shell].concat(legs));
+    var mats = []; root.traverse(function (o) { if (o.isMesh) { o.material = o.material.clone(); mats.push(o.material); } });
+    var shadow = new T.Mesh(new T.CircleGeometry(0.42, 20), new T.MeshBasicMaterial({ color: '#152015', transparent: true, opacity: 0.16, depthWrite: false }));
+    shadow.rotation.x = -PI / 2; shadow.position.y = 0.015; shadow.renderOrder = 1;
+    R.actors.add(root); R.actors.add(shadow);
+    return { root: root, body: body, head: head, legs: legs, mats: mats, kind: 'kaplumbaga', rotY: null, px: null, pz: null, hiz: 0, seed: 2.7, shadow: shadow };
+  }
   function rig(kind) {
     if (kind === 'beren') return rigBeren();
     if (AYI[kind]) return ayiRig(kind);
+    if (kind === 'kaplumbaga') return kaplumbagaRig();
     var root = new T.Group(), body = new T.Group(), head = new T.Group();
     root.add(body); head.position.y = 1.11; body.add(head);
     var L = LOOK[kind] || LOOK.baba, O = OUT[kind] || OUT.baba, skin = L.skin, col = O.top;
     var arms = [], legs = [], knees = [], elbows = [];
-    var isDress = O.leg === 'dress', big = O.tw > 1.1, longS = kind === 'ebe' || kind === 'ogretmen' || kind === 'abariebe';
+    var isDress = O.leg === 'dress', big = O.tw > 1.1, longS = kind === 'ebe' || kind === 'ogretmen' || kind === 'abariebe' || kind === 'ziyaretci_kadin';
     // Bacaklar: kısa tombul uyluk + incik + yuvarlak burunlu ayakkabı.
     [-1, 1].forEach(function (s) {
       var leg = new T.Group(); leg.position.set(s * 0.1, 0.42, 0); body.add(leg);
@@ -1477,13 +1532,13 @@
     caps(body, 0.185, 0.12, 0, 0.62, 0, col, null, [O.tw, 1, 0.9 * O.tz]);
     // Kollar: omuz topu + üst kol + ön kol + yuvarlak el.
     var sleeve = (kind === 'dede') ? '#f3ead6' : (kind === 'ebe' ? '#f3e8d4' : (kind === 'dedehassi' ? '#b53f34' : col));
-    if (kind === 'ogeday' || kind === 'atilay' || kind === 'giray' || kind === 'gokce') sleeve = col;
+    if (kind === 'ogeday' || kind === 'atilay' || kind === 'giray' || kind === 'gokce' || /^cocuk_/.test(kind)) sleeve = col;
     [-1, 1].forEach(function (s) {
       var arm = new T.Group(); arm.position.set(s * (0.2 * O.tw + 0.045), 0.8, 0); body.add(arm);
       ball(arm, 0.125, 0.125, 0.125, 0, 0, 0, sleeve);
       caps(arm, 0.057, 0.07, 0, -0.1, 0, sleeve);
       var elbow = new T.Group(); elbow.position.set(0, -0.19, 0); arm.add(elbow);
-      var kisa = (kind === 'ogeday' || kind === 'atilay' || kind === 'giray' || kind === 'gokce' || kind === 'anne' || kind === 'teyze' || kind === 'enistee' || kind === 'avmgorevli');
+      var kisa = (kind === 'ogeday' || kind === 'atilay' || kind === 'giray' || kind === 'gokce' || /^cocuk_/.test(kind) || kind === 'anne' || kind === 'teyze' || kind === 'enistee' || kind === 'avmgorevli' || kind === 'ziyaretci_kadin');
       caps(elbow, 0.052, 0.06, 0, -0.075, 0, kisa ? skin : sleeve);
       ball(elbow, 0.13, 0.125, 0.125, 0, -0.17, 0, skin);
       arms.push(arm); elbows.push(elbow);
@@ -1497,7 +1552,7 @@
     if (kind === 'anne') {
       cyl(body, 0.2, 0.31, 0.3, 0, 0.45, 0, col); tor(body, 0.305, 0.028, TAU, 0, 0.3, 0, '#c94f6b', [PI / 2, 0, 0]);
       tor(body, 0.215, 0.025, TAU, 0, 0.56, 0, '#c94f6b', [PI / 2, 0, 0]);
-    } else if (kind === 'gokce') {
+    } else if (kind === 'gokce' || kind === 'ziyaretci_kadin') {
       cyl(body, 0.2, 0.31, 0.26, 0, 0.45, 0, col); tor(body, 0.305, 0.03, TAU, 0, 0.32, 0, '#ffffff', [PI / 2, 0, 0]);
       ball(body, 0.1, 0.07, 0.04, 0, 0.62, 0.17, '#ff7aa8');
     } else if (kind === 'ebe') {
@@ -1661,12 +1716,23 @@
     }
     head.add(cap); cap.visible = false;
     rigBirlestir([body, head, cap].concat(arms, elbows, legs, knees, head.userData.eyes));
+    var oyunTop = null, morHalo = null;
+    if (kind === 'gokce') {
+      oyunTop = new T.Group();
+      ball(oyunTop, 0.17, 0.17, 0.17, 0, 0, 0, '#f3d35c');
+      ball(oyunTop, 0.07, 0.07, 0.025, 0, 0.025, 0.15, '#e87863');
+      ball(oyunTop, 0.07, 0.07, 0.025, 0, -0.025, -0.15, '#75a6ca');
+      oyunTop.visible = false; root.add(oyunTop);
+      morHalo = tor(root, 0.56, 0.035, TAU, 0, 0.08, 0, '#bb67ff', [PI / 2, 0, 0]);
+      morHalo.material = new T.MeshStandardMaterial({ color: '#bb67ff', emissive: '#8b35df', emissiveIntensity: 1.15, transparent: true, opacity: 0.76, roughness: 0.32, depthWrite: false });
+      morHalo.visible = false;
+    }
     var mats = []; root.traverse(function (o) { if (o.isMesh) { o.material = o.material.clone(); mats.push(o.material); } });
     var shadow = new T.Mesh(new T.CircleGeometry(0.42, 20), new T.MeshBasicMaterial({ color: '#152015', transparent: true, opacity: 0.16, depthWrite: false }));
     shadow.rotation.x = -PI / 2; shadow.position.y = 0.015; shadow.renderOrder = 1;
     R.actors.add(root); R.actors.add(shadow);
     return { root: root, body: body, head: head, arms: arms, legs: legs, knees: knees, elbows: elbows,
-      cap: cap, mats: mats, kind: kind, rotY: null, px: null, pz: null, hiz: 0, seed: hs(kind.length, kind.charCodeAt(0), 3) * 9, shadow: shadow };
+      cap: cap, oyunTop: oyunTop, morHalo: morHalo, mats: mats, kind: kind, rotY: null, px: null, pz: null, hiz: 0, seed: hs(kind.length, kind.charCodeAt(0), 3) * 9, shadow: shadow };
   }
   function blink(head, t, seed) {
     var e = head.userData.eyes; if (!e) return;
@@ -1742,6 +1808,13 @@
     a.head.position.y = 1.11 + Math.abs(walk) * 0.012 * amp;
     blink(a.head, d.zaman, a.seed);
     a.body.rotation.set(0, 0, 0);
+    if (a.kind === 'kaplumbaga') {
+      a.head.position.y = 0.43;
+      for (var tl = 0; tl < 4; tl++) a.legs[tl].rotation.x = ent.hareket ? Math.sin((ent.adimFaz || d.zaman * 7) + (tl < 2 ? 0 : PI) + (tl % 2 ? PI : 0)) * 0.38 : 0;
+      a.body.position.y = ent.hareket ? Math.abs(Math.sin(d.zaman * 7)) * 0.012 : 0;
+      a.head.rotation.y = Math.sin(d.zaman * 0.8 + a.seed) * 0.08;
+      opaklikUygula(a, ent, opts, d); return;
+    }
     if (a.kind === 'beren') {
       a.body.scale.y = breathe; berenPoz(a, ent, d, sc);
       if (a.cap) a.cap.visible = false;
@@ -1839,6 +1912,33 @@
       }
     }
     a.cap.visible = !!opts.awake || /bekci/.test(a.kind);
+    if (a.kind === 'gokce') {
+      var oyun = ent.oyunPoz || '';
+      var zipla = oyun === 'zipla';
+      var topOyna = oyun === 'top';
+      var balYiyor = !!ent.balYiyor || oyun === 'bal';
+      var mor = !!ent.morBal;
+      a.morHalo.visible = mor;
+      if (mor) { a.morHalo.material.opacity = 0.58 + 0.22 * (0.5 + 0.5 * Math.sin(d.zaman * 5)); a.morHalo.rotation.y = d.zaman * 0.7; }
+      a.oyunTop.visible = topOyna;
+      if (topOyna) {
+        a.oyunTop.position.set(0.28, 1.42 + Math.sin(d.zaman * 7) * 0.15, 0.12);
+        a.oyunTop.rotation.set(d.zaman * 1.8, d.zaman * 2.5, d.zaman * 0.8);
+        a.arms[0].rotation.set(-1.85, 0, -0.22); a.elbows[0].rotation.x = -0.35;
+        a.arms[1].rotation.set(-1.45, 0, 0.24); a.elbows[1].rotation.x = -0.55;
+        a.root.position.y = 0.04 + Math.max(0, Math.sin(d.zaman * 6)) * 0.07;
+      } else if (zipla) {
+        var jp = Math.sin(d.zaman * 7.5);
+        a.root.position.y = 0.04 + Math.max(0, jp) * 0.5;
+        a.body.rotation.z = jp * 0.045;
+        for (i = 0; i < 2; i++) { a.arms[i].rotation.set(-2.65, 0, (i ? 1 : -1) * 0.18); a.elbows[i].rotation.x = -0.28; a.legs[i].rotation.x = jp > 0 ? -0.35 : 0.2; }
+      } else if (balYiyor) {
+        var bite = 0.5 + 0.5 * Math.sin(d.zaman * 8.5);
+        a.arms[1].rotation.set(-1.05 - bite * 0.48, 0, -0.08); a.elbows[1].rotation.x = -0.7 - bite * 0.55;
+        a.arms[0].rotation.set(-0.45, 0, 0.08); a.elbows[0].rotation.x = -0.25;
+        a.head.rotation.x = -0.15 - bite * 0.08; a.body.rotation.x = 0.035;
+      }
+    }
     if (AYI[a.kind]) ayiEk(a, ent, d, amp, walk);
     if (opts.sleep) {
       a.root.rotation.set(-PI / 2, 0, 0); a.root.position.y = 0.46; a.root.rotation.z = 0; a.body.position.y = 0;
@@ -1855,6 +1955,18 @@
       if (m.transparent !== trans) { m.transparent = trans; m.needsUpdate = true; }
       m.opacity = opacity; m.depthWrite = !trans;
     });
+  }
+
+  function morBalModel() {
+    var g = new T.Group();
+    var balMat = new T.MeshStandardMaterial({ color: '#a33de8', emissive: '#6715bd', emissiveIntensity: 0.8, roughness: 0.24, metalness: 0.06 });
+    var balA = new T.Mesh(new T.SphereGeometry(0.25, 12, 8), balMat); balA.scale.set(1.55, 0.34, 1.18); balA.position.set(0, 0.12, 0); balA.castShadow = true; g.add(balA);
+    var balB = new T.Mesh(new T.SphereGeometry(0.19, 12, 8), balMat); balB.position.set(-0.2, 0.16, 0.04); balB.castShadow = true; g.add(balB);
+    var balC = new T.Mesh(new T.SphereGeometry(0.16, 12, 8), balMat); balC.position.set(0.2, 0.15, -0.04); balC.castShadow = true; g.add(balC);
+    var halo = new T.Mesh(new T.TorusGeometry(0.45, 0.022, 6, 24), new T.MeshBasicMaterial({ color: '#d794ff', transparent: true, opacity: 0.78, depthWrite: false }));
+    halo.rotation.x = -PI / 2; halo.position.y = 0.035; g.add(halo); g.userData.halo = halo;
+    var shine = new T.Mesh(new T.SphereGeometry(0.035, 8, 6), new T.MeshBasicMaterial({ color: '#fff4ff' })); shine.position.set(-0.14, 0.24, 0.1); g.add(shine);
+    return g;
   }
 
   // ---------------------------------------------------------------- kedi (Duman)
@@ -1964,10 +2076,12 @@
   // ---------------------------------------------------------------- Ayı Köyü (özgün chibi ayılar + arı kraliçe)
   // superbear / morayi: iki ayak üstünde yürüyen ayılar; rig() ile aynı arayüz (updateRig yürüme/uyku/cap/opaklık mantığı).
   // Kol/bacak tek eklem (dirsek/diz boş gruplar) -> karakter başı ~10-11 draw call.
-  var AYI_OLCEK = { superbear: 0.86, morayi: 1.1 };
+  var AYI_OLCEK = { superbear: 0.86, morayi: 1.1, koyayisi: 0.92, koyayisi_acik: 0.98 };
   var AYI = {
     superbear: { fur: '#8e5a30', dark: '#6e4322', belly: '#ecce98', ear: '#f0b896', iris: '#4a2a14', tw: 1.04, tz: 1.0 },
-    morayi:    { fur: '#8d5ec8', dark: '#6b43a3', belly: '#e0cdf7', ear: '#f4b4e4', iris: '#2e1d52', tw: 1.5, tz: 1.3 }
+    morayi:    { fur: '#8d5ec8', dark: '#6b43a3', belly: '#e0cdf7', ear: '#f4b4e4', iris: '#2e1d52', tw: 1.5, tz: 1.3 },
+    koyayisi: { fur: '#98643d', dark: '#6d482d', belly: '#ead0a7', ear: '#efb99a', iris: '#4a2a14', tw: 1.08, tz: 1.02 },
+    koyayisi_acik: { fur: '#d1a66c', dark: '#987044', belly: '#f3dfba', ear: '#f2c9a6', iris: '#4a3524', tw: 1.02, tz: 0.98 }
   };
   function ayiRig(kind) {
     var P = AYI[kind], root = new T.Group(), body = new T.Group(), head = new T.Group(), tw = P.tw, tz = P.tz, mor = kind === 'morayi';
@@ -2431,6 +2545,15 @@
   function disposeWorld() {
     if (R.world) {
       R.scene.remove(R.world);
+      var disposedGeo = new Set(), disposedMat = new Set();
+      R.morBallar.forEach(function (g) {
+        if (!g) return;
+        g.traverse(function (o) {
+          if (o.geometry && !disposedGeo.has(o.geometry)) { disposedGeo.add(o.geometry); o.geometry.dispose(); }
+          var ms = Array.isArray(o.material) ? o.material : [o.material];
+          ms.forEach(function (m) { if (m && !disposedMat.has(m)) { disposedMat.add(m); m.dispose(); } });
+        });
+      });
       R.world.traverse(function (o) {
         if (o.isInstancedMesh) o.dispose();
         if (o.geometry && o.userData.dynamicGeometry) o.geometry.dispose();
@@ -2438,7 +2561,7 @@
       });
     }
     R.textures.forEach(function (t) { t.dispose(); }); R.textures = [];
-    R.items.clear(); R.doors = []; R.walls = []; R.wallMesh = null; R.wallTrim = null; R.wallBase = null;
+    R.items.clear(); R.morBallar = []; R.doors = []; R.walls = []; R.wallMesh = null; R.wallTrim = null; R.wallBase = null;
     R.scooter = null; R.scooterPx = null; R.scooterPy = null; R.dk = null; R.plan = null;
   }
   function buildWorld() {
@@ -2709,7 +2832,7 @@
     if (R.wallBase) R.wallBase.instanceMatrix.needsUpdate = true;
     dekorGuncelle(d, dt);
     R.doors.forEach(function (v) {
-      v.angle += ((v.data.acik ? -PI * 0.47 : 0) - v.angle) * Math.min(1, dt * 12);
+      v.angle += ((v.data.acik ? -PI / 2 : 0) - v.angle) * Math.min(1, dt * 12);
       v.hinge.rotation.y = v.base + v.angle;
       v.lock.material = material(v.data.kilit === 'anahtar_mavi' ? '#458ed9' : v.data.kilit ? '#dc6556' : '#e5c47e');
     });
@@ -2731,6 +2854,26 @@
     if (d.uyanan) updateRig('u', d.uyanan, d.uyanan.kim, d, { scale: 1.12, awake: true, dt: dt });
     if (d.uyuyan) updateRig('s', d.uyuyan, d.uyuyan.kim, d, { scale: d.uyuyan.kim === 'beren' ? 1.3 : 1.02, sleep: true, dt: dt });
     if (d.gokce) updateRig('g', d.gokce, 'gokce', d, { scale: 0.96, dt: dt });
+    // Bölüm 7 kalabalığı ve bölüm 8 köy canlıları: aynı rig'ler dizin bazlı havuzda kalır.
+    (d.kalabalik || []).forEach(function (e, i) {
+      var sc = e.olcek || (/^cocuk_/.test(e.kim) ? 0.72 : 0.96);
+      updateRig('kalabalik' + i, e, e.kim, d, { scale: sc, dt: dt });
+    });
+    (d.koyluler || []).forEach(function (e, i) {
+      var sc = e.olcek || (e.kim === 'kaplumbaga' ? 0.78 : 0.9);
+      updateRig('koylu' + i, e, e.kim, d, { scale: sc, dt: dt });
+    });
+    // B8 mor balı, havuzlanan parlak damla kümeleriyle çizer; yenenler ve boş kuyruk saklanır.
+    var ballar = d.morBallar || [];
+    for (var mb = 0; mb < ballar.length; mb++) {
+      if (!R.morBallar[mb]) { R.morBallar[mb] = morBalModel(); R.world.add(R.morBallar[mb]); }
+      var bmesh = R.morBallar[mb], bd = ballar[mb];
+      bmesh.visible = !bd.yendi;
+      bmesh.position.set(bd.x / U, 0, bd.y / U);
+      bmesh.scale.setScalar(bd.olcek || 0.82);
+      bmesh.userData.halo.material.opacity = 0.58 + 0.2 * (0.5 + 0.5 * Math.sin(d.zaman * 4 + mb));
+    }
+    for (mb = ballar.length; mb < R.morBallar.length; mb++) R.morBallar[mb].visible = false;
     if (d.kedi) updateKedi('kedi', d.kedi, d, dt);
     // Toplanabilirler.
     var keep = new Set();

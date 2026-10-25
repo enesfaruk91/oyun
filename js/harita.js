@@ -29,8 +29,8 @@ window.G = window.G || {};
     'DDc........#hhhhhhh#pppp#bbbbbbbb#........cD',
     'DDc........#hhhhhhh#pppp#bbbbbbbb#........cD',
     'DDc........#####hhhdppppKbbbbbbbb#........cD',
-    'DDc........#hhh#hhh#pppp#bbbbbbbb#........cD',
     'DDc........#hhhdhhh#pppp#bbbbbbbb#........cD',
+    'DDc........#hhh#hhh#pppp#bbbbbbbb#........cD',
     'DDc........#hhh#hhh#pppp#bbbbbbbb#........cD',
     'DDc........###########d###########........cD',
     'DDc..................---..................cD',
@@ -151,19 +151,19 @@ window.G = window.G || {};
     // EK-6: home studio (Yatak Odası)
     ['studyo_masasi', 25, 4, 2, 1, 1, 0, 'Stüdyo Masası'], ['mikrofon', 27, 3, 1, 1, 1, 0, 'Mikrofon'], ['hoparlor', 29, 3, 1, 1, 1, 0, 'Hoparlör'],
     // Koridor
-    ['saksi', 12, 10, 1, 1, 1, 0, 'Saksı'], ['saksi', 32, 10, 1, 1, 1, 0, 'Saksı'], ['saksi', 12, 12, 1, 1, 1, 0, 'Saksı'],
+    ['saksi', 12, 10, 1, 1, 1, 0, 'Saksı'], ['saksi', 30, 10, 1, 1, 1, 0, 'Saksı'], ['saksi', 12, 12, 1, 1, 1, 0, 'Saksı'],
     ['kutu', 30, 12, 1, 1, 1, 1, 'Kutu'],
     // Salon
     ['tv', 13, 14, 2, 1, 1, 0, 'Televizyon'], ['kitaplik', 18, 14, 1, 2, 1, 0, 'Kitaplık'], ['koltuk', 12, 15, 1, 2, 1, 0, 'Koltuk'],
-    ['masa', 14, 16, 2, 1, 1, 0, 'Sehpa'], ['kanepe', 16, 20, 3, 1, 1, 0, 'Kanepe'], ['dolap', 18, 18, 1, 1, 1, 1, 'Dolap'],
+    ['masa', 14, 16, 2, 1, 1, 0, 'Sehpa'], ['kanepe', 16, 20, 3, 1, 1, 0, 'Kanepe'], ['dolap', 18, 19, 1, 1, 1, 1, 'Dolap'],
     // Hol
-    ['dolap', 20, 15, 1, 2, 1, 1, 'Dolap'], ['saksi', 20, 20, 1, 1, 1, 0, 'Saksı'], ['saksi', 23, 20, 1, 1, 1, 0, 'Saksı'],
+    ['dolap', 20, 14, 1, 2, 1, 1, 'Dolap'], ['saksi', 20, 20, 1, 1, 1, 0, 'Saksı'], ['saksi', 23, 19, 1, 1, 1, 0, 'Saksı'],
     // Bodrum
     ['merdiven', 25, 14, 1, 2, 1, 0, 'Merdiven'], ['tezgah_atolye', 29, 14, 3, 1, 1, 0, 'Atölye Tezgâhı'], ['varil', 27, 15, 1, 1, 1, 1, 'Varil'],
     ['varil', 30, 17, 1, 1, 1, 1, 'Varil'], ['kutu', 26, 19, 1, 1, 1, 1, 'Kutu'], ['kutu', 31, 18, 1, 1, 1, 1, 'Kutu'],
     // Gökçe'nin Odası (EK-5) — ebeveyn yatağından SONRA
     ['calisma_masasi', 12, 18, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 12, 19, 1, 1, 0, 0, 'Sandalye', 2],
-    ['yatak', 13, 20, 2, 1, 1, 1, 'Gökçe\'nin Yatağı', 1], ['kitaplik', 12, 20, 1, 1, 1, 0, 'Kitaplık'], ['saksi', 14, 18, 1, 1, 1, 0, 'Saksı'],
+    ['yatak', 13, 20, 2, 1, 1, 1, 'Gökçe\'nin Yatağı', 1], ['kitaplik', 12, 20, 1, 1, 1, 0, 'Kitaplık'], ['saksi', 17, 15, 1, 1, 1, 0, 'Saksı'],
     // Garaj
     ['araba', 35, 8, 3, 2, 1, 0, 'Araba'], ['tezgah_atolye', 39, 8, 1, 3, 1, 0, 'Alet Tezgâhı'], ['kutu', 39, 12, 1, 1, 1, 1, 'Kutu'],
     ['varil', 34, 13, 1, 1, 1, 1, 'Varil'],
@@ -219,7 +219,7 @@ window.G = window.G || {};
   ];
 
   var KAPI1 = { '16,9': 'mutfak', '21,9': 'banyo', '28,9': 'yatak', '16,13': 'salon', '19,17': 'salon_hol', '24,17': 'bodrum',
-    '22,21': 'on', '15,19': 'gokce', '33,11': 'garaj_ic', '37,14': 'garaj_dis', '11,6': 'arka' };
+    '22,21': 'on', '15,18': 'gokce', '33,11': 'garaj_ic', '37,14': 'garaj_dis', '11,6': 'arka' };
 
   // ---- BOLUM 2 verisi: Ebe-Dede Evi ------------------------------------
   var ESYA2 = [
@@ -232,21 +232,21 @@ window.G = window.G || {};
     ['masa', 13, 16, 3, 2, 1, 0, 'Yemek Masası'], ['sandalye', 12, 16, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 16, 16, 1, 1, 1, 0, 'Sandalye'],
     ['dolap', 12, 19, 1, 1, 1, 1, 'Dolap'], ['cop_kutusu', 18, 19, 1, 1, 1, 1, 'Çöp Kutusu'],
     // Giriş
-    ['duvar_saati', 21, 14, 1, 1, 1, 0, 'Duvar Saati'], ['saksi', 24, 14, 1, 1, 1, 0, 'Saksı'], ['bank', 20, 15, 1, 2, 1, 0, 'Bank'],
+    ['duvar_saati', 20, 14, 1, 1, 1, 0, 'Duvar Saati'], ['saksi', 24, 14, 1, 1, 1, 0, 'Saksı'], ['bank', 21, 15, 2, 1, 1, 0, 'Bank'],
     ['saksi', 20, 19, 1, 1, 1, 0, 'Saksı'], ['dolap', 24, 19, 1, 1, 1, 1, 'Palto Dolabı'],
     // Oturma Odası
     ['eski_tv', 27, 14, 2, 1, 1, 0, 'Eski Televizyon'], ['karaoke', 31, 14, 2, 1, 1, 0, 'Karaoke'],
     ['kanepe', 27, 16, 3, 1, 1, 0, 'Kanepe'], ['masa', 27, 18, 2, 1, 1, 0, 'Sehpa'], ['sallanan_koltuk', 30, 17, 1, 1, 1, 0, 'Sallanan Koltuk'],
     // Koridor
-    ['saksi', 12, 21, 1, 1, 1, 0, 'Saksı'], ['saksi', 32, 21, 1, 1, 1, 0, 'Saksı'], ['kutu', 32, 23, 1, 1, 1, 1, 'Kutu'], ['saksi', 12, 23, 1, 1, 1, 0, 'Saksı'],
+    ['saksi', 17, 21, 1, 1, 1, 0, 'Saksı'], ['saksi', 32, 21, 1, 1, 1, 0, 'Saksı'], ['kutu', 32, 23, 1, 1, 1, 1, 'Kutu'], ['saksi', 15, 23, 1, 1, 1, 0, 'Saksı'],
     // Banyo
-    ['lavabo', 12, 25, 1, 1, 1, 0, 'Lavabo'], ['klozet', 15, 25, 1, 1, 1, 0, 'Klozet'], ['kuvet', 14, 27, 2, 2, 1, 0, 'Küvet'],
+    ['lavabo', 12, 26, 1, 1, 1, 0, 'Lavabo'], ['klozet', 15, 25, 1, 1, 1, 0, 'Klozet'], ['kuvet', 14, 27, 2, 2, 1, 0, 'Küvet'],
     ['camasir_makinesi', 12, 28, 1, 1, 1, 0, 'Çamaşır Makinesi'],
     // Gökçe'nin Köşesi
     ['calisma_masasi', 19, 26, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 19, 27, 1, 1, 0, 0, 'Sandalye', 2],
     ['kitaplik', 17, 27, 1, 2, 1, 0, 'Kitaplık'], ['saksi', 20, 28, 1, 1, 1, 0, 'Saksı'],
     // Kiler
-    ['raf_kavanoz', 29, 25, 1, 1, 1, 0, 'Kavanoz Rafı'], ['raf_kavanoz', 32, 25, 1, 2, 1, 0, 'Kavanoz Rafı'],
+    ['raf_kavanoz', 29, 26, 1, 1, 1, 0, 'Kavanoz Rafı'], ['raf_kavanoz', 32, 25, 1, 2, 1, 0, 'Kavanoz Rafı'],
     ['cuval', 29, 27, 1, 1, 1, 1, 'Çuval'], ['cuval', 29, 28, 1, 1, 1, 0, 'Çuval'],
     ['tursu_bidonu', 32, 27, 1, 1, 1, 1, 'Turşu Bidonu'], ['tursu_bidonu', 32, 28, 1, 1, 1, 0, 'Turşu Bidonu'],
     // Kümes
@@ -337,9 +337,9 @@ window.G = window.G || {};
     // Depo
     ['kutu', 25, 8, 1, 1, 1, 0, 'Kutu'], ['varil', 25, 10, 1, 1, 1, 1, 'Varil'],
     ['kutu', 31, 8, 1, 1, 1, 1, 'Kutu'], ['cop_kutusu', 28, 11, 1, 1, 1, 0, 'Çöp Kutusu'],
-    ['raf_kavanoz', 31, 11, 1, 1, 1, 0, 'Kavanoz Rafı'],
+    ['raf_kavanoz', 31, 10, 1, 1, 1, 0, 'Kavanoz Rafı'],
     // Büfe
-    ['tezgah', 31, 28, 3, 1, 1, 0, 'Büfe Tezgâhı'], ['sandik', 37, 28, 1, 1, 1, 1, 'Sandık'], ['kutu', 30, 30, 1, 1, 1, 1, 'Kutu'],
+    ['tezgah', 30, 28, 3, 1, 1, 0, 'Büfe Tezgâhı'], ['sandik', 37, 28, 1, 1, 1, 1, 'Sandık'], ['kutu', 30, 30, 1, 1, 1, 1, 'Kutu'],
     // Havuz Meydanı + Oyun Alanı
     ['havuz', 19, 20, 3, 3, 1, 0, 'Havuz'],
     ['salincak', 5, 26, 3, 2, 1, 0, 'Salıncak'], ['kaydirak', 12, 26, 1, 3, 1, 0, 'Kaydırak'], ['masa', 8, 28, 2, 1, 1, 0, 'Piknik Masası'],
@@ -395,16 +395,16 @@ window.G = window.G || {};
     ['masa', 8, 27, 3, 1, 1, 0, 'Öğretmen Masası'], ['sandalye', 9, 28, 1, 1, 1, 0, 'Sandalye'],
     ['kitaplik', 7, 28, 1, 2, 1, 0, 'Kitaplık'], ['tezgah', 11, 30, 2, 1, 1, 0, 'Çay Tezgâhı'], ['saksi', 12, 28, 1, 1, 1, 0, 'Saksı'],
     // Sınıf Köşesi (Gökçe)
-    ['kara_tahta', 21, 25, 3, 1, 1, 0, 'Kara Tahta'], ['okul_sirasi', 22, 28, 2, 1, 1, 0, 'Okul Sırası'],
+    ['kara_tahta', 21, 25, 2, 1, 1, 0, 'Kara Tahta'], ['okul_sirasi', 22, 28, 2, 1, 1, 0, 'Okul Sırası'],
     ['sandalye', 22, 29, 1, 1, 0, 0, 'Sandalye', 2], ['okul_sirasi', 21, 26, 2, 1, 1, 0, 'Okul Sırası'],
     ['kitaplik', 24, 27, 1, 2, 1, 0, 'Kitaplık'], ['saksi', 21, 30, 1, 1, 1, 0, 'Saksı'],
     // Kantin
-    ['tezgah', 29, 25, 2, 1, 1, 0, 'Kantin Tezgâhı'], ['buzdolabi', 31, 25, 1, 1, 1, 0, 'Buzdolabı'], ['ocak', 26, 25, 1, 1, 1, 0, 'Ocak'],
+    ['tezgah', 30, 26, 2, 1, 1, 0, 'Kantin Tezgâhı'], ['buzdolabi', 31, 25, 1, 1, 1, 0, 'Buzdolabı'], ['ocak', 26, 25, 1, 1, 1, 0, 'Ocak'],
     ['masa', 27, 28, 2, 1, 1, 0, 'Kantin Masası'], ['bank', 29, 28, 2, 1, 1, 0, 'Kantin Bankı'], ['cop_kutusu', 31, 30, 1, 1, 1, 1, 'Çöp Kutusu'], ['kutu', 26, 30, 1, 1, 1, 1, 'Kutu'],
     // Spor Deposu (hedef oda)
     ['kutu', 33, 26, 1, 1, 1, 1, 'Spor Kutusu'], ['varil', 36, 26, 1, 1, 1, 1, 'Varil'], ['kutu', 33, 29, 1, 1, 1, 1, 'Kutu'],
     // Koridor
-    ['okul_hoparlor', 9, 21, 1, 1, 1, 0, 'Okul Hoparlörü'], ['okul_hoparlor', 21, 21, 1, 1, 1, 0, 'Okul Hoparlörü'], ['okul_hoparlor', 33, 21, 1, 1, 1, 0, 'Okul Hoparlörü'],
+    ['okul_hoparlor', 12, 21, 1, 1, 1, 0, 'Okul Hoparlörü'], ['okul_hoparlor', 22, 21, 1, 1, 1, 0, 'Okul Hoparlörü'], ['okul_hoparlor', 33, 21, 1, 1, 1, 0, 'Okul Hoparlörü'],
     ['kupa_vitrini', 14, 21, 1, 1, 1, 0, 'Kupa Vitrini'], ['kupa_vitrini', 28, 21, 1, 1, 1, 0, 'Kupa Vitrini'],
     ['saksi', 7, 21, 1, 1, 1, 0, 'Saksı'], ['saksi', 36, 21, 1, 1, 1, 0, 'Saksı'], ['saksi', 7, 23, 1, 1, 1, 0, 'Saksı'], ['saksi', 36, 23, 1, 1, 1, 0, 'Saksı'],
     ['bank', 24, 21, 2, 1, 1, 0, 'Koridor Bankı'],
@@ -457,10 +457,10 @@ window.G = window.G || {};
   ];
   var ARAMA3 = [
     ['anahtar_mavi', 19, 20, 'Havuz kenarında sadece bir ördek tüyü!'], ['anahtar_mavi', 30, 21, 'Bankın altında sadece bir sakız!'], ['anahtar_mavi', 8, 28, 'Piknik masasının altında sadece bir çorap var!'],
-    ['anahtar_kirmizi', 31, 11, 'Rafta sadece boş kavanozlar!'], ['anahtar_kirmizi', 25, 8, 'Kutuda sadece eski bir top pompası!'], ['anahtar_kirmizi', 28, 11, 'Çöp kovasında sadece muz kabuğu!']
+    ['anahtar_kirmizi', 31, 10, 'Rafta sadece boş kavanozlar!'], ['anahtar_kirmizi', 25, 8, 'Kutuda sadece eski bir top pompası!'], ['anahtar_kirmizi', 28, 11, 'Çöp kovasında sadece muz kabuğu!']
   ];
   var ARAMA4 = [
-    ['anahtar_mavi', 4, 14, 'Kumda sadece bir plastik kova!'], ['anahtar_mavi', 23, 18, 'Çöp kovasında sadece bir elma çöpü!'], ['anahtar_mavi', 14, 21, 'Vitrinde sadece kupalar var, anahtar yok!'], ['anahtar_mavi', 29, 25, 'Kantin tezgâhında sadece bir simit kırıntısı!'],
+    ['anahtar_mavi', 4, 14, 'Kumda sadece bir plastik kova!'], ['anahtar_mavi', 23, 18, 'Çöp kovasında sadece bir elma çöpü!'], ['anahtar_mavi', 14, 21, 'Vitrinde sadece kupalar var, anahtar yok!'], ['anahtar_mavi', 30, 26, 'Kantin tezgâhında sadece bir simit kırıntısı!'],
     ['anahtar_kirmizi', 7, 25, 'Dolapta sadece boş dosyalar var!'], ['anahtar_kirmizi', 12, 25, 'Dosya dolabında sadece karne zarfları!'], ['anahtar_kirmizi', 7, 28, 'Kitapların arasında sadece bir ödev kâğıdı!'], ['anahtar_kirmizi', 11, 30, 'Çekmecede sadece çay şekeri!']
   ];
 
@@ -487,7 +487,7 @@ window.G = window.G || {};
     boya(19, 22, 22, 27, 'f');            // Banyo
     boya(24, 22, 27, 27, 'e');            // Gokce'nin Kosesi
     boya(29, 22, 33, 27, 'k');            // Cay Odasi
-    koy(23, 10, 'd'); koy(20, 15, 'd'); koy(27, 15, 'd'); koy(16, 17, 'd'); koy(30, 17, 'd');
+    koy(23, 10, 'd'); koy(20, 15, 'd'); koy(27, 16, 'd'); koy(16, 17, 'd'); koy(30, 17, 'd');
     koy(15, 21, 'K'); koy(20, 21, 'd'); koy(25, 21, 'd'); koy(31, 21, 'd'); koy(12, 19, 'd'); koy(34, 19, 'd');
     // ust kat
     boya(12, 41, 34, 59, '#');
@@ -514,21 +514,21 @@ window.G = window.G || {};
     ['merdiven_kat', 13, 11, 2, 3, 1, 0, 'Arka Merdiven', 0], ['trabzan', 15, 11, 1, 3, 1, 0, 'Trabzan', 0],
     ['tezgah', 16, 11, 3, 1, 1, 0, 'Tezgâh'], ['caydanlik', 17, 11, 1, 1, 0, 0, 'Çaydanlık'], ['ocak', 19, 11, 1, 1, 1, 0, 'Ocak'],
     ['buzdolabi', 19, 12, 1, 2, 1, 0, 'Buzdolabı'], ['masa', 17, 14, 2, 2, 1, 0, 'Yemek Masası'],
-    ['sandalye', 17, 16, 1, 1, 1, 0, 'Sandalye'],
+    ['sandalye', 17, 13, 1, 1, 1, 0, 'Sandalye'],
     ['dolap', 13, 16, 1, 1, 1, 1, 'Dolap'], ['cop_kutusu', 18, 16, 1, 1, 1, 1, 'Çöp Kutusu'],
     // Giriş Holü + ana merdiven + diafon
-    ['diafon', 21, 11, 1, 1, 1, 0, 'Kapı Diafonu'], ['duvar_saati', 22, 11, 1, 1, 1, 0, 'Duvar Saati'],
-    ['merdiven_kat', 25, 11, 2, 5, 1, 0, 'Merdiven', 0], ['trabzan', 24, 11, 1, 5, 1, 0, 'Trabzan', 0],
-    ['saksi', 21, 16, 1, 1, 1, 0, 'Saksı'], ['dolap', 21, 17, 1, 1, 1, 1, 'Palto Dolabı'],
+    ['diafon', 21, 11, 1, 1, 1, 0, 'Kapı Diafonu'], ['duvar_saati', 21, 13, 1, 1, 1, 0, 'Duvar Saati'],
+    ['merdiven_kat', 25, 11, 2, 3, 1, 0, 'Merdiven', 0], ['trabzan', 24, 12, 1, 2, 1, 0, 'Trabzan', 0],
+    ['saksi', 22, 18, 1, 1, 1, 0, 'Saksı'], ['dolap', 21, 17, 1, 1, 1, 1, 'Palto Dolabı'],
     // Koridor
-    ['saksi', 13, 18, 1, 1, 1, 0, 'Saksı'], ['saksi', 33, 18, 1, 1, 1, 0, 'Saksı'], ['kutu', 33, 20, 1, 1, 1, 1, 'Kutu'], ['dolap', 13, 20, 1, 1, 1, 1, 'Dolap'],
+    ['saksi', 14, 18, 1, 1, 1, 0, 'Saksı'], ['saksi', 32, 18, 1, 1, 1, 0, 'Saksı'], ['kutu', 33, 23, 1, 1, 1, 1, 'Kutu'], ['dolap', 17, 20, 1, 1, 1, 1, 'Dolap'],
     // Kiler (hedef oda)
     ['raf_kavanoz', 13, 23, 1, 2, 1, 0, 'Kavanoz Rafı'], ['cuval', 17, 22, 1, 1, 1, 1, 'Çuval'], ['tursu_bidonu', 17, 26, 1, 1, 1, 1, 'Turşu Bidonu'], ['cuval', 13, 27, 1, 1, 1, 0, 'Çuval'],
     // Banyo
     ['lavabo', 19, 23, 1, 1, 1, 0, 'Lavabo'], ['klozet', 22, 23, 1, 1, 1, 0, 'Klozet'], ['kuvet', 21, 26, 2, 2, 1, 0, 'Küvet'], ['camasir_makinesi', 19, 26, 1, 1, 1, 0, 'Çamaşır Makinesi'],
     // Gökçe'nin Köşesi
     ['calisma_masasi', 25, 24, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 25, 25, 1, 1, 0, 0, 'Sandalye', 2],
-    ['kitaplik', 27, 26, 1, 1, 1, 0, 'Kitaplık'], ['saksi', 24, 22, 1, 1, 1, 0, 'Saksı'],
+    ['kitaplik', 27, 26, 1, 1, 1, 0, 'Kitaplık'], ['saksi', 24, 23, 1, 1, 1, 0, 'Saksı'],
     // Çay Odası (Anneanne)
     ['masa', 30, 24, 3, 2, 1, 0, 'Çay Masası'], ['caydanlik', 31, 24, 1, 1, 0, 0, 'Çaydanlık'],
     ['sandalye', 33, 24, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 31, 26, 1, 1, 1, 0, 'Sandalye'],
@@ -537,7 +537,7 @@ window.G = window.G || {};
     ['merdiven_asagi', 13, 42, 2, 3, 1, 0, 'Arka Merdiven', 0], ['trabzan', 15, 42, 1, 3, 1, 0, 'Trabzan', 0],
     ['gardirop', 17, 42, 2, 1, 1, 1, 'Gardırop'], ['yatak', 17, 43, 2, 3, 1, 1, 'Yatak'], ['saksi', 19, 42, 1, 1, 1, 0, 'Saksı'], ['sandalye', 16, 46, 1, 1, 1, 0, 'Sandalye'],
     // Üst Hol + ana merdiven (aşağı)
-    ['merdiven_asagi', 25, 42, 2, 5, 1, 0, 'Merdiven', 0], ['trabzan', 24, 42, 1, 5, 1, 0, 'Trabzan', 0],
+    ['merdiven_asagi', 25, 42, 2, 3, 1, 0, 'Merdiven', 0], ['trabzan', 24, 43, 1, 2, 1, 0, 'Trabzan', 0],
     ['saksi', 21, 42, 1, 1, 1, 0, 'Saksı'], ['duvar_saati', 22, 42, 1, 1, 1, 0, 'Duvar Saati'], ['sandik', 21, 46, 1, 1, 1, 1, 'Sandık'],
     // Çalışma Odası (kırmızı anahtar adayları)
     ['calisma_masasi', 30, 42, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 30, 43, 1, 1, 0, 0, 'Sandalye', 2],
@@ -586,7 +586,7 @@ window.G = window.G || {};
     [23, 45, 2], [16, 45, 1.5], [22, 50, 1], [16, 55, 1.5], [30, 55, 1.5]
   ];
 
-  var KAPI5 = { '10,5': 'bahce_kapi_bati', '33,5': 'bahce_kapi_dogu', '23,10': 'on', '20,15': 'mutfak', '27,15': 'salon', '16,17': 'mutfak_koridor',
+  var KAPI5 = { '10,5': 'bahce_kapi_bati', '33,5': 'bahce_kapi_dogu', '23,10': 'on', '20,15': 'mutfak', '27,16': 'salon', '16,17': 'mutfak_koridor',
     '30,17': 'salon_koridor', '15,21': 'kiler', '20,21': 'banyo', '25,21': 'gokce', '31,21': 'cay_odasi', '12,19': 'arka_bati', '34,19': 'arka_dogu',
     '20,44': 'yatak_ust', '27,47': 'calisma', '16,48': 'yatak_koridor', '15,52': 'misafir', '21,52': 'ust_banyo', '29,52': 'okuma' };
 
@@ -630,24 +630,24 @@ window.G = window.G || {};
     // Mutfak
     ['buzdolabi', 11, 11, 1, 2, 1, 0, 'Buzdolabı'], ['tezgah', 12, 11, 3, 1, 1, 0, 'Tezgâh'], ['ocak', 15, 11, 1, 1, 1, 0, 'Ocak'], ['lavabo', 16, 11, 1, 1, 1, 0, 'Evye'],
     ['mama_sandalyesi', 17, 12, 1, 1, 1, 0, 'Mama Sandalyesi'],
-    ['masa', 13, 14, 3, 2, 1, 0, 'Yemek Masası'], ['sandalye', 12, 14, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 16, 14, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 14, 16, 1, 1, 1, 0, 'Sandalye'],
-    ['dolap', 11, 16, 1, 1, 1, 1, 'Dolap'], ['cop_kutusu', 17, 16, 1, 1, 1, 1, 'Çöp Kutusu'],
+    ['masa', 12, 14, 3, 2, 1, 0, 'Yemek Masası'], ['sandalye', 11, 14, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 15, 16, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 14, 16, 1, 1, 1, 0, 'Sandalye'],
+    ['dolap', 11, 17, 1, 1, 1, 1, 'Dolap'], ['cop_kutusu', 17, 16, 1, 1, 1, 1, 'Çöp Kutusu'],
     // Giris Holu
-    ['saksi', 19, 11, 1, 1, 1, 0, 'Saksı'], ['duvar_saati', 22, 11, 1, 1, 1, 0, 'Duvar Saati'], ['dolap', 19, 17, 1, 1, 1, 1, 'Ayakkabılık'], ['saksi', 22, 17, 1, 1, 1, 0, 'Saksı'],
+    ['saksi', 19, 11, 1, 1, 1, 0, 'Saksı'], ['duvar_saati', 22, 12, 1, 1, 1, 0, 'Duvar Saati'], ['dolap', 19, 17, 1, 1, 1, 1, 'Ayakkabılık'], ['saksi', 22, 17, 1, 1, 1, 0, 'Saksı'],
     // Salon: oyun halisi, oyuncaklar, oyun parki
-    ['tv', 28, 11, 2, 1, 1, 0, 'Televizyon'], ['masa', 30, 11, 2, 1, 1, 0, 'Sehpa'], ['koltuk', 24, 12, 1, 2, 1, 0, 'Koltuk'], ['sallanan_koltuk', 24, 16, 1, 1, 1, 0, 'Sallanan Koltuk'],
-    ['kanepe', 25, 17, 3, 1, 1, 0, 'Kanepe'], ['bebek_telsizi', 24, 15, 1, 1, 1, 0, 'Bebek Telsizi'],
+    ['tv', 28, 11, 2, 1, 1, 0, 'Televizyon'], ['masa', 30, 11, 2, 1, 1, 0, 'Sehpa'], ['koltuk', 25, 11, 1, 2, 1, 0, 'Koltuk'], ['sallanan_koltuk', 24, 16, 1, 1, 1, 0, 'Sallanan Koltuk'],
+    ['kanepe', 25, 17, 3, 1, 1, 0, 'Kanepe'], ['bebek_telsizi', 25, 15, 1, 1, 1, 0, 'Bebek Telsizi'],
     ['oyun_parki', 33, 12, 2, 2, 1, 0, 'Oyun Parkı'], ['oyuncak_sandigi', 34, 16, 2, 1, 1, 1, 'Oyuncak Sandığı'], ['kitaplik', 35, 14, 1, 2, 1, 0, 'Kitaplık'], ['saksi', 35, 11, 1, 1, 1, 0, 'Saksı'],
     // Koridor + Gokce'nin kosesi
-    ['calisma_masasi', 12, 19, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 12, 20, 1, 1, 0, 0, 'Sandalye', 2],
-    ['kutu', 11, 19, 1, 1, 1, 1, 'Kutu'], ['dolap', 18, 21, 1, 1, 1, 1, 'Dolap'], ['saksi', 35, 19, 1, 1, 1, 0, 'Saksı'], ['saksi', 35, 21, 1, 1, 1, 0, 'Saksı'],
+    ['calisma_masasi', 16, 19, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 16, 20, 1, 1, 0, 0, 'Sandalye', 2],
+    ['kutu', 12, 19, 1, 1, 1, 1, 'Kutu'], ['dolap', 18, 21, 1, 1, 1, 1, 'Dolap'], ['saksi', 34, 19, 1, 1, 1, 0, 'Saksı'], ['saksi', 31, 21, 1, 1, 1, 0, 'Saksı'],
     // Bebek Odasi
     ['besik', 16, 23, 2, 1, 1, 0, 'Beşik'], ['telsiz_bebek', 17, 27, 1, 1, 1, 0, 'Bebek Telsizi'], ['oyuncak_sandigi', 11, 28, 2, 1, 1, 1, 'Oyuncak Sandığı'],
     ['kitaplik', 11, 23, 1, 2, 1, 0, 'Kitaplık'], ['sallanan_koltuk', 16, 28, 1, 1, 1, 0, 'Sallanan Koltuk'], ['saksi', 17, 29, 1, 1, 1, 0, 'Saksı'],
     // Banyo
-    ['lavabo', 19, 23, 1, 1, 1, 0, 'Lavabo'], ['klozet', 22, 23, 1, 1, 1, 0, 'Klozet'], ['kuvet', 21, 28, 2, 2, 1, 0, 'Küvet'], ['camasir_makinesi', 19, 28, 1, 1, 1, 0, 'Çamaşır Makinesi'], ['saksi', 19, 26, 1, 1, 1, 0, 'Saksı'],
+    ['lavabo', 19, 24, 1, 1, 1, 0, 'Lavabo'], ['klozet', 22, 23, 1, 1, 1, 0, 'Klozet'], ['kuvet', 21, 28, 2, 2, 1, 0, 'Küvet'], ['camasir_makinesi', 19, 28, 1, 1, 1, 0, 'Çamaşır Makinesi'], ['saksi', 19, 26, 1, 1, 1, 0, 'Saksı'],
     // Yatak Odasi (kirmizi anahtar adaylari)
-    ['gardirop', 24, 23, 2, 1, 1, 0, 'Gardırop'], ['yatak', 27, 26, 2, 3, 1, 0, 'Yatak'], ['kutu', 24, 26, 1, 1, 1, 0, 'Komodin'], ['orgu_sepeti', 29, 23, 1, 1, 1, 0, 'Örgü Sepeti'],
+    ['gardirop', 24, 24, 2, 1, 1, 0, 'Gardırop'], ['yatak', 27, 26, 2, 3, 1, 0, 'Yatak'], ['kutu', 24, 26, 1, 1, 1, 0, 'Komodin'], ['orgu_sepeti', 29, 23, 1, 1, 1, 0, 'Örgü Sepeti'],
     ['sandalye', 25, 28, 1, 1, 1, 0, 'Sandalye'], ['saksi', 29, 29, 1, 1, 1, 0, 'Saksı'],
     // Balkon (hedef)
     ['saksi', 31, 23, 1, 1, 1, 0, 'Saksı'], ['saksi', 35, 23, 1, 1, 1, 0, 'Saksı'], ['bank', 32, 28, 2, 1, 1, 0, 'Balkon Bankı'], ['cicek', 35, 28, 1, 1, 0, 0, 'Çiçek'], ['saksi', 31, 26, 1, 1, 1, 0, 'Saksı'],
@@ -691,7 +691,7 @@ window.G = window.G || {};
   var ARAMA6 = [
     ['anahtar_mavi', 12, 11, 'Çekmecede sadece kaşıklar var!'], ['anahtar_mavi', 25, 17, 'Kanepe minderinin altında sadece bozuk paralar!'],
     ['anahtar_mavi', 4, 15, 'Kumun içinde sadece bir plastik kova!'], ['anahtar_mavi', 38, 19, 'Bankın altında sadece bir sakız!'],
-    ['anahtar_kirmizi', 24, 23, 'Gardırobun dibinde sadece tek bir çorap!'], ['anahtar_kirmizi', 27, 26, 'Yatağın altında sadece bir terlik!'],
+    ['anahtar_kirmizi', 24, 24, 'Gardırobun dibinde sadece tek bir çorap!'], ['anahtar_kirmizi', 27, 26, 'Yatağın altında sadece bir terlik!'],
     ['anahtar_kirmizi', 29, 23, 'Sepette sadece yün yumakları!'], ['anahtar_kirmizi', 24, 26, 'Komodinde sadece bir tarak!']
   ];
 
@@ -724,15 +724,15 @@ window.G = window.G || {};
       // Katlar: iki kat aynı ızgarada üst üste. sinir = kat sınırı satırı, dy = üst katın zemin kata göre satır kayması.
       kat: { sinir: 37, dy: 31, ad: ['Zemin Kat', 'Üst Kat'] },
       // Portal çiftleri [zemin tx, ty, üst tx, ty]: merdiven ayak karoları (E ile geçilir; yapay zekâ kendiliğinden geçer)
-      portal: [[25, 16, 25, 47], [26, 16, 26, 47], [13, 14, 13, 45], [14, 14, 14, 45]],
+      portal: [[25, 14, 25, 45], [26, 14, 26, 45], [13, 14, 13, 45], [14, 14, 14, 45]],
       yardimci: [31, 23], misafirKapi: [23, 9]
     },
     6: {
       ascii: ASCII6, esya: ESYA6, topla: TOPLA6, odalar: ODALAR6, devriye: DEVRIYE6, kapi: KAPI6, kapiZemin: 'parke', oyun: OYUN6,
       teyzeYol: [[14, 13, 2.5], [16, 12, 2], [20, 14, 1.5], [27, 14, 2.5], [31, 15, 2], [22, 19, 1.5], [15, 17, 2]],
       enisteYol: [[29, 15, 3], [33, 16, 2], [26, 12, 2], [25, 16, 2], [22, 15, 1.5], [14, 19, 2], [14, 13, 2]],
-      oyuncu: [10, 3], komsu: [13, 25], kaza: [32, 13], gokce: [12, 20],
-      mikrofon: [25, 15], sokakSon: 5, arama: ARAMA6
+      oyuncu: [10, 3], komsu: [13, 25], kaza: [32, 13], gokce: [16, 20],
+      mikrofon: [26, 15], sokakSon: 5, arama: ARAMA6
     }
   };
 
@@ -760,6 +760,15 @@ window.G = window.G || {};
   var zeminKapi = 'parke';
 
   function merkez(t) { return t * T + T / 2; }
+
+  // Kapının kanadı duvar/çit boyunca uzanır; geçiş bu eksene diktir.
+  function kapiYatay(x, y) {
+    function duvar(a, b) { return /[#cDV]/.test((ASCII[b] || '').charAt(a) || 'D'); }
+    var yatay = duvar(x - 1, y) && duvar(x + 1, y);
+    var dikey = duvar(x, y - 1) && duvar(x, y + 1);
+    if (yatay !== dikey) return yatay;
+    return !duvar(x, y - 1) && !duvar(x, y + 1);
+  }
 
   var harita = {
     TILE: T, W: W, H: H, bolum: 1,
@@ -802,7 +811,7 @@ window.G = window.G || {};
     for (y = 0; y < H; y++) for (x = 0; x < W; x++) {
       var c = ASCII[y].charAt(x);
       if (c === 'd' || c === 'M' || c === 'K') {
-        var yatay = ASCII[y].charAt(x - 1) === '#' && ASCII[y].charAt(x + 1) === '#';
+        var yatay = kapiYatay(x, y);
         var k = { id: 'kapi_' + (kid[x + ',' + y] || (x + '_' + y)), tx: x, ty: y, yatay: yatay, acik: false,
           kilit: c === 'M' ? 'anahtar_mavi' : (c === 'K' ? 'anahtar_kirmizi' : null) };
         harita.kapilar.push(k);
