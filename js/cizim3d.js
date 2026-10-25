@@ -958,7 +958,9 @@
     if (cur) lines.push(cur);
     return lines.slice(0, 3);
   }
+  var etGor = new Map();   // varlık -> ekrana ilk girdiği an (telefonda isim etiketi 2 sn)
   function labels(ctx, d) {
+    var tel = !!G.dokunmatik, simdi = performance.now(), gorulen = new Set();
     ctx.save(); ctx.setTransform(d.ekran.dpr, 0, 0, d.ekran.dpr, 0, 0);
     // Sinematik vinyet.
     var vg = ctx.createRadialGradient(R.width / 2, R.height * 0.45, Math.min(R.width, R.height) * 0.36, R.width / 2, R.height * 0.5, Math.hypot(R.width, R.height) * 0.62);
@@ -970,6 +972,13 @@
       if (!e || e.gizli || e.saklandi) return;
       var p = project(e.x, e.y, height);
       if (!p.visible || p.x < -90 || p.x > R.width + 90 || p.y < -40 || p.y > R.height + 90) return;
+      gorulen.add(e);
+      if (!etGor.has(e)) etGor.set(e, simdi);
+      if (tel) {
+        var kov = (e === d.komsu || e === d.uyanan) && e.durum === 'kovalama';
+        if (!kov && simdi - etGor.get(e) > 2000) return;
+        if (e === d.oyuncu && simdi - etGor.get(e) > 2000) return;
+      }
       list.push({ e: e, ad: ad, p: p, prio: prio, renk: renk || '#fff8e4' });
     }
     ekle(d.oyuncu, 'Ogeday', 1.62, 100, '#ffe9a8');
@@ -978,13 +987,14 @@
     if (d.komsu) ekle(d.komsu, G.kisiAdi(d.komsu.kim), 1.98, 70, '#ffe2bb');
     if (d.uyanan) ekle(d.uyanan, G.kisiAdi(d.uyanan.kim), 2.05, 72, '#ffd0c0');
     if (d.kedi) ekle(d.kedi, 'Duman', 0.62, 66, '#d7dde2');
-    if (d.uyuyan) ekle(d.uyuyan, G.kisiAdi(d.uyuyan.kim) + ' (uyuyor)', 1.2, 40, '#c8d8e8');
+    if (d.uyuyan && !tel) ekle(d.uyuyan, G.kisiAdi(d.uyuyan.kim) + ' (uyuyor)', 1.2, 40, '#c8d8e8');
+    etGor.forEach(function (v, k) { if (!gorulen.has(k)) etGor.delete(k); });
     list.sort(function (a, b) { return b.prio - a.prio; });
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.lineJoin = 'round';
     list.forEach(function (it) {
-      var txt = it.ad, fs = it.prio >= 95 ? 12 : 11;
+      var txt = it.ad, fs = tel ? 10 : 10;
       ctx.font = 'bold ' + fs + 'px "Trebuchet MS", sans-serif';
-      var w = Math.max(34, ctx.measureText(txt).width + 14), h = 18;
+      var w = Math.max(30, ctx.measureText(txt).width + 10), h = 15;
       var x = it.p.x - w / 2, y = it.p.y - h - 2, ok = false;
       for (var k = 0; k < 3; k++) {
         var yy = y - k * (h + 3);
@@ -995,9 +1005,10 @@
         if (!bad) { r.y = yy; boxes.push(r); ok = r; break; }
       }
       if (!ok) return;
-      ctx.fillStyle = 'rgba(20,32,24,0.62)'; rr(ctx, ok.x, ok.y, ok.w, ok.h, 9); ctx.fill();
-      ctx.strokeStyle = 'rgba(255,244,214,0.22)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.save(); ctx.globalAlpha = tel ? 0.8 : 0.55;
+      ctx.fillStyle = 'rgba(20,32,24,0.6)'; rr(ctx, ok.x, ok.y, ok.w, ok.h, 8); ctx.fill();
       ctx.fillStyle = it.renk; ctx.fillText(txt, ok.x + ok.w / 2, ok.y + ok.h / 2 + 0.5);
+      ctx.restore();
     });
     // Konuşma balonları; isim etiketleriyle çakışmayacak şekilde yukarı kaydırılır.
     var bubbles = [];
@@ -1006,29 +1017,28 @@
       var p = project(e.x, e.y, height); if (!p.visible) return;
       bubbles.push({ e: e, p: p, prio: prio });
     }
+    var kovK = function (e) { return (e === d.komsu || e === d.uyanan) && e.durum === 'kovalama'; };
     balonEkle(d.oyuncu, null, 1.62, 100);
+    if (d.komsu) balonEkle(d.komsu, null, 1.98, kovK(d.komsu) ? 98 : 70);
+    if (d.uyanan) balonEkle(d.uyanan, null, 2.05, kovK(d.uyanan) ? 98 : 72);
     (d.kardesler || []).forEach(function (e, i) { balonEkle(e, null, i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84); });
     if (d.gokce) balonEkle(d.gokce, null, 1.55, 80);
-    if (d.komsu) balonEkle(d.komsu, null, 1.98, 70);
     if (d.kedi) balonEkle(d.kedi, null, 0.62, 68);
-    if (d.uyanan) balonEkle(d.uyanan, null, 2.05, 72);
     bubbles.sort(function (a, b) { return b.prio - a.prio; });
+    var balonBox = [], balonSay = 0, balonMax = tel ? 2 : 3;
     bubbles.forEach(function (b) {
       var k = b.e.konusma; if (!k || !k.metin) return;
-      var fs = 12; ctx.font = 'bold ' + fs + 'px "Trebuchet MS", sans-serif';
-      var lines = wrap(ctx, k.metin, Math.min(230, R.width - 40));
+      if (balonSay >= balonMax) return;
+      var fs = tel ? 11 : 12; ctx.font = 'bold ' + fs + 'px "Trebuchet MS", sans-serif';
+      var lines = wrap(ctx, k.metin, tel ? 150 : Math.min(210, R.width - 40));
       var tw = 0; lines.forEach(function (l) { tw = Math.max(tw, ctx.measureText(l).width); });
-      var bw = tw + 22, bh = lines.length * 16 + 13;
+      var lh = fs + 3, bw = tw + 16, bh = lines.length * lh + 9;
       var bx = Math.max(8, Math.min(R.width - bw - 8, b.p.x - bw / 2));
-      var by = b.p.y - bh - 26;
-      for (var q = 0; q < 4; q++) {
-        var rect = { x: bx, y: by, w: bw, h: bh }, bad = false;
-        for (var j = 0; j < boxes.length; j++) if (intersects(rect, boxes[j])) { bad = true; break; }
-        if (!bad) break;
-        by -= bh + 5;
-      }
-      by = Math.max(100, by);
-      boxes.push({ x: bx, y: by, w: bw, h: bh });
+      var by = Math.max(tel ? 34 : 50, b.p.y - bh - 20);
+      var rect = { x: bx, y: by, w: bw, h: bh };
+      for (var j = 0; j < balonBox.length; j++) if (intersects(rect, balonBox[j]) || (rect.x < balonBox[j].x + balonBox[j].w && rect.x + rect.w > balonBox[j].x && rect.y < balonBox[j].y + balonBox[j].h && rect.y + rect.h > balonBox[j].y)) return;
+      balonSay++;
+      balonBox.push(rect);
       ctx.save(); ctx.globalAlpha = (k.sure == null || k.sure > 0.3) ? 1 : Math.max(0, k.sure / 0.3);
       ctx.fillStyle = 'rgba(255,250,232,0.97)'; ctx.strokeStyle = 'rgba(90,62,38,0.85)'; ctx.lineWidth = 2;
       rr(ctx, bx, by, bw, bh, 11); ctx.fill(); ctx.stroke();
@@ -1043,18 +1053,18 @@
       ctx.beginPath(); ctx.moveTo(tx - 8, ty); ctx.lineTo(uzak ? tx : b.p.x - 4, ty + 9); ctx.lineTo(tx + 8, ty); ctx.closePath();
       ctx.fillStyle = 'rgba(255,250,232,0.97)'; ctx.fill();
       ctx.fillStyle = '#554d40'; ctx.textAlign = 'center';
-      for (var l = 0; l < lines.length; l++) ctx.fillText(lines[l], bx + bw / 2, by + 9 + l * 16);
+      for (var l = 0; l < lines.length; l++) ctx.fillText(lines[l], bx + bw / 2, by + 5 + lh / 2 + l * lh);
       ctx.restore();
     });
     if (d.uyuyan) {
       var p = project(d.uyuyan.x, d.uyuyan.y, 1.1);
-      ctx.font = 'bold 17px sans-serif'; ctx.fillStyle = '#f8f3db';
+      ctx.font = 'bold ' + (tel ? 13 : 15) + 'px sans-serif'; ctx.fillStyle = '#f8f3db';
       ctx.fillText('z Z', p.x + 12, p.y - Math.sin(d.zaman * 2) * 5);
     }
     if (d.oyuncu && d.oyuncu.saklandi) {
       var ps = project(d.oyuncu.x, d.oyuncu.y, 1.45);
-      ctx.font = 'bold 12px "Trebuchet MS", sans-serif';
-      ctx.fillStyle = 'rgba(25,38,28,0.7)'; rr(ctx, ps.x - 42, ps.y - 12, 84, 22, 9); ctx.fill();
+      ctx.font = 'bold ' + (tel ? 10 : 11) + 'px "Trebuchet MS", sans-serif';
+      ctx.fillStyle = 'rgba(25,38,28,0.6)'; rr(ctx, ps.x - 34, ps.y - 9, 68, 18, 8); ctx.fill();
       ctx.fillStyle = '#fff4cd'; ctx.fillText('Saklandın', ps.x, ps.y);
     }
     // Dünya koordinatlı ses halkaları.

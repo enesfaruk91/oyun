@@ -55,6 +55,15 @@ window.G = window.G || {};
   function boyutla() {
     var dpr = Math.min(window.devicePixelRatio || 1, 2);
     var w = window.innerWidth, h = window.innerHeight;
+    // Telefon dikey görünüyorsa (çoğu zaman döndürme kilidi açık, tarayıcı yan çevirmeyi algılamıyor):
+    // beklemeden oyunu 90° döndürülmüş çiz; telefon yan çevrilince görüntü düz olur. Dokunuşlar arayuz.js konum()'da çevrilir.
+    var donuk = !!(G.tamEkran && G.tamEkran.mobil && h > w);
+    if (donuk !== !!G.donuk && donuk && G.mesaj) setTimeout(function () { G.mesaj('📱 Telefonu yan çevir', 3); }, 300);
+    G.donuk = donuk;
+    var kok = document.documentElement;
+    kok.classList.toggle('donuk', donuk);
+    kok.style.setProperty('--ekW', w + 'px'); kok.style.setProperty('--ekH', h + 'px');
+    if (donuk) { var tmp = w; w = h; h = tmp; }
     canvas.width = Math.round(w * dpr); canvas.height = Math.round(h * dpr);
     if (G.d) {
       G.d.ekran = { w: w, h: h, dpr: dpr };
@@ -147,7 +156,7 @@ window.G = window.G || {};
     var d = G.d;
     G.girdi.guncelle();
     // Dikey telefon: oyun duraklar, yataya dönünce kaldığı yerden sürer (yalnız mobil cihazda).
-    var dk = !!(G.tamEkran && G.tamEkran.mobil && d.ekran.h > d.ekran.w);
+    var dk = false;   // dikeyde artık durmuyoruz: G.donuk ile döndürülmüş çizilir (boyutla)
     G.dikey = dk;
     if (dk && d.mod === 'oyun') { d.mod = 'duraklat'; d.dikeyDur = true; }
     else if (!dk && d.dikeyDur) { if (d.mod === 'duraklat') d.mod = 'oyun'; d.dikeyDur = false; G.girdi.temizle(); }

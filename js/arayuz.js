@@ -256,7 +256,11 @@ window.G = window.G || {};
     if (G.girdi) { G.girdi.dokun = { x: 0, y: 0, aktif: false }; G.girdi.dokunKos = false; G.girdi.dokunEgil = false; G.girdi.dokunEtki = false; }
     basili.kos = basili.egil = basili.etkilesim = false; dokunlar = {};
   }
-  function konum(e) { var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top }; }
+  function konum(e) {
+    // G.donuk: sahne 90° döndürülmüş çiziliyor (oyun.js boyutla) → ekran noktasını oyun koordinatına çevir
+    if (G.donuk) return { x: e.clientY, y: window.innerWidth - e.clientX };
+    var r = canvas.getBoundingClientRect(); return { x: e.clientX - r.left, y: e.clientY - r.top };
+  }
   var tamBekle = null;   // dokunuşta tam ekran isteği touchend'e ertelenir (touchstart kullanıcı hareketi sayılmaz)
   function tamIsle() {
     var b = tamBekle; tamBekle = null;
