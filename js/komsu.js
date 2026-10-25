@@ -455,6 +455,28 @@ window.G = window.G || {};
     k.nobetMax = NOBET_SURE_F();
   }
 
+  // Yakalanma sonrası güvenli başlangıç: varsayılan başlangıç oyuncuya görüş/yakınlık bakımından riskliyse, oyuncudan en uzak (görüş hattı kapalı)
+  // devriye noktasını seç. Güvenliyse varsayılan korunur.
+  function guvenliBaslangic(d, b) {
+    var h = H(), o = d.oyuncu, z = null;
+    try { z = G.bolumBilgi().zorluk; } catch (e) { z = null; }
+    var gor = (z && z.gorus) || 330;
+    function skor(c) {
+      var m = Math.hypot(c.x - o.x, c.y - o.y), los = !!(h.gorusEngeli && h.gorusEngeli(c.x, c.y, o.x, o.y));
+      return { m: m, los: los, guvenli: los ? m > 300 : m > gor + 150 };
+    }
+    if (skor(b).guvenli) return b;
+    var en = b, es = -1;
+    var adaylar = (h.devriye || []).concat([b]);
+    for (var i = 0; i < adaylar.length; i++) {
+      var c = adaylar[i], sk = skor(c);
+      if (!sk.guvenli) continue;
+      var puan = sk.m + (sk.los ? 1500 : 0);
+      if (puan > es) { es = puan; en = { x: c.x, y: c.y }; }
+    }
+    return en;
+  }
+
   function init(d, korunsun) {
     var h = H();
     var cf = cift();
@@ -465,6 +487,7 @@ window.G = window.G || {};
       if (uyuyanKim === nobetci) uyuyanKim = diger(nobetci);
     } else { nobetci = ilkNobetci(); uyuyanKim = diger(nobetci); }
     var b = h.komsuBaslangic || { x: 5 * T, y: 5 * T };
+    if (korunsun && d.oyuncu) b = guvenliBaslangic(d, b);   // yakalandıktan sonra çocuk nöbetçinin dibinde/görüşünde doğmasın
     k = d.komsu = {
       x: b.x, y: b.y, r: 17, yon: Math.PI / 2, hareket: false,
       durum: 'devriye', uyari: 0, gorusAci: 1.2, gorusMesafe: 330,
@@ -578,7 +601,7 @@ window.G = window.G || {};
 
     // durum geçişleri (algı kaynaklı)
     if (k.durum !== 'kovalama' && k.durum !== 'yakaladi') {
-      if (k.uyari >= 1 && (gor || his)) { kovalamaBasla(); }
+      if (k.uyari >= 1 && (gor || his) && (!G.kovalamaIzni || G.kovalamaIzni(d, 'komsu'))) { kovalamaBasla(); }
       else if (k.uyari >= 1) { k.uyari = 0.99; }
       else if (k.durum === 'devriye' && k.uyari > 0.35) {
         var tx = s.sonGorulen ? s.sonGorulen.x : (o ? o.x : k.x), ty = s.sonGorulen ? s.sonGorulen.y : (o ? o.y : k.y);

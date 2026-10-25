@@ -96,7 +96,7 @@ G.oyuncu = (function () {
     var tp = h.toplanabilir || [];
     enYakin = null; enMes = ETKI_MESAFE + 1;
     for (i = 0; i < tp.length; i++) {
-      if (!tp[i] || tp[i].alindi) continue;
+      if (!tp[i] || tp[i].alindi || tp[i].gizli) continue;   // gizli anahtar yalnız aramayla bulunur (E basılı tut)
       m = Math.hypot(tp[i].x - o.x, tp[i].y - o.y);
       if (m <= ETKI_MESAFE && m < enMes) { enMes = m; enYakin = tp[i]; }
     }

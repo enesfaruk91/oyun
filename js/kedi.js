@@ -45,7 +45,9 @@ G.kedi = (function () {
       if (h.kati && h.kati(tx, ty)) continue;
       if (h.duvarMi && h.duvarMi(tx, ty)) continue;
       if (h.yolBul) {
-        try { var p = h.yolBul(k.x, k.y, (tx + 0.5) * T, (ty + 0.5) * T, false); if (p && p.length) return { x: (tx + 0.5) * T, y: (ty + 0.5) * T }; } catch (e) { }
+        // yol bulunamayan (kapalı kapı/duvar ardı) noktayı seçme: kedi 1,2 sn boşa yürümesin
+        try { var p = h.yolBul(k.x, k.y, (tx + 0.5) * T, (ty + 0.5) * T, false); if (p && p.length && Math.hypot(p[p.length - 1].x - (tx + 0.5) * T, p[p.length - 1].y - (ty + 0.5) * T) < T) return { x: (tx + 0.5) * T, y: (ty + 0.5) * T }; } catch (e) { }
+        continue;
       }
       return { x: (tx + 0.5) * T, y: (ty + 0.5) * T };
     }
@@ -123,6 +125,7 @@ G.kedi = (function () {
   }
 
   function tasiBasla() {
+    if (G.kovalamaIzni && !G.kovalamaIzni(G.d, 'kedi')) return;   // en çok 2 aktif kovalayan
     durumDegis('takip');
     s.sikT = 0;
     k.uyari = 1;
@@ -328,5 +331,8 @@ G.kedi = (function () {
     });
   }
 
-  return { init: init, guncelle: guncelle };
+  // Önceliği yüksek bir kovalayan başlarken kedi bırakır
+  function birak(d) { if (k && d && d.kedi === k && k.durum === 'takip') { k.uyari = 0; durumDegis('gezinti'); say('Mıy... bıraktım.', 1.6); } }
+
+  return { init: init, guncelle: guncelle, birak: birak };
 })();

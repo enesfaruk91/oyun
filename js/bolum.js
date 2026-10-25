@@ -66,6 +66,23 @@ window.G = window.G || {};
       kisiler: 'Ayşe Hanım · Kemal Bey'
     }
   };
+  // Aynı anda en fazla 2 aktif kovalayan (nöbetçi, uyanan ebeveyn, kedi): çocuk sıkışmasın. haric = sayıma katılmayan ('komsu'|'uyanan'|'kedi').
+  G.KOVALAYAN_MAX = 2;
+  G.kovalayanSayisi = function (d, haric) {
+    d = d || G.d; var n = 0;
+    if (!d) return 0;
+    if (haric !== 'komsu' && d.komsu && d.komsu.durum === 'kovalama') n++;
+    if (haric !== 'uyanan' && d.uyanan && d.uyanan.durum === 'kovalama') n++;
+    if (haric !== 'kedi' && d.kedi && d.kedi.durum === 'takip') n++;
+    return n;
+  };
+  // Yeni bir kovalama başlayabilir mi? Kedi en düşük öncelikli: nöbetçi/uyanan başlayacaksa ve yer yoksa kedi bırakır.
+  G.kovalamaIzni = function (d, kim) {
+    d = d || G.d;
+    if (G.kovalayanSayisi(d, kim) < G.KOVALAYAN_MAX) return true;
+    if (kim !== 'kedi' && d && d.kedi && d.kedi.durum === 'takip' && G.kedi && G.kedi.birak) { G.kedi.birak(d); return G.kovalayanSayisi(d, kim) < G.KOVALAYAN_MAX; }
+    return false;
+  };
   G.bolumBilgi = function () { return G.bolumler[G.bolum] || G.bolumler[1]; };
 
   var KISI = {

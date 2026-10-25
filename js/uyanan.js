@@ -211,15 +211,28 @@ window.G = window.G || {};
     // karıştır
     for (var i = adaylar.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)); var t = adaylar[i]; adaylar[i] = adaylar[j]; adaylar[j] = t; }
     // toplam süre ~25-35 sn kalsın: kısa bacaklar, yatağa yakın noktalar
+    // Sözleşme: toplam ~25-35 sn → her zaman 3 durak. Önce sıkı, sonra gevşeyen kurallarla doldur.
+    var yb = yatakYanlari()[0] || m;
+    var kurallar = [[130, 380, 18, 520, 560], [90, 460, 26, 600, 760], [60, 700, 40, 800, 1100]];
     var prev = { x: u.x, y: u.y };
-    for (i = 0; i < adaylar.length && out.length < 3; i++) {
-      var c = adaylar[i], dd = Math.hypot(c.x - prev.x, c.y - prev.y);
-      if (dd < 130 || dd > 380 || Math.hypot(c.x - m.x, c.y - m.y) > 520) continue;
-      var yol = null;
-      if (h.yolBul) { try { yol = h.yolBul(prev.x, prev.y, c.x, c.y, true); } catch (e) { yol = null; } }
-      else yol = [c];
-      if (!yol || !yol.length || yol.length > 18) continue;
-      out.push(c); prev = c;
+    for (var kr = 0; kr < kurallar.length && out.length < 3; kr++) {
+      var K = kurallar[kr];
+      for (i = 0; i < adaylar.length && out.length < 3; i++) {
+        var c = adaylar[i];
+        if (out.indexOf(c) >= 0) continue;
+        var dd = Math.hypot(c.x - prev.x, c.y - prev.y);
+        if (dd < K[0] || dd > K[1] || Math.hypot(c.x - m.x, c.y - m.y) > K[3]) continue;
+        var yol = null;
+        if (h.yolBul) { try { yol = h.yolBul(prev.x, prev.y, c.x, c.y, true); } catch (e) { yol = null; } }
+        else yol = [c];
+        if (!yol || !yol.length || yol.length > K[2]) continue;
+        // yatağa dönüş yolu da kısa olsun (düz mesafe kısa ama dolambaçlı oda düzeni dönüşü 20 sn uzatıyordu)
+        var geri = null, gu = 0;
+        if (h.yolBul) { try { geri = h.yolBul(c.x, c.y, yb.x, yb.y, true); } catch (e2) { geri = null; } }
+        if (geri) for (var gi = 0, gp = c; gi < geri.length; gi++) { gu += Math.hypot(geri[gi].x - gp.x, geri[gi].y - gp.y); gp = geri[gi]; }
+        if (!geri || gu > K[4]) continue;
+        out.push(c); prev = c;
+      }
     }
     return out;
   }
@@ -312,7 +325,12 @@ window.G = window.G || {};
   }
 
   function devriyeDavran(dt) {
-    if (s.faz === 'bitti' || s.noktaI >= s.nokta.length) { yorgunBasla(); return; }
+    // Sözleşme: toplam ~25-35 sn. Duraklar erken bittiyse (yakın noktalar) bakınarak bekle; geç kaldıysa kalan durakları atla.
+    if (s.faz === 'bitti' || s.noktaI >= s.nokta.length) {
+      if (s.toplam < 20 + (s.bekHedef = s.bekHedef || Math.random() * 4)) { u.hareket = false; bakin(dt, 3); return; }
+      yorgunBasla(); return;
+    }
+    if (s.faz === 'git' && !s.yol && s.toplam > 21) { yorgunBasla(); return; }
     var nk = s.nokta[s.noktaI];
     if (s.faz === 'git') {
       if (s.birak) { s.noktaI++; s.birak = false; s.yol = null; return; }
@@ -328,18 +346,21 @@ window.G = window.G || {};
     }
   }
 
+  // Sözleşme ~25-35 sn: yatağa erken varırsa esneyip biraz bekler (ani kaybolmasın)
+  function yatBekle(dt, d) { if (s.toplam < 24) { u.hareket = false; s.yol = null; bakin(dt, 2); s.yorgunDene = 0; return; } yatagaYat(d); }
+
   function yorgunDavran(dt, d) {
     var hd = s.yatakHedef;
     s.yorgunT += dt;
     if (!hd || s.yorgunT > 45) { yatagaYat(d); return; }
-    if (Math.hypot(hd.x - u.x, hd.y - u.y) < 22) { yatagaYat(d); return; }
+    if (Math.hypot(hd.x - u.x, hd.y - u.y) < 22) { yatBekle(dt, d); return; }
     if (s.birak || !s.yol) {
       s.birak = false; s.yorgunDene++;
       if (s.yorgunDene > 4 || !yolKur(hd.x, hd.y)) { yatagaYat(d); return; }
     }
     if (yolTakip(dt, HIZ.yorgun, 4)) {
       s.yol = null;
-      if (Math.hypot(hd.x - u.x, hd.y - u.y) < 110) { yatagaYat(d); return; }
+      if (Math.hypot(hd.x - u.x, hd.y - u.y) < 110) { yatBekle(dt, d); return; }
       s.yorgunDene++;
       if (s.yorgunDene > 4) yatagaYat(d);
     }
@@ -450,7 +471,7 @@ window.G = window.G || {};
         s.sonGorulen = { x: o.x, y: o.y };
       } else u.uyari -= 0.3 * dt;
       u.uyari = clamp(u.uyari, 0, 1);
-      if (u.uyari >= 1) kovalamaBasla();
+      if (u.uyari >= 1) { if (!G.kovalamaIzni || G.kovalamaIzni(d, 'uyanan')) kovalamaBasla(); else u.uyari = 0.99; }
     }
 
     switch (u.durum) {
