@@ -1790,7 +1790,11 @@
         a.elbows[i].rotation.x = -0.32 - Math.max(0, tz) * 0.1;
       }
       a.head.rotation.x = 0.1; a.head.rotation.z = tz * 0.04;
-    } else if (suruyor && (tur === 'pota' || tur === 'oyunparki')) {
+    } else if (suruyor && tur === 'trambolin') {
+      a.root.position.y = 0.04 + (ent.ziplaY || 0.52);
+      var zip = Math.sin(d.zaman * 5);
+      for (i=0;i<2;i++) { a.legs[i].rotation.x = -0.2; a.knees[i].rotation.x = 0.3 + Math.max(0,-zip)*0.5; a.arms[i].rotation.set(-0.7,0,(i ? 1 : -1)*0.9); }
+    } else if (suruyor && (tur === 'pota' || tur === 'oyunparki' || tur === 'tirmanma_agi')) {
       var ph = d.zaman * 5 + a.seed;
       a.root.position.y = 0.04 + (ent.tirmanY || 0);
       a.body.rotation.x = 0.06; a.body.position.y = Math.abs(Math.sin(ph)) * 0.015;
@@ -2311,6 +2315,7 @@
     }
     ekle(d.oyuncu, 'Ogeday', 1.62, 100, '#ffe9a8');
     (d.kardesler || []).forEach(function (e, i) { ekle(e, e.ad, i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84, i === 0 ? '#bcdcff' : '#c8e9c0'); });
+    (d.oturanlar || []).forEach(function (e) { ekle(e, G.kisiAdi(e.kim), 1.5, 50, '#fff1da'); });
     if (d.gokce) ekle(d.gokce, 'Gökçe', 1.55, 80, '#e6c8f2');
     if (d.komsu) ekle(d.komsu, G.kisiAdi(d.komsu.kim), d.komsu.kim === 'beren' ? 1.0 : 1.98, 70, '#ffe2bb');
     if (d.teyze) ekle(d.teyze, 'Nefise Teyze', 1.9, 63, '#ffc9e6');
@@ -2710,6 +2715,7 @@
       updateRig('k' + i, k, i ? 'giray' : 'atilay', d, { scale: i ? 0.8 : 0.65, child: true, ride: k.kaza === 'suruyor', dt: dt });
     });
     if (d.komsu && !d.komsu.pasif) updateRig('n', d.komsu, d.komsu.kim, d, { scale: d.komsu.kim === 'beren' ? 1.3 : 1.12, dt: dt });
+    (d.oturanlar || []).forEach(function (e, i) { updateRig('oturan'+i, e, e.kim, d, { scale: 1.08, dt: dt }); });
     if (d.teyze) updateRig('te', d.teyze, 'teyze', d, { scale: 1.08, dt: dt });
     if (d.eniste) updateRig('en', d.eniste, 'enistee', d, { scale: 1.12, dt: dt });
     if (d.recep) updateRig('r', d.recep, 'recepdede', d, { scale: 1.12, dt: dt });

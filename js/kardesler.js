@@ -411,6 +411,8 @@ G.kardesler = (function () {
   var kazaAt = 70, kazaGurT = 0, kazaYol = null, kazaZorla = false, kazaSurT = 0, kazaKonT = 0, kazaDinle = false, kazaBekT = 0;
   var AGLA = ['Ühüüü! Ogedaaay!', 'Dizim acıyor... ühüü!', 'Gel bana, Ogedaaay!', 'Ühüüü... Yalnız kaldım!'];
   var KAZA = {
+    trambolin: { bin: 'Trambolinde zıplayacağım!', sur: 'Hop hop!', surMsg: 'trambolinde zıplıyor!', kosMsg: ' tramboline koştu!', dus: ' yumuşak mindere düştü!', sureS: 3.2 },
+    tirmanma_agi: { bin: 'Ağa tırmanacağım!', sur: 'Yukarı çıkıyorum!', surMsg: 'ağa tırmanıyor!', kosMsg: ' tırmanma ağına koştu!', dus: ' yumuşak mindere düştü!', sureS: 3.2 },
     scooter: { bin: 'Scootera binicem!', sur: 'Vınnnn!', surMsg: 'bindi!', kosMsg: ' scootera koştu!', dus: ' scooterdan düştü!', sureS: 1.0 },
     salincak: { bin: 'Salıncağa binicem!', sur: 'Uçuyorummm!', surMsg: 'salıncakta uçuyor!', kosMsg: ' salıncağa koştu!', dus: ' salıncaktan düştü!', sureS: 2.8 },
     trabzan: { bin: 'Trabzandan kayacağım!', sur: 'Vııııt! Kayıyorum!', surMsg: 'trabzandan kayıyor!', kosMsg: ' trabzana koştu!', dus: ' trabzandan düştü!', sureS: 2.4 },
@@ -425,6 +427,7 @@ G.kardesler = (function () {
     var h = H(), es = h.esyalar || [], i, e;
     for (i = 0; i < es.length; i++) {
       e = es[i];
+      if ((tur === 'trambolin' || tur === 'tirmanma_agi') && e.tur === tur) return { x: (e.tx + e.w/2)*T, y: (e.ty + e.h/2)*T, yon: 0 };
       if (tur === 'salincak' && e.tur === 'salincak') return { x: (e.tx + e.w / 2) * T, y: (e.ty + e.h / 2) * T, yon: Math.PI / 2 };
       if (tur === 'trabzan' && e.tur === 'trabzan' && Math.abs((e.tx + 0.5) * T - h.kazaYeri.x) < T * 3 && Math.abs((e.ty + 0.5) * T - h.kazaYeri.y) < T * 3 && h.katOf(e.ty * T) === h.katOf(h.kazaYeri.y)) return { x: (e.tx + 0.5) * T, y: (e.ty + 0.25) * T, ex: (e.tx + 0.5) * T, ey: (e.ty + e.h - 0.25) * T, yon: Math.PI / 2 };
       if (tur === 'oyunparki' && e.tur === 'oyun_parki') return { x: (e.tx + 0.18) * T, y: (e.ty + e.h / 2) * T, yon: 0 };
@@ -482,7 +485,7 @@ G.kardesler = (function () {
     var K = d.kaza, tur = K.tur || 'scooter', h = H();
     K.asama = 'dustu'; kd.kaza = 'dustu'; kd.hareket = false; K.kalan = 25; kd.salincakAci = 0; kd.tirmanY = 0;
     if (tur === 'salincak') { kd.x = h.kazaYeri.x + 20; kd.y = h.kazaYeri.y + 6; }
-    else if (tur === 'pota' || tur === 'oyunparki') { kd.x = h.kazaYeri.x + 6; kd.y = h.kazaYeri.y + 10; }
+    else if (tur === 'pota' || tur === 'oyunparki' || tur === 'trambolin' || tur === 'tirmanma_agi') { kd.x = h.kazaYeri.x + 6; kd.y = h.kazaYeri.y + 10; }
     else if (tur === 'trabzan') { kd.x = (K.ex != null ? K.ex : h.kazaYeri.x) - 26; kd.y = (K.ey != null ? K.ey : h.kazaYeri.y) + 30; kd.trabzanY = null; kd.kayma = 0; }
     K.x = kd.x; K.y = kd.y;
     if (d.scooter) { d.scooter.devrik = true; d.scooter.x = kd.x + 20; d.scooter.y = kd.y; }
@@ -535,6 +538,10 @@ G.kardesler = (function () {
         kd.x = nx; kd.y = ny; kd.yon = a; kd.hareket = true; kd.adimFaz += dt * 14;
         d.scooter.x = kd.x; d.scooter.y = kd.y; d.scooter.yon = a;
         if (kazaSurT >= KAZA.scooter.sureS || bitti) kazaDustu(d, kd);
+      } else if (tur === 'trambolin') {
+        kd.ziplaY = 0.52 + Math.abs(Math.sin(kazaSurT * 5)) * 1.1;
+        kd.x = K.bx; kd.y = K.by; kd.hareket = false; K.x = kd.x; K.y = kd.y;
+        if (kazaSurT >= KAZA.trambolin.sureS) { kd.ziplaY = 0; kazaDustu(d, kd); }
       } else if (tur === 'salincak') {
         var ge = Math.min(1, kazaSurT / 2.4), amp = 0.25 + 1.0 * ge * ge;
         kd.salincakAci = Math.sin(kazaSurT * 4.2) * amp;
@@ -551,7 +558,7 @@ G.kardesler = (function () {
       } else {
         kd.tirmanY = Math.min(tur === 'oyunparki' ? 0.9 : 1.5, kazaSurT * (tur === 'oyunparki' ? 0.4 : 0.62));
         kd.x = K.bx; kd.y = K.by; kd.hareket = false; K.x = kd.x; K.y = kd.y;
-        if (kazaSurT > 1.2 && !kd.konusma) kd.konusma = { metin: tur === 'oyunparki' ? 'Ben de Beren gibi tırmanıyorum!' : 'Şimdi smaç!', sure: 1.3 };
+        if (kazaSurT > 1.2 && !kd.konusma) kd.konusma = { metin: tur === 'oyunparki' ? 'Ben de Beren gibi tırmanıyorum!' : tur === 'tirmanma_agi' ? 'İplere sıkı tutundum!' : 'Şimdi smaç!', sure: 1.3 };
         if (kazaSurT >= KAZA[tur].sureS) kazaDustu(d, kd);
       }
     } else if (K.asama === 'dustu') {
@@ -601,7 +608,7 @@ G.kardesler = (function () {
     var o = d.oyuncu, k = d.komsu;
     if (!o || o.saklandi || d.mod !== 'oyun') return false;
     var bebekB = false; try { bebekB = !!G.bolumBilgi().bebek; } catch (e) { }
-    if ((!d.uyuyan && !bebekB) || d.uyanan || !mikYeri()) return false;   // bebek bölümünde telsiz uyuyan olmadan da çalışır
+    if ((!d.uyuyan && !bebekB && !G.bolumBilgi().anonsSerbest) || d.uyanan || !mikYeri()) return false;   // bebek bölümünde telsiz uyuyan olmadan da çalışır
     if (d.kaza || gokceAktif(d)) return false;
     if (k && k.durum === 'kovalama') return false;
     return true;

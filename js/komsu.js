@@ -10,6 +10,7 @@ window.G = window.G || {};
   function hizK() { var c = KISI[k && k.kim] || KISI.baba, z = zor(); return z && z.kovalama ? z.kovalama + (c.ek || 0) : c.kovalama; }
   function supheCarpan() { var z = zor(); return (z && z.suphe) || 1; }
   var KISI = {
+    avmgorevli: { devriye: 85, kovalama: 175, gorus: 350, ek: 0 },
     baba: { devriye: 85, kovalama: 170, gorus: 330, ek: 0 },
     anne: { devriye: 95, kovalama: 175, gorus: 350, ek: 5 },
     dede: { devriye: 80, kovalama: 160, gorus: 300, ek: -5 },
@@ -154,6 +155,7 @@ window.G = window.G || {};
     telsiz: ['Aaa? Ses var!', 'Ba? Telsiz?'],
     ispiyon: ['Aaa! Abi! Ba-ba!', 'Abi! Nerede? Agu!', 'Hihi! Geliyorum!']
   };
+  SOZK.avmgorevli = Object.assign({}, SOZK.bekci, { mirilti: ['Toplar yerinde, oyuncaklar hazır!', 'Şenlik ne güzel!'], gordu: ['Seni gördüm, küçük kaşif!'], kovala: ['Çak bir beşlik!', 'Gülerek yakalarım!'], yakala: ['Buldum! Al sana bir çıkartma!'], anons: ['Şenlik anonsu mu bu?'] });
   var nobetci = 'baba', uyuyanKim = 'anne';
   function bz() { return k && k.kim === 'beren' ? 0.82 : 1; }   // bebek: süphe/arama/yorgun yürüyüşü daha yavaş (emekleme)
   function bebekSes(tur) { if (k && k.kim === 'beren') olay('bebek_ses', { tur: tur, x: k.x, y: k.y }); }

@@ -48,6 +48,7 @@ window.G = window.G || {};
     guvenli('kedi.init', function () { if (G.kedi) G.kedi.init(G.d, false); });
     uyananInit();
     guvenli('misafir.init', function () { if (G.misafir) G.misafir.init(G.d, false); });
+    guvenli('avm.init', function () { if (G.avm) G.avm.init(G.d); });
     guvenli('bebek.init', function () { if (G.bebek) G.bebek.init(G.d, false); });
     kameraTakip(1);
   }
@@ -118,6 +119,7 @@ window.G = window.G || {};
     guvenli('kedi.init', function () { if (G.kedi) G.kedi.init(G.d, true); });
     uyananInit();
     guvenli('misafir.init', function () { if (G.misafir) G.misafir.init(G.d, true); });
+    guvenli('avm.init', function () { if (G.avm) G.avm.init(G.d); });
     guvenli('bebek.init', function () { if (G.bebek) G.bebek.init(G.d, true); });
     G.d.sesler = []; G.d.firlatilanlar = [];
     kameraTakip(1);
@@ -206,6 +208,7 @@ window.G = window.G || {};
       if (d.mod === 'oyun' && G.kedi) guvenli('kedi', function () { G.kedi.guncelle(dt, d); });
       if (d.mod === 'oyun' && G.uyanan && G.uyanan.guncelle) guvenli('uyanan', function () { G.uyanan.guncelle(dt, d); });
       if (d.mod === 'oyun' && G.misafir) guvenli('misafir', function () { G.misafir.guncelle(dt, d); });
+      if (d.mod === 'oyun' && G.avm) guvenli('avm', function () { G.avm.guncelle(dt, d); });
       if (d.mod === 'oyun' && G.bebek) guvenli('bebek', function () { G.bebek.guncelle(dt, d); });
       for (var i = d.sesler.length - 1; i >= 0; i--) {
         d.sesler[i].omur -= dt;

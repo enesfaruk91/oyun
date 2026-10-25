@@ -736,7 +736,13 @@ window.G = window.G || {};
     }
   };
 
-  var YUKSEK = { buzdolabi: 1, kitaplik: 1, gardirop: 1, raf_kavanoz: 1 };
+  // Şemadaki rol alanlarını motorun ortak alanlarına dönüştür.
+  Object.keys(G.yeniHaritalar || {}).forEach(function (id) {
+    var m = G.yeniHaritalar[id];
+    BOLUMLER[id] = Object.assign({}, m, { komsu: m.arayici, gokce: m.abla, kapiZemin: 'parke', sokakSon: 1 });
+    CIKARTMA_YER[id] = m.cikartma;
+  });
+  var YUKSEK = { ahsap_ev: 1, bal_kovanli_agac: 1, magara_girisi: 1, vitrin: 1, buzdolabi: 1, kitaplik: 1, gardirop: 1, raf_kavanoz: 1 };
   // Bebek (ent.altGec) boyu: masa/sandalye gibi alçak bacaklı eşyaların ALTINDAN geçebilir (EK-12)
   var ALT_GEC = { masa: 1, sandalye: 1, calisma_masasi: 1, mama_sandalyesi: 1 };
 
@@ -834,11 +840,12 @@ window.G = window.G || {};
     harita.kazaYeri = kz ? { x: merkez(kz[0]), y: merkez(kz[1]), tur: (G.bolumler && G.bolumler[bolum] && G.bolumler[bolum].kazaTur) || 'scooter' } : null;
     harita.teyzeYol = (cur.teyzeYol || []).map(function (p) { return { x: merkez(p[0]), y: merkez(p[1]), bekle: p[2] }; });
     harita.enisteYol = (cur.enisteYol || []).map(function (p) { return { x: merkez(p[0]), y: merkez(p[1]), bekle: p[2] }; });
+    harita.oturanlar = (cur.oturan || []).map(function (p) { return { kim: p.kim, x: merkez(p.tx), y: merkez(p.ty), yon: [Math.PI/2,Math.PI,-Math.PI/2,0][p.yon], oturuyor: true, yemek: p.yemek, oturY: p.oturY, adimFaz: 0 }; });
     harita.bebekOyun = (cur.oyun || []).map(function (p) { return { x: merkez(p[0]), y: merkez(p[1]) }; });
     harita.yardimciYeri = cur.yardimci ? { x: merkez(cur.yardimci[0]), y: merkez(cur.yardimci[1]) } : null;
     harita.misafirKapi = cur.misafirKapi ? { x: merkez(cur.misafirKapi[0]), y: merkez(cur.misafirKapi[1]) } : null;
     harita.zilYeri = cur.zil ? { x: merkez(cur.zil[0]), y: merkez(cur.zil[1]) } : null;
-    harita.hoparlorler = harita.esyalar.filter(function (e) { return e.tur === 'hoparlor_direk' || e.tur === 'okul_hoparlor' || e.tur === 'telsiz_bebek'; })
+    harita.hoparlorler = harita.esyalar.filter(function (e) { return e.tur === 'hoparlor_direk' || e.tur === 'okul_hoparlor' || e.tur === 'telsiz_bebek' || e.tur === 'megafon_direk' || e.tur === 'koy_cani'; })
       .map(function (e) { return { x: (e.tx + e.w / 2) * T, y: (e.ty + e.h / 2) * T, tur: e.tur }; });
     harita.gokceMasa = { x: merkez(cur.gokce[0]), y: merkez(cur.gokce[1]), yon: -Math.PI / 2 };
     harita.mikrofonYeri = { x: merkez(cur.mikrofon[0]), y: merkez(cur.mikrofon[1]), yon: -Math.PI / 2 };
