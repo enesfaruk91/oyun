@@ -2124,6 +2124,38 @@
         }
       }
     });
+    // Yazısız ipucu: aday arama noktalarında zemin halkası (en çok 4 ucuz düz halka; aranmışlar gri ve küçük)
+    (function () {
+      var ip = (G.oyuncu && G.oyuncu.ipucuDurum && d.mod !== 'menu') ? G.oyuncu.ipucuDurum(d) : null;
+      if (!R.halka) {
+        R.halka = [];
+        var geo = new T.RingGeometry(0.82, 1.0, 32); geo.rotateX(-PI / 2);
+        for (var q = 0; q < 5; q++) {
+          var m = new T.Mesh(geo, new T.MeshBasicMaterial({ color: '#ffffff', transparent: true, opacity: 0.8, depthWrite: false }));
+          m.visible = false; m.renderOrder = 3; R.scene.add(m); R.halka.push(m);
+        }
+      }
+      var liste = [];
+      if (ip && ip.mod === 'ara') {
+        ip.noktalar.forEach(function (n) { liste.push({ n: n, bos: false }); });
+        ip.bosOlanlar.forEach(function (n) { liste.push({ n: n, bos: true }); });
+      }
+      var renk = ip && ip.renk === 'kirmizi' ? '#ff5a4a' : '#4aa3ff', t = d.zaman || 0, asama = ip ? ip.asama : 0;
+      for (var hi = 0; hi < R.halka.length; hi++) {
+        var m = R.halka[hi], e = liste[hi];
+        if (!e) { m.visible = false; continue; }
+        var n = e.n, yar = Math.max(n.w || 1, n.h || 1) / 2 + 0.3;
+        var hedefMi = !e.bos && ip.hedef && ip.hedef.nokta === n && asama >= 2;
+        m.visible = true;
+        m.position.set(n.x / U, 0.2, n.y / U);
+        if (e.bos) { m.material.color.set('#9aa0a6'); m.scale.setScalar(yar * 0.85); m.material.opacity = 0.4; continue; }
+        var gen = asama >= 1 ? 0.2 : 0.08, hiz = asama >= 1 ? 4.2 : 2.6;
+        var nb = 0.5 + 0.5 * Math.sin(t * hiz + hi);
+        m.material.color.set(hedefMi ? '#ffe14d' : renk);
+        m.scale.setScalar(yar * (1 + gen * nb) * (hedefMi ? 1.15 : 1));
+        m.material.opacity = (asama >= 1 ? 0.65 : 0.45) + 0.35 * nb;
+      }
+    })();
     if (d.anons && d.anons.noktalar && R.frame % 20 === 0) d.anons.noktalar.forEach(function (q) { sparkle(q.x / U, 2.3, q.y / U, '#ffe14d', 2, 1.4); });
     var kz = d.kaza, sal = hmap.esyalar.filter(function (e) { return e.tur === 'salincak'; })[0];
     if (!R.swing) {

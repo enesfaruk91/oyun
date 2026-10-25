@@ -804,8 +804,10 @@ window.G = window.G || {};
     if (d.zilT <= 0) {
       d.zilT = b.zil;
       olay('zil', {});
-      if (G.mesaj) G.mesaj('Teneffüs zili çaldı! ' + Ad(k.kim) + ' sıraya gidiyor: fırsat!', 3.2);
       if (k.durum !== 'yorgun' && k.durum !== 'yakaladi' && k.durum !== 'kovalama') {
+        // Zil şüpheyi de bastırır: önceden şüphedeki nöbetçi zili duymazdan geliyordu ama "fırsat" mesajı çıkıyordu.
+        if (k.durum !== 'devriye') devriyeyeDon();
+        if (G.mesaj) G.mesaj('Teneffüs zili çaldı! ' + Ad(k.kim) + ' sıraya gidiyor: fırsat!', 3.2);
         s.zil = { kalan: 9.5, hedef: { x: h.zilYeri.x, y: h.zilYeri.y }, vardi: false };
         s.faz = 'git'; s.yol = null; k.zil = true;
         say('Zil çaldı, sıraya!', 3, true);

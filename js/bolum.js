@@ -128,6 +128,10 @@ window.G = window.G || {};
   G.kisiYakalama = function (kim) { return (KISI[kim] || KISI.baba).yakala; };
   G.kisiSoz = function (kim) { return (KISI[kim] || KISI.baba).soz; };
 
+  // Yazısız ipucu kademesi (sn): [arama noktası nabzı belirginleşir, yön oku gerçek noktaya öncelik verir, parıltı + Gökçe]
+  var IPUCU = { 1: [15, 30, 45], 2: [20, 38, 52], 3: [25, 45, 60], 4: [30, 52, 68] };
+  Object.keys(IPUCU).forEach(function (n) { if (G.bolumler[n]) G.bolumler[n].ipucu = IPUCU[n]; });
+
   // ilerleme kaydı (file:// altında localStorage kapalı olabilir)
   G.ilerleme = {
     bolumAcik: function (n) { n = n || 2; try { return localStorage.getItem('abk_bolum' + n) === '1'; } catch (h) { return false; } },

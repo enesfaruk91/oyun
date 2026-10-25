@@ -288,7 +288,11 @@ G.oyuncu = (function () {
   }
 
   // Uzun süre bulunamazsa doğru noktada parıltı ipucu (Gökçe fısıldar)
-  var IPUCU_SURE = 60;
+  // Süreler bolum.js'teki G.bolumBilgi().ipucu = [nabız belirginleşir, yön oku gerçek noktaya, parıltı] (sn)
+  function ipucuSureleri() {
+    var b = G.bolumBilgi && G.bolumBilgi();
+    return (b && b.ipucu) || [25, 45, 60];
+  }
   function ipucuKontrol(o, d) {
     var h = H(), gr = h.aramaGruplari || {};
     var env = o.envanter || [];
@@ -301,7 +305,7 @@ G.oyuncu = (function () {
     if (d._maviKapi && !maviKapi) d.aramaSon = d.zaman;   // mavi kapı açıldı: yeni arama aşaması
     d._maviKapi = maviKapi;
     if (!gerekli) return;
-    if (d.zaman - d.aramaSon < IPUCU_SURE) return;
+    if (d.zaman - d.aramaSon < ipucuSureleri()[2]) return;
     var gercek = null, g = gr[gerekli];
     for (var j = 0; j < g.length; j++) if (g[j].gercek && !g[j].bakildi) gercek = g[j];
     if (!gercek || gercek.ipucu) return;
@@ -468,5 +472,49 @@ G.oyuncu = (function () {
     })();
   }
 
-  return { init: init, guncelle: guncelle, esyaAdi: esyaAdi };
+  // ---- yazısız ipucu durumu (arayuz.js oku/simgeleri, cizim3d.js halkaları buradan okur) ----
+  // Dönüş: { mod:'ara'|'kapi'|'top', anahtar:'anahtar_mavi'|'anahtar_kirmizi', renk, noktalar:[aranmamış], bosOlanlar:[aranmış],
+  //          hedef:{x,y,nokta?}, asama:0..3 } ya da null
+  function kilitliKapi(h, tur, o) {
+    var kp = h.kapilar || [], en = null, em = 1e12;
+    for (var i = 0; i < kp.length; i++) {
+      if (kp[i].kilit !== tur || kp[i].acik) continue;
+      var x = (kp[i].tx + 0.5) * G.TILE, y = (kp[i].ty + 0.5) * G.TILE, m = Math.hypot(x - o.x, y - o.y);
+      if (m < em) { em = m; en = { x: x, y: y, kapi: kp[i] }; }
+    }
+    return en;
+  }
+  function ipucuDurum(d) {
+    var o = d && d.oyuncu, h = H();
+    if (!o) return null;
+    var env = o.envanter || [], gr = h.aramaGruplari || {}, i;
+    if (env.indexOf('top_hazine') >= 0) return null;
+    var RENK = { anahtar_mavi: 'mavi', anahtar_kirmizi: 'kirmizi' };
+    if (env.indexOf('anahtar_kirmizi') >= 0) {
+      var kk = kilitliKapi(h, 'anahtar_kirmizi', o);
+      if (kk) return { mod: 'kapi', anahtar: 'anahtar_kirmizi', renk: 'kirmizi', noktalar: [], bosOlanlar: [], hedef: kk, asama: 0 };
+      var tl = h.toplanabilir || [];
+      for (i = 0; i < tl.length; i++) if (tl[i].tur === 'top_hazine' && !tl[i].alindi) return { mod: 'top', anahtar: 'top_hazine', renk: 'sari', noktalar: [], bosOlanlar: [], hedef: { x: tl[i].x, y: tl[i].y }, asama: 0 };
+      return null;
+    }
+    var mk = kilitliKapi(h, 'anahtar_mavi', o);
+    if (env.indexOf('anahtar_mavi') >= 0) {
+      if (mk) return { mod: 'kapi', anahtar: 'anahtar_mavi', renk: 'mavi', noktalar: [], bosOlanlar: [], hedef: mk, asama: 0 };
+    }
+    var tur = null;
+    if (mk && gr.anahtar_mavi && env.indexOf('anahtar_mavi') < 0 && !gizliAlindi('anahtar_mavi')) tur = 'anahtar_mavi';
+    else if (!mk && gr.anahtar_kirmizi && !gizliAlindi('anahtar_kirmizi')) tur = 'anahtar_kirmizi';
+    if (!tur) return null;
+    var g = gr[tur], nok = [], bos = [], gercek = null;
+    for (i = 0; i < g.length; i++) { if (g[i].bakildi) bos.push(g[i]); else { nok.push(g[i]); if (g[i].gercek) gercek = g[i]; } }
+    if (!nok.length) return null;
+    var s = ipucuSureleri(), gec = d.zaman - (d.aramaSon || 0);
+    var asama = (gec >= s[2] || (gercek && gercek.ipucu)) ? 3 : gec >= s[1] ? 2 : gec >= s[0] ? 1 : 0;
+    var hedef = null, em = 1e12;
+    if (asama >= 2 && gercek) hedef = gercek;
+    else for (i = 0; i < nok.length; i++) { var m = Math.hypot(nok[i].x - o.x, nok[i].y - o.y); if (m < em) { em = m; hedef = nok[i]; } }
+    return { mod: 'ara', anahtar: tur, renk: RENK[tur], noktalar: nok, bosOlanlar: bos, hedef: { x: hedef.x, y: hedef.y, nokta: hedef }, asama: asama };
+  }
+
+  return { init: init, guncelle: guncelle, esyaAdi: esyaAdi, ipucuDurum: ipucuDurum };
 })();

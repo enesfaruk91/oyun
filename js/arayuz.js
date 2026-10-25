@@ -762,6 +762,109 @@ window.G = window.G || {};
     c.restore();
   }
 
+
+  // ---------- yazısız ipucu: arama simgeleri, yön oku, asma kilitler (EK-10) ----------
+  var IP_RENK = { mavi: '#3d8bff', kirmizi: '#ff4a3d', sari: '#ffb02e' };
+  function buyutecIkon(c, x, y, s, renk) {
+    c.save(); c.lineCap = 'round';
+    c.strokeStyle = '#2b3355'; c.lineWidth = s * 0.2; c.beginPath(); c.moveTo(x + s * 0.17, y + s * 0.17); c.lineTo(x + s * 0.44, y + s * 0.44); c.stroke();
+    c.strokeStyle = renk; c.lineWidth = s * 0.12; c.beginPath(); c.moveTo(x + s * 0.17, y + s * 0.17); c.lineTo(x + s * 0.44, y + s * 0.44); c.stroke();
+    c.fillStyle = 'rgba(255,255,255,0.85)'; c.strokeStyle = '#2b3355'; c.lineWidth = s * 0.2; c.beginPath(); c.arc(x - s * 0.08, y - s * 0.08, s * 0.27, 0, 7); c.fill(); c.stroke();
+    c.strokeStyle = renk; c.lineWidth = s * 0.11; c.beginPath(); c.arc(x - s * 0.08, y - s * 0.08, s * 0.27, 0, 7); c.stroke();
+    c.restore();
+  }
+  function kilitIkon(c, x, y, s, renk, parla) {
+    c.save();
+    if (parla) {
+      var gr = c.createRadialGradient(x, y, s * 0.2, x, y, s * (0.95 + 0.15 * Math.sin(t * 7)));
+      gr.addColorStop(0, 'rgba(255,245,170,0.95)'); gr.addColorStop(1, 'rgba(255,245,170,0)');
+      c.fillStyle = gr; c.beginPath(); c.arc(x, y, s * 1.1, 0, 7); c.fill();
+    }
+    c.lineCap = 'round';
+    c.strokeStyle = '#2b3355'; c.lineWidth = s * 0.26; c.beginPath(); c.arc(x, y - s * 0.1, s * 0.25, Math.PI, 0); c.lineTo(x + s * 0.25, y + s * 0.04); c.moveTo(x - s * 0.25, y - s * 0.1); c.lineTo(x - s * 0.25, y + s * 0.04); c.stroke();
+    c.strokeStyle = '#e8ecf5'; c.lineWidth = s * 0.14; c.beginPath(); c.arc(x, y - s * 0.1, s * 0.25, Math.PI, 0); c.lineTo(x + s * 0.25, y + s * 0.04); c.moveTo(x - s * 0.25, y - s * 0.1); c.lineTo(x - s * 0.25, y + s * 0.04); c.stroke();
+    c.fillStyle = renk; c.strokeStyle = '#fff'; c.lineWidth = s * 0.1;
+    rr(c, x - s * 0.4, y - s * 0.06, s * 0.8, s * 0.6, s * 0.14); c.fill(); c.stroke();
+    c.strokeStyle = '#2b3355'; c.lineWidth = s * 0.05; c.stroke();
+    c.fillStyle = '#1d2233'; c.beginPath(); c.arc(x, y + s * 0.18, s * 0.09, 0, 7); c.fill(); c.fillRect(x - s * 0.035, y + s * 0.18, s * 0.07, s * 0.2);
+    c.restore();
+  }
+  function tikIkon(c, x, y, s, renk) {
+    c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+    c.strokeStyle = renk || '#7d8590'; c.lineWidth = s * 0.2;
+    c.beginPath(); c.moveTo(x - s * 0.28, y + s * 0.02); c.lineTo(x - s * 0.06, y + s * 0.26); c.lineTo(x + s * 0.32, y - s * 0.22); c.stroke();
+    c.restore();
+  }
+  function soruIsareti(c, x, y, s, renk) { konturYazi(c, '?', x, y, s, renk || '#ff9a1f', '#fff'); }
+  function okCiz(c, x, y, s, renk) {
+    c.save(); c.lineCap = 'round'; c.lineJoin = 'round';
+    c.strokeStyle = renk; c.lineWidth = s * 0.2; c.beginPath(); c.moveTo(x - s * 0.4, y); c.lineTo(x + s * 0.35, y); c.moveTo(x + s * 0.1, y - s * 0.28); c.lineTo(x + s * 0.38, y); c.lineTo(x + s * 0.1, y + s * 0.28); c.stroke();
+    c.restore();
+  }
+  function ipucuDurumu(d) { try { return (G.oyuncu && G.oyuncu.ipucuDurum) ? G.oyuncu.ipucuDurum(d) : null; } catch (h) { return null; } }
+  function ipucuCiz(c, d, w, h, tel) {
+    var o = d.oyuncu, hr = G.harita;
+    if (!o || !G.ekranNoktasi || !hr || d.mod === 'menu') return;
+    var ip = ipucuDurumu(d), env = o.envanter || [], TL = G.TILE || 48, pop = Math.abs(Math.sin(t * 4)), ek = function (sp) { return sp && sp.visible && sp.x > -30 && sp.x < w + 30 && sp.y > -30 && sp.y < h + 30; };
+    // 1) kilitli kapılarda asma kilit (hep görünür; anahtar elindeyse parlar)
+    (hr.kapilar || []).forEach(function (k) {
+      if (!k.kilit || k.acik) return;
+      var sp = G.ekranNoktasi((k.tx + 0.5) * TL, (k.ty + 0.5) * TL, 2.5);
+      if (!ek(sp)) return;
+      var hd = ip && ip.mod === 'kapi' && ip.hedef.kapi === k, var_ = env.indexOf(k.kilit) >= 0;
+      var s = (tel ? 28 : 32) * (hd ? 1.2 : 1), by = hd ? pop * 9 : 0;
+      kilitIkon(c, sp.x, sp.y - by - 4, s, k.kilit === 'anahtar_mavi' ? IP_RENK.mavi : IP_RENK.kirmizi, var_);
+    });
+    if (!ip) return;
+    var rk = IP_RENK[ip.renk] || '#ffb02e', i;
+    // 2) aday arama noktaları: nabız gibi atan büyüteç; aranmışlar gri tik
+    if (ip.mod === 'ara') {
+      var r = tel ? 17 : 19, hepsi = ip.noktalar.concat(ip.bosOlanlar);
+      hepsi.forEach(function (n) {
+        var bos = n.bakildi, sp = G.ekranNoktasi(n.x, n.y, 1.5);
+        if (!ek(sp)) return;
+        if (!bos && o.aramaN === n && o.aramaIl > 0.01) return;   // arama halkası zaten çiziliyor
+        var hd = !bos && ip.hedef.nokta === n, nb = 0.5 + 0.5 * Math.sin(t * (ip.asama >= 1 ? 5.2 : 3)), sc = bos ? 0.85 : 1 + (ip.asama >= 1 ? 0.2 : 0.07) * nb;
+        c.save(); c.translate(sp.x, sp.y); c.scale(sc, sc);
+        if (!bos && ip.asama >= 1) { c.fillStyle = hd && ip.asama >= 2 ? 'rgba(255,225,77,0.45)' : 'rgba(255,255,255,0.35)'; c.beginPath(); c.arc(0, 0, r + 6 + nb * 5, 0, 7); c.fill(); }
+        c.globalAlpha = bos ? 0.6 : 0.95; c.fillStyle = bos ? 'rgba(200,205,210,0.9)' : '#fffaf0'; c.beginPath(); c.arc(0, 0, r, 0, 7); c.fill();
+        c.lineWidth = 3; c.strokeStyle = bos ? '#8b929a' : (hd && ip.asama >= 2 ? '#ffd21f' : rk); c.stroke();
+        if (bos) tikIkon(c, 0, 0, r * 1.7, '#6b727a'); else buyutecIkon(c, -1, -1, r * 1.3, rk);
+        c.restore();
+        if (hd) ikon(c, ip.anahtar, sp.x, sp.y - r - 18 - pop * 8, tel ? 26 : 30);   // hedefin üstünde zıplayan anahtar
+      });
+    } else if (ip.mod === 'top') {
+      var bs = G.ekranNoktasi(ip.hedef.x, ip.hedef.y, 1.4);
+      if (ek(bs)) ikon(c, 'top_hazine', bs.x, bs.y - 14 - pop * 9, tel ? 32 : 38);
+    }
+    // 3) ekranda değilse kenarda duran renkli yön oku
+    var hp = G.ekranNoktasi(ip.hedef.x, ip.hedef.y, 0.8);
+    var mx = 34, ust = 84, alt = tel ? 112 : 84;
+    var dis = !hp || !hp.visible || hp.x < mx - 14 || hp.x > w - mx + 14 || hp.y < ust - 14 || hp.y > h - alt + 14;
+    if (!dis) return;
+    var cx = w / 2, cy = h / 2, dx = (hp ? hp.x : cx) - cx, dy = (hp ? hp.y : cy) - cy;
+    if (!hp || !hp.visible) { dx = ip.hedef.x - o.x; dy = ip.hedef.y - o.y; }
+    var L = Math.hypot(dx, dy) || 1, ux = dx / L, uy = dy / L;
+    var kx = Math.abs(ux) > 1e-4 ? (w / 2 - mx) / Math.abs(ux) : 1e9, ky = Math.abs(uy) > 1e-4 ? (uy < 0 ? (h / 2 - ust) : (h / 2 - alt)) / Math.abs(uy) : 1e9;
+    if (uy > 0) ky = (h - alt - cy) / Math.abs(uy); else ky = (cy - ust) / Math.abs(uy);
+    var kk = Math.min(kx, ky), ax = cx + ux * kk, ay = cy + uy * kk;
+    if (ay < 128 && ax > w - 124) ax = w - 124;   // mini harita altına girme
+    if (ay < 100 && ax < 150) ax = 150;           // görev çipinin altına girme
+    var ang = Math.atan2(uy, ux), R0 = tel ? 22 : 25, sk = 1 + 0.08 * Math.sin(t * 6), yak = ip.asama >= 2 && ip.mod === 'ara';
+    c.save(); c.translate(ax, ay); c.scale(sk, sk);
+    c.save(); c.rotate(ang);
+    var ko = R0 + 4 + 6 * pop;
+    c.fillStyle = rk; c.strokeStyle = '#fff'; c.lineWidth = 4; c.lineJoin = 'round';
+    c.beginPath(); c.moveTo(ko + 16, 0); c.lineTo(ko - 2, -13); c.lineTo(ko - 2, 13); c.closePath(); c.stroke(); c.fill();
+    c.restore();
+    c.shadowColor = 'rgba(0,0,0,0.35)'; c.shadowBlur = 8;
+    c.fillStyle = yak ? '#fff4b8' : '#fffaf0'; c.beginPath(); c.arc(0, 0, R0, 0, 7); c.fill();
+    c.shadowBlur = 0; c.lineWidth = 4; c.strokeStyle = rk; c.stroke();
+    if (ip.mod === 'kapi') kilitIkon(c, 0, -2, R0 * 1.1, rk, false);
+    else ikon(c, ip.anahtar, 0, 1, R0 * 1.45);
+    c.restore();
+  }
+
   // ---------- mini harita ----------
   function miniBase() {
     var h = G.harita;
@@ -1126,14 +1229,25 @@ window.G = window.G || {};
     var fsC = tel ? 11 : 12, ch = tel ? 22 : 24, sx = 8, sy = 8;
     var ga = gorevAnahtar(d), gTam = dokunMetin(gorev(d)), gKisa = gorevKisa(gTam, ga);
     cipTam = gTam;
-    var gw = olc(c, gKisa, fsC) + ch + 10;
-    c.save(); c.globalAlpha = 0.82; c.fillStyle = 'rgba(255,248,225,0.92)'; rr(c, sx, sy, gw, ch, ch / 2); c.fill(); c.lineWidth = 1.5; c.strokeStyle = '#ffb02e'; c.stroke(); c.restore();
-    ikon(c, gorevIkon(ga), sx + ch / 2 + 1, sy + ch / 2, ch - 6);
-    yazi(c, gKisa, sx + ch, sy + ch / 2 + 1, fsC, '#3b2410', 'left', false);
-    hudAlan.gorev = { x: sx, y: sy, w: gw, h: ch };
+    var ipc = ipucuDurumu(d), cc = tel ? 40 : 44, S = tel ? 30 : 34;
+    var kRenk = (ga === 'kirmiziVar' || ga === 'kirmiziYok') ? IP_RENK.kirmizi : IP_RENK.mavi;
+    var parca = ga === 'top' ? ['top'] : ga === 'maviYok' ? ['mavi', '?'] : ga === 'kirmiziYok' ? ['kirmizi', '?']
+      : (ipc && ipc.mod === 'top') ? ['top', '?'] : [ga === 'maviVar' ? 'mavi' : 'kirmizi', '>', 'kilit'];
+    var pw = 0; parca.forEach(function (q) { pw += (q === '>' ? S * 0.7 : q === '?' ? S * 0.55 : S) + 2; });
+    var yw = (!tel && gKisa) ? olc(c, gKisa, fsC) + 8 : 0, gw = pw + yw + 18;
+    c.save(); c.globalAlpha = 0.9; c.fillStyle = 'rgba(255,248,225,0.95)'; rr(c, sx, sy, gw, cc, cc / 2); c.fill(); c.lineWidth = 2.5; c.strokeStyle = kRenk; c.stroke(); c.restore();
+    var gx = sx + 9, gcy = sy + cc / 2, bz = Math.sin(t * 4);
+    parca.forEach(function (q) {
+      if (q === '>') { okCiz(c, gx + S * 0.35, gcy, S * 0.8, '#6b4a1e'); gx += S * 0.7 + 2; }
+      else if (q === '?') { soruIsareti(c, gx + S * 0.28, gcy + 1 - Math.max(0, bz) * 3, S * 0.95); gx += S * 0.55 + 2; }
+      else if (q === 'kilit') { kilitIkon(c, gx + S / 2, gcy - 2, S * 0.95, kRenk, false); gx += S + 2; }
+      else { ikon(c, q === 'top' ? 'top_hazine' : q === 'mavi' ? 'anahtar_mavi' : 'anahtar_kirmizi', gx + S / 2, gcy, S); gx += S + 2; }
+    });
+    if (yw) yazi(c, gKisa, gx + 2, gcy + 1, fsC, '#3b2410', 'left', false);
+    hudAlan.gorev = { x: sx, y: sy, w: gw, h: cc };
     var oda = (G.harita && G.harita.odaAdi && o) ? G.harita.odaAdi(o.x, o.y) : '';
     var kalan = Math.max(0, Math.ceil((d.sureLimiti || 180) + (d.ekSure || 0) - d.zaman)), kritik = kalan <= 10;
-    var oy = sy + ch + 4, oYazi = (oda ? oda + ' · ' : '') + Math.floor(kalan / 60) + ':' + (kalan % 60 < 10 ? '0' : '') + (kalan % 60);
+    var oy = sy + cc + 4, oYazi = (oda ? oda + ' · ' : '') + Math.floor(kalan / 60) + ':' + (kalan % 60 < 10 ? '0' : '') + (kalan % 60);
     var ow = olc(c, oYazi, fsC) + 18;
     c.save(); c.globalAlpha = 0.8; c.fillStyle = kritik ? 'rgba(130,20,20,0.9)' : 'rgba(30,40,80,0.8)'; rr(c, sx, oy, ow, ch - 2, (ch - 2) / 2); c.fill(); c.lineWidth = 1.5; c.strokeStyle = kritik ? '#ff4545' : 'rgba(125,162,255,0.8)'; c.stroke(); c.restore();
     yazi(c, oYazi, sx + 9, oy + ch / 2, fsC, kritik ? '#ffd0d0' : '#fff', 'left', false);
@@ -1194,6 +1308,7 @@ window.G = window.G || {};
       c.restore();
     }
     aramaHalka(c, d, o, k);
+    ipucuCiz(c, d, w, h, tel);
     if (dokunmatik) dokunCiz(c, d);
     cikPopCiz(c, d);
     rehberCiz(c, d, w, h);
