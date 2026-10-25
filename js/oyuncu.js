@@ -7,24 +7,24 @@ G.oyuncu = (function () {
   var YERCEKIMI = 900, FIRLAT_VZ = 260, FIRLAT_Z0 = 24, FIRLAT_MENZIL = 260;
 
   var AD = {
-    elma: 'Elma', teneke: 'Teneke kutu', oyuncak_ordek: 'Oyuncak ördek', kurabiye: 'Kurabiye',
+    elma: 'Elma', teneke: 'Teneke kutu', oyuncak_ordek: 'Oyuncak ördek', kurabiye: 'Kurabiye', cingirak: 'Çıngırak', pelus: 'Peluş ayı', oyuncak_top: 'Oyuncak top',
     anahtar_mavi: 'Mavi anahtar', anahtar_kirmizi: 'Kırmızı anahtar', top_hazine: "Ogeday'ın topu"
   };
   var ILGI = { // -i hâli (eşyayı al)
-    elma: 'Elmayı', teneke: 'Teneke kutuyu', oyuncak_ordek: 'Oyuncak ördeği', kurabiye: 'Kurabiyeyi',
+    elma: 'Elmayı', teneke: 'Teneke kutuyu', oyuncak_ordek: 'Oyuncak ördeği', kurabiye: 'Kurabiyeyi', cingirak: 'Çıngırağı', pelus: 'Peluş ayıyı', oyuncak_top: 'Oyuncak topu',
     anahtar_mavi: 'Mavi anahtarı', anahtar_kirmizi: 'Kırmızı anahtarı', top_hazine: "Ogeday'ın topunu"
   };
   var SAKLAN_METIN = {
     dolap: 'Dolaba saklan', gardirop: 'Gardıroba saklan', yatak: 'Yatağın altına saklan',
     cali: 'Çalıya saklan', kutu: 'Kutuya saklan', cop_kutusu: 'Çöp kutusuna saklan',
     varil: 'Varile saklan', kopek_kulubesi: 'Kulübeye saklan', kanepe: 'Kanepenin arkasına saklan',
-    masa: 'Masanın altına saklan', agac: 'Ağacın arkasına saklan'
+    masa: 'Masanın altına saklan', agac: 'Ağacın arkasına saklan', oyuncak_sandigi: 'Oyuncak sandığına saklan'
   };
   var SAKLAN_MESAJ = {
     dolap: 'Şşş... dolabın içindesin', gardirop: 'Şşş... gardırobun içindesin',
     yatak: 'Şşş... yatağın altı biraz tozlu', cali: 'Şşş... çalı seni gıdıklıyor',
     kutu: 'Şşş... kutunun içi dar ama güvenli', cop_kutusu: 'Şşş... hıh, bu ne koku?',
-    varil: 'Şşş... varil içi yankılı'
+    varil: 'Şşş... varil içi yankılı', oyuncak_sandigi: 'Şşş... sandık oyuncak dolu, ama sığdın'
   };
 
   var idSayac = 0;

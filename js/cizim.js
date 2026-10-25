@@ -1104,6 +1104,19 @@ window.G = window.G || {};
       ell(c, 10 * s, -9 * s, 3 * s, 3 * s, '#ff7aa8', OUT, lw * 0.7); ell(c, 10 * s, -9 * s, 1.1 * s, 1.1 * s, '#ffe14d', null);
       ell(c, -12.8 * s, 6 * s, 1.6 * s, 1.6 * s, '#ffd84a', OUT, lw * 0.6); ell(c, 12.8 * s, 6 * s, 1.6 * s, 1.6 * s, '#ffd84a', OUT, lw * 0.6);
       c.beginPath(); c.moveTo(-8 * s, 12 * s); c.lineTo(0, 15.4 * s); c.lineTo(8 * s, 12 * s); c.lineTo(9 * s, 14.4 * s); c.lineTo(-9 * s, 14.4 * s); c.closePath(); fs(c, '#d6639a', OUT, lw);
+    } else if (tur === 'cingirak') {
+      line(c, 0, 4 * s, 0, 13 * s, '#ffb02e', lw * 2.2); ell(c, 0, 14 * s, 3 * s, 3 * s, '#00000000', '#4a90e2', lw);
+      ell(c, 0, -3 * s, 9 * s, 9 * s, '#ff6b8f', OUT, lw * 1.2);
+      c.fillStyle = '#ffd93b'; c.fillRect(-8 * s, -6 * s, 16 * s, 3 * s); c.fillStyle = '#4a90e2'; c.fillRect(-8 * s, -1 * s, 16 * s, 3 * s);
+      ell(c, -3 * s, -6 * s, 1.6 * s, 1.6 * s, 'rgba(255,255,255,0.8)', null);
+    } else if (tur === 'pelus') {
+      ell(c, -7 * s, -7 * s, 4 * s, 4 * s, '#d9a066', OUT, lw); ell(c, 7 * s, -7 * s, 4 * s, 4 * s, '#d9a066', OUT, lw);
+      ell(c, 0, 0, 11 * s, 10.5 * s, '#d9a066', OUT, lw * 1.2); ell(c, 0, 3.5 * s, 5 * s, 4 * s, '#f3d6a8', OUT, lw * 0.8);
+      ell(c, 0, 1.6 * s, 1.8 * s, 1.3 * s, '#4a2f22', null); ell(c, -4 * s, -2.5 * s, 1.3 * s, 1.5 * s, '#4a2f22', null); ell(c, 4 * s, -2.5 * s, 1.3 * s, 1.5 * s, '#4a2f22', null);
+    } else if (tur === 'oyuncak_top') {
+      ell(c, 0, 0, 11 * s, 11 * s, '#ff6b6b', OUT, lw * 1.2);
+      c.fillStyle = '#ffd66b'; c.fillRect(-10 * s, -2 * s, 20 * s, 4 * s); c.fillStyle = '#4dc3ff'; c.fillRect(-2 * s, -10 * s, 4 * s, 20 * s);
+      ell(c, -4 * s, -5 * s, 2.4 * s, 2 * s, 'rgba(255,255,255,0.6)', null);
     } else if (tur === 'oyuncak_ordek') {
       ell(c, -1 * s, 4 * s, 11 * s, 8 * s, '#ffd926', OUT, lw * 1.2);
       ell(c, -8 * s, 5 * s, 4 * s, 4 * s, '#ffd926', OUT, lw);   // kuyruk

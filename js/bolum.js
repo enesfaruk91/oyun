@@ -1,7 +1,7 @@
 window.G = window.G || {};
 (function () {
   G.bolum = 1;
-  G.SON_BOLUM = 5;   // bölüm sayısı: ilerleme/menü/final akışı bu değerden okur (kaç olursa olsun çalışır)
+  G.SON_BOLUM = 6;   // bölüm sayısı: ilerleme/menü/final akışı bu değerden okur (kaç olursa olsun çalışır)
   G.bolumler = {
     1: {
       no: 1, ad: 'Bölüm 1: Annemle Babamın Evi', kisaAd: 'Annemle Babamın Evi',
@@ -81,10 +81,29 @@ window.G = window.G || {};
       gorev: { maviYok: 'Mavi anahtarı ara: mutfak, salon ya da üst kat? (E basılı tut)', maviVar: 'Üst kattaki Çalışma Odasının kilidini aç', kirmiziYok: 'Kırmızı anahtarı Çalışma Odasında ara (E basılı tut)', kirmiziVar: 'Aşağı in, Kilerin kilidini aç, topunu al!' },
       izinliOdalar: ['Bahçe', 'Sokak', 'Mutfak', 'Salon', 'Giriş Holü', 'Koridor', 'Banyo', 'Çay Odası', "Gökçe'nin Köşesi", 'Yatak Odası', 'Üst Hol', 'Üst Koridor', 'Misafir Odası', 'Üst Banyo', 'Okuma Odası'],
       hikaye: ["Top, Dede Hassi'nin iki katlı evine uçtu!", 'Dede Hassi topu kilere kilitledi. Anahtarlar iki katta saklı: ara!', 'Dede Hassi yorulunca kısa bir kestirir. Anneanne yardım eder, kapı zilini dinle!', 'Merdivende E tuşuna basınca öbür kata geçersin :)'],
-      gecis: [],
+      gecis: ['Topu Dede Hassi\'nin evinden kurtardın! Ama sevinçle öyle bir şut çektin ki', "top Nefise Teyze'nin evinin balkonuna uçtu!", 'Evde bebek Beren var: emekleyerek seni arayacak! Teyze ile Enişte', "kovalamaz ama seni Beren'e ispiyonlar. Çıngırak at, oyalansın!"],
       kazandiBaslik: 'TOPUNU BEŞ KEZ KURTARDIN!', kazandiAlt: 'Dede Hassi çay içti, misafirler şeker dağıttı, kimse bir şey anlamadı!',
       duraklatAlt: 'Dede Hassi çay içiyor olabilir, merdivenleri unutma!',
       kisiler: 'Dede Hassi · Anneanne · Abari Ebe · Recep Dede'
+    },
+    6: {
+      no: 6, ad: 'Bölüm 6: Teyze Evi — Beren\'den Kaçmacılık', kisaAd: 'Teyze Evi',
+      // Tek arayıcı: bebek Beren (emekler, oyuncaklara dalar, pusette uyur). Nefise Teyze + Uğurcan Enişte KOVALAMAZ; seni görünce Beren'e seslenir (ispiyon).
+      kimler: ['beren'], tekKisi: true, ilkNobetci: 'beren', hedefOda: 'Balkon', uyananYok: true, bebek: true,
+      kilitliOdalar: { anahtar_mavi: 'Yatak Odası', anahtar_kirmizi: 'Balkon' },
+      sure: 330, ekSure: 60, kazaTur: 'oyunparki',
+      gokceYardim: 'bebek', gokceBebekSure: [20, 25],
+      zorluk: { kovalama: 158, gorus: 360, gorusAci: 1.3, suphe: 1.25, nobet: 48, gokceHakki: 2, devriye: 1.2 },
+      kestirme: { sure: [14, 20] },
+      ispiyon: { gorus: 270, aci: 1.15, bekleme: 8, sure: 0.55 },
+      anons: { tur: 'mikrofon', gidis: 'Hihi, görünmez oldum!', soz: 'BEREN! UYAN! BUU!', uyandi: 'bebek telsizine bağırdı', suphe: 'Bebek telsizi kendi kendine mi konuştu?', ad: 'Bebek Telsizi' },
+      gorev: { maviYok: 'Mavi anahtarı ara: mutfak, salon ya da bahçe? (E basılı tut)', maviVar: 'Yatak Odasının kilidini aç', kirmiziYok: 'Kırmızı anahtarı Yatak Odasında ara (E basılı tut)', kirmiziVar: 'Balkonun kilidini aç, topunu al!' },
+      izinliOdalar: ['Bahçe', 'Sokak', 'Mutfak', 'Salon', 'Giriş Holü', 'Koridor', 'Bebek Odası', 'Banyo'],
+      hikaye: ["Top, Nefise Teyze'nin balkonuna uçtu! Bebek Beren seni arıyor.", 'Anahtarlar evde saklı: çekmeceleri ve minderleri ara (E basılı tut).', 'Teyze ile Enişte kovalamaz ama seni görünce Beren\'e seslenir!', 'Beren sana sarılırsa yakalanırsın: oyuncak at, oyalansın :)'],
+      gecis: [],
+      kazandiBaslik: 'TOPUNU ALTI KEZ KURTARDIN!', kazandiAlt: 'Beren peluşuyla uyudu, Teyze ile Enişte kimseyi görmedi!',
+      duraklatAlt: 'Beren oyuncaklarla oynuyor olabilir, Teyze ile Enişte dikkat!',
+      kisiler: 'Beren · Nefise Teyze · Uğurcan Enişte'
     }
   };
 
@@ -94,6 +113,7 @@ window.G = window.G || {};
   G.bolumler[3].cikartma = [{ r: 'kedi', ad: 'Patili' }, { r: 'agac', ad: 'Ağaç' }, { r: 'ordek', ad: 'Ördek' }];
   G.bolumler[4].cikartma = [{ r: 'kalem', ad: 'Kalem' }, { r: 'basket', ad: 'Basketbol topu' }, { r: 'yildiz', ad: 'Yıldız' }];
   G.bolumler[5].cikartma = [{ r: 'cay', ad: 'Çay' }, { r: 'merdiven', ad: 'Merdiven' }, { r: 'saksi', ad: 'Saksı' }];
+  G.bolumler[6].cikartma = [{ r: 'cingirak', ad: 'Çıngırak' }, { r: 'biberon', ad: 'Biberon' }, { r: 'pelus', ad: 'Peluş' }];
 
   // Kalıcı kayıt: yıldızlar (abk_yildiz_b{n}), çıkartmalar (abk_cikartma), rehber (abk_rehber). localStorage yoksa bellek.
   var bellek = {};
@@ -131,7 +151,7 @@ window.G = window.G || {};
     return false;
   };
   G.bolumBilgi = function () { return G.bolumler[G.bolum] || G.bolumler[1]; };
-  // Gökçe'nin yardım türü (bölüm verisinden): 'oyala' (varsayılan) | 'kat' | ileride 'bebek' ...
+  // Gökçe'nin yardım türü (bölüm verisinden): 'oyala' (varsayılan) | 'kat' | 'bebek' (Beren'i kucaklayıp pusetine götürür)
   G.gokceYardim = function () { var b = G.bolumBilgi(); return (b && b.gokceYardim) || 'oyala'; };
 
   var KISI = {
@@ -147,7 +167,10 @@ window.G = window.G || {};
     dedehassi: { ad: 'Dede Hassi', yakala: 'Dede Hassi sana sımsıkı sarılıp gıdıkladı, sonra seni bahçeye çıkardı!', soz: 'Yakaladım seni! Gel bakalım, gıdı gıdı gıdı!' },
     anneanne: { ad: 'Anneanne', yakala: 'Anneanne seni sarıp sarmaladı!', soz: 'Gel yavrum, çayını iç!' },
     abariebe: { ad: 'Abari Ebe', yakala: 'Abari Ebe seni kucakladı!', soz: 'Gel kuzum gel!' },
-    recepdede: { ad: 'Recep Dede', yakala: 'Recep Dede seni yakaladı ve cebinden bir şeker verdi!', soz: 'Yakaladım seni! Al bakalım, bir şeker!' }
+    recepdede: { ad: 'Recep Dede', yakala: 'Recep Dede seni yakaladı ve cebinden bir şeker verdi!', soz: 'Yakaladım seni! Al bakalım, bir şeker!' },
+    beren: { ad: 'Beren', yakala: 'Beren sana sarıldı! Bebek öpücüğü!', soz: 'Ba-ba! Gugu gaga! (Sarıldı!)' },
+    teyze: { ad: 'Nefise Teyze', yakala: 'Nefise Teyze seni sevgiyle kucakladı!', soz: 'Aaa kuzum, hoş geldin!' },
+    enistee: { ad: 'Uğurcan Enişte', yakala: 'Uğurcan Enişte seni havaya kaldırdı!', soz: 'Hoppala, yakaladım!' }
   };
   G.kisiAdi = function (kim) {
     if (kim === 'kedi') return 'Duman';
@@ -158,7 +181,7 @@ window.G = window.G || {};
   G.kisiSoz = function (kim) { return (KISI[kim] || KISI.baba).soz; };
 
   // Yazısız ipucu kademesi (sn): [arama noktası nabzı belirginleşir, yön oku gerçek noktaya öncelik verir, parıltı + Gökçe]
-  var IPUCU = { 1: [15, 30, 45], 2: [20, 38, 52], 3: [25, 45, 60], 4: [30, 52, 68], 5: [32, 56, 74] };
+  var IPUCU = { 1: [15, 30, 45], 2: [20, 38, 52], 3: [25, 45, 60], 4: [30, 52, 68], 5: [32, 56, 74], 6: [36, 60, 80] };
   Object.keys(IPUCU).forEach(function (n) { if (G.bolumler[n]) G.bolumler[n].ipucu = IPUCU[n]; });
 
   // ilerleme kaydı (file:// altında localStorage kapalı olabilir)

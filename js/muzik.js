@@ -247,7 +247,7 @@ window.G = window.G || {};
 
   G.muzik = {
     baslat: baslat, parca: parca, durdur: durdur, ses: ses, gerilim: gerilim, sustur: sustur,
-    bolumParcasi: function (n) { return { 1: 'ev', 2: 'ebe', 3: 'park', 4: 'okul' }[n] || 'ev'; },
+    bolumParcasi: function (n) { return { 1: 'ev', 2: 'ebe', 3: 'park', 4: 'okul', 5: 'ebe', 6: 'menu' }[n] || 'ev'; },
     parcalar: Object.keys(P),
     mevcut: function () { return S.ad; },
     // test: çevrimdışı bağlamda 'sn' saniyeye kadar notaları önceden yerleştirir

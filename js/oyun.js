@@ -47,8 +47,11 @@ window.G = window.G || {};
     guvenli('kedi.init', function () { if (G.kedi) G.kedi.init(G.d, false); });
     uyananInit();
     guvenli('misafir.init', function () { if (G.misafir) G.misafir.init(G.d, false); });
+    guvenli('bebek.init', function () { if (G.bebek) G.bebek.init(G.d, false); });
     kameraTakip(1);
   }
+  // Bölüm başında hikâyenin ilk satırı TEK kısa tost olarak gösterilir (menüden hikâye kalktı)
+  function hikayeTost() { try { var b = G.bolumBilgi(); if (b && b.hikaye && b.hikaye[0]) G.mesaj(b.hikaye[0], 4.8); } catch (h) { } }
   function uyananInit() {
     if (G.uyanan && G.uyanan.init) guvenli('uyanan.init', function () { G.uyanan.init(G.d); });
   }
@@ -89,6 +92,7 @@ window.G = window.G || {};
     if (G.d.mod !== 'menu') return;
     if (v && v.bolum && v.bolum !== G.bolum && G.bolumler[v.bolum]) { G.bolum = v.bolum; yeniDurum(); }
     G.d.mod = 'oyun'; G.girdi.temizle();
+    hikayeTost();
   });
   G.dinle('duraklat', function () {
     if (G.d.mod === 'oyun') G.d.mod = 'duraklat';
@@ -113,6 +117,7 @@ window.G = window.G || {};
     guvenli('kedi.init', function () { if (G.kedi) G.kedi.init(G.d, true); });
     uyananInit();
     guvenli('misafir.init', function () { if (G.misafir) G.misafir.init(G.d, true); });
+    guvenli('bebek.init', function () { if (G.bebek) G.bebek.init(G.d, true); });
     G.d.sesler = []; G.d.firlatilanlar = [];
     kameraTakip(1);
     G.d.mod = 'oyun'; G.girdi.temizle();
@@ -145,12 +150,14 @@ window.G = window.G || {};
     G.bolum++;
     yeniDurum(koru);
     G.d.mod = 'oyun'; G.girdi.temizle();
+    hikayeTost();
   });
   G.dinle('yeniden', function () {
     if (G.d.mod !== 'kazandi') return;
     G.bolum = 1;
     yeniDurum();
     G.d.mod = 'oyun'; G.girdi.temizle();
+    hikayeTost();
   });
 
   // Titreşim (varsa): anahtar/top bulununca kısa, yakalanınca üç vuruş. Ses ayarından bağımsız.
@@ -198,6 +205,7 @@ window.G = window.G || {};
       if (d.mod === 'oyun' && G.kedi) guvenli('kedi', function () { G.kedi.guncelle(dt, d); });
       if (d.mod === 'oyun' && G.uyanan && G.uyanan.guncelle) guvenli('uyanan', function () { G.uyanan.guncelle(dt, d); });
       if (d.mod === 'oyun' && G.misafir) guvenli('misafir', function () { G.misafir.guncelle(dt, d); });
+      if (d.mod === 'oyun' && G.bebek) guvenli('bebek', function () { G.bebek.guncelle(dt, d); });
       for (var i = d.sesler.length - 1; i >= 0; i--) {
         d.sesler[i].omur -= dt;
         if (d.sesler[i].omur <= 0) d.sesler.splice(i, 1);

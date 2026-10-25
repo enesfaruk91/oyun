@@ -18,7 +18,8 @@ window.G = window.G || {};
     bekci2: { devriye: 90, kovalama: 170, gorus: 320, ek: 5 },
     ogretmen: { devriye: 90, kovalama: 170, gorus: 330, ek: 5 },
     mudur: { devriye: 75, kovalama: 160, gorus: 320, ek: -5 },
-    dedehassi: { devriye: 80, kovalama: 160, gorus: 310, ek: -5 }
+    dedehassi: { devriye: 80, kovalama: 160, gorus: 310, ek: -5 },
+    beren: { devriye: 62, kovalama: 150, gorus: 330, ek: 0 }   // bebek: emekler (oyuncu koşusu 215'in çok altında)
   };
   function NOBET_SURE_F() { var z = zor(); return (z && z.nobet) || 65; }
   var SOZK = {
@@ -135,7 +136,27 @@ window.G = window.G || {};
     misafir: ['Hoş geldiniz, hoş geldiniz!', 'Aaa kimler gelmiş!', 'Buyurun buyurun, çay hazır!'],
     gokcekat: ['Yukarıda ne var Gökçe? Geliyorum kuzum!', 'Bir şey mi göstereceksin? Dur, merdiven çıkıyorum!']
   };
+  SOZK.beren = {
+    mirilti: ['Ba-ba-ba!', 'Gugu gaga!', 'Agu agu!', 'Ma-ma-ma! Maaa!', 'Hihihi!', 'Bıdı bıdı bıdı...', 'Da-da-da!'],
+    suphe: ['Ba?', 'Aaa? Ba-ba?', 'Gugu? Kim?'],
+    esya: ['Aaa! Bu ne?', 'Ba-ba? Ses!', 'Oooo? Ne düştü?'],
+    gordu: ['Aaaa! Abiii! Ba-ba!', 'Hihi! Buldum! Ba!', 'Agu! Gel gel gel!'],
+    kovala: ['Ba-ba-ba-ba!', 'Gel gel gel!', 'Hihihi! Agu!', 'Abi! Abi! Abiii!'],
+    arama: ['Ba? Ba?', 'Nerede? Gugu?', 'Aaa? Abi?'],
+    yakala: ['Ba-ba! Sarıldım!'],
+    gokce: ['Gökçe! Ba!', 'Aaa Gökçe! Agu!', 'Hihi! Gökçe!'],
+    hayalet: ['Ba? Yok oldu!', 'Gugu? Nerede?'],
+    vazgec: ['Ba... Gitti.', 'Gugu... Yok.', 'Ağlamaya mı başlasam...'],
+    oyuncak: ['Ba-ba-ba!', 'Gıcır gıcır!', 'Hihihi! Agu!', 'Çıngır çıngır!', 'Ba! Ba! Ba!'],
+    firlat: ['Ooo! Oyuncak! Ba-ba!', 'Agu! Benim! Benim!', 'Hihihi! Atttı!', 'Ba-ba-ba! Oyuncak!'],
+    gokcekat: ['Ba!'],
+    yorgun: ['Aguuu... uykum geldi...', 'Maaa... uyku...'],
+    telsiz: ['Aaa? Ses var!', 'Ba? Telsiz?'],
+    ispiyon: ['Aaa! Abi! Ba-ba!', 'Abi! Nerede? Agu!', 'Hihi! Geliyorum!']
+  };
   var nobetci = 'baba', uyuyanKim = 'anne';
+  function bz() { return k && k.kim === 'beren' ? 0.82 : 1; }   // bebek: süphe/arama/yorgun yürüyüşü daha yavaş (emekleme)
+  function bebekSes(tur) { if (k && k.kim === 'beren') olay('bebek_ses', { tur: tur, x: k.x, y: k.y }); }
   function Z(ad) { return (SOZK[(k && k.kim) || nobetci] || SOZK.baba)[ad]; }
   function Ad(kim) {
     if (G.kisiAdi) { try { var a = G.kisiAdi(kim); if (a) return a; } catch (e) { } }
@@ -161,7 +182,7 @@ window.G = window.G || {};
   var UYANIS = {
     baba: 'Hıı? Uyandım uyandım!', anne: 'Kim gürültü yapıyor bakalım?',
     dede: 'Hıı? Ne oldu? Gözlüğüm nerede?', ebe: 'Of, kurabiyeler yanmasın...',
-    dedehassi: 'Hıı? Kestirmişim! Çay var mıydı?', bekci: 'Hıı? Nöbet mi? Ben hazırım!', bekci2: 'Tamam tamam, kalktım!',
+    dedehassi: 'Hıı? Kestirmişim! Çay var mıydı?', beren: 'Aguuu... Ba-ba! Uyandım!', bekci: 'Hıı? Nöbet mi? Ben hazırım!', bekci2: 'Tamam tamam, kalktım!',
     ogretmen: 'Zil mi çaldı? Ben hazırım!', mudur: 'Hıı? Evraklar nerede?'
   };
 
@@ -219,7 +240,7 @@ window.G = window.G || {};
     var h = H(), p = null;
     s.yolHedef = { x: x, y: y };
     if (h.yolBul) {
-      try { p = h.yolBul(k.x, k.y, x, y, true); } catch (e) { p = null; }
+      try { p = h.yolBul(k.x, k.y, x, y, true, !!k.altGec); } catch (e) { p = null; }
     } else if (dogrudanTemiz(x, y)) p = [{ x: x, y: y }];
     if (p && p.length) { yolSet(p); return true; }
     return false;
@@ -391,6 +412,7 @@ window.G = window.G || {};
     if (duyuruVar !== false && onceki !== 'kovalama') {
       olay('komsu_gordu', {});
       say(rnd(Z('gordu')), 2.2, true);
+      bebekSes('gordu');
     }
   }
 
@@ -399,6 +421,7 @@ window.G = window.G || {};
     k.hareket = false;
     k.uyari = 1;
     say(rnd(Z('yakala')), 3, true);
+    bebekSes('kikir');
     olay('yakalandi', { kim: k.kim });
   }
 
@@ -452,7 +475,7 @@ window.G = window.G || {};
   // ---------- ana ----------
   function yatakMerkez() {
     var h = H(), e = h.esyalar || [];
-    for (var i = 0; i < e.length; i++) if (e[i] && (e[i].tur === 'yatak' || e[i].tur === 'mudur_divani')) {
+    for (var i = 0; i < e.length; i++) if (e[i] && (e[i].tur === 'yatak' || e[i].tur === 'mudur_divani' || e[i].tur === 'puset')) {
       var y = e[i];
       return { x: (y.tx + (y.w || 1) / 2) * T, y: (y.ty + (y.h || 1) / 2) * T, e: y };
     }
@@ -473,12 +496,14 @@ window.G = window.G || {};
     var m = yatakMerkez();
     uyuyanKim = kim;
     d.uyuyan = { kim: kim, x: m.x, y: m.y, yon: Math.PI / 2 };
+    if (kim === 'beren') { d.uyuyan.oturuyor = true; d.uyuyan.oturY = 0.43; }   // pusette oturur gibi uyur
   }
   function kisiUygula() {
     var c = KISI[k.kim] || KISI.baba, z = zor();
     k.gorusMesafe = (z && z.gorus) ? z.gorus : c.gorus;
     k.gorusAci = (z && z.gorusAci) || 1.2;
     k.nobetMax = NOBET_SURE_F();
+    if (k.kim === 'beren') { k.r = 12; k.altGec = true; }   // bebek boyu: masa/sandalye altından geçer
   }
 
   // Yakalanma sonrası güvenli başlangıç: varsayılan başlangıç oyuncuya görüş/yakınlık bakımından riskliyse, oyuncudan en uzak (görüş hattı kapalı)
@@ -549,6 +574,17 @@ window.G = window.G || {};
     if (!k.kim) { k.kim = nobetci; kisiUygula(); }
     if (!tekKisi() && !d.uyuyan && !d.uyanan) uyuyanKur(d, uyuyanKim);
     if (k.pasif) { sesleriYut(d); if (o) s.oPrev = { x: o.x, y: o.y }; kestirGuncelle(dt, d); return; }
+
+    // Gökçe kucağında (Bölüm 6): görme/duyma yok, Gökçe'nin önünde taşınır
+    if (s.tasi) {
+      sesleriYut(d);
+      if (o) s.oPrev = { x: o.x, y: o.y };
+      var tg = s.tasi.g;
+      if (!tg || d.gokce !== tg) { tasiBirak(); } else {
+        k.x = tg.x + Math.cos(tg.yon || 0) * 15; k.y = tg.y + Math.sin(tg.yon || 0) * 15; k.yon = tg.yon || 0;
+        k.hareket = false; k.kucakta = true; k.oturuyor = false; k.uyari = 0; return;
+      }
+    }
 
     // Gökçe peşinde: görme/hissetme/gürültü yok
     if (s.pg) {
@@ -648,7 +684,7 @@ window.G = window.G || {};
     // mırıldanma
     if (k.durum === 'devriye') {
       s.miriltiT -= dt;
-      if (s.miriltiT <= 0) { s.miriltiT = 8 + Math.random() * 7; say(rnd(Z('mirilti')), 2.4); }
+      if (s.miriltiT <= 0) { s.miriltiT = (k.kim === 'beren' ? 5 : 8) + Math.random() * 7; say(rnd(Z('mirilti')), 2.4); bebekSes(Math.random() < 0.35 ? 'kikir' : 'babble'); }
     }
     kapiKapatKontrol();
     if (o) s.oncekiSaklandi = o.saklandi || null;
@@ -674,7 +710,7 @@ window.G = window.G || {};
       }
     }
     if (!s.yatakHedef) s.yatakHedef = yl[0];
-    say('Ahhh... çok yoruldum...', 3, true);
+    say((Z('yorgun') && rnd(Z('yorgun'))) || 'Ahhh... çok yoruldum...', 3, true);
   }
 
   function yorgunDavran(dt, d) {
@@ -688,25 +724,25 @@ window.G = window.G || {};
       s.yorgunDene++;
       if (s.yorgunDene > 4 || !yolKur(hd.x, hd.y)) { nobetDegis(d); return; }
     }
-    if (yolTakip(dt, HIZ.yorgun, 4)) {
+    if (yolTakip(dt, HIZ.yorgun * bz(), 4)) {
       s.yol = null;
       if (Math.hypot(hd.x - k.x, hd.y - k.y) < 110) { nobetDegis(d); return; }
       s.yorgunDene++;
       if (s.yorgunDene > 4) nobetDegis(d);
     }
-    if (Math.random() < dt * 0.25) say('Ahhh... çok yoruldum...', 2.4);
+    if (Math.random() < dt * 0.25) say((Z('yorgun') && rnd(Z('yorgun'))) || 'Ahhh... çok yoruldum...', 2.4);
   }
 
   // ---------- tek arayıcı: kısa kestirme (EK-11) ----------
-  function kestirBasla(d) {
+  function kestirBasla(d, sureOverride, sessiz) {
     var hd = s.yatakHedef || { x: k.x, y: k.y }, kz = null, ar;
     try { kz = G.bolumBilgi().kestirme; } catch (e) { kz = null; }
     ar = (kz && kz.sure) || [16, 24];
     uyuyanKur(d, k.kim);
     k.pasif = true; k.x = hd.x; k.y = hd.y; k.durum = 'devriye'; k.uyari = 0; k.hareket = false; k.oyalaniyor = false; k.konusma = null;
-    s.yol = null; s.oy = null; s.pg = null; s.kestirT = ar[0] + Math.random() * (ar[1] - ar[0]);
+    s.yol = null; s.oy = null; s.pg = null; s.tasi = null; k.oturuyor = false; k.kucakta = false; s.kestirT = sureOverride > 0 ? sureOverride : ar[0] + Math.random() * (ar[1] - ar[0]);
     olay('kestirme_basladi', { kim: k.kim });
-    if (G.mesaj) G.mesaj(Ad(k.kim) + ' kestiriyor! Şimdi fırsat!', 3);
+    if (G.mesaj && !sessiz) G.mesaj(k.kim === 'beren' ? 'Beren pusette uyuyor! Şimdi fırsat!' : Ad(k.kim) + ' kestiriyor! Şimdi fırsat!', 3);
   }
   function kestirGuncelle(dt, d) {
     k.hareket = false; k.uyari = 0;
@@ -724,7 +760,8 @@ window.G = window.G || {};
     s.isinma = 2.5; s.stuckX = k.x; s.stuckY = k.y; s.stuckT = 0; s.miriltiT = 8 + Math.random() * 6;
     say(UYANIS[k.kim] || 'Hıı? Uyandım!', 3, true);
     olay('nobet_degisti', { kim: k.kim });
-    if (G.mesaj) G.mesaj(Ad(k.kim) + ' uyandı, nöbette!', 3);
+    if (k.kim === 'beren') bebekSes('kikir');
+    if (G.mesaj) G.mesaj(k.kim === 'beren' ? 'Beren uyandı, emekliyor!' : Ad(k.kim) + ' uyandı, nöbette!', 3);
   }
   var dinleKuruldu = false;
   function dinleKur() {
@@ -824,18 +861,23 @@ window.G = window.G || {};
     k.oyalaniyor = true;
     s.pg = null;
     s.oy = { x: x, y: y, kalan: sure, faz: 'git', sozT: 0, yolT: 0, konu: konu || 'gokce' };
+    k.oturuyor = false; k.kucakta = false;
     olay('komsu_suphe', {});
-    say(konu === 'cay' ? rnd(Z('cay')) : (konu === 'misafir' ? rnd(Z('misafir')) : 'Hıh? Kim bağırıyor orada?'), 2.4, true);
+    var bsoz = (k.kim === 'beren' && Z(konu || '')) ? rnd(Z(konu)) : null;
+    say(bsoz || (konu === 'cay' ? rnd(Z('cay')) : (konu === 'misafir' ? rnd(Z('misafir')) : 'Hıh? Kim bağırıyor orada?')), 2.4, true);
+    if (bsoz) bebekSes('gordu');
     return true;
   }
 
   function oyalanBitir() {
+    var konu = s.oy && s.oy.konu;
     s.oy = null;
-    k.oyalaniyor = false;
+    k.oyalaniyor = false; k.oturuyor = false;
     olay('komsu_vazgecti', {});
     devriyeyeDon();
     k.oyalaniyor = false;
-    say(rnd(Z('vazgec')), 2.5, true);
+    if (k.kim === 'beren' && (konu === 'oyuncak' || konu === 'firlat')) { say(rnd(['Hihi! Oyun bitti!', 'Ba-ba-ba! Bitti bitti!', 'Agu! Başka oyuncak?']), 2.5, true); bebekSes('kikir'); }
+    else say(rnd(Z('vazgec')), 2.5, true);
   }
 
   function oyalanDavran(dt) {
@@ -844,6 +886,7 @@ window.G = window.G || {};
     oy.kalan -= dt;
     if (oy.kalan <= 0) { oyalanBitir(); return; }
     var hedefYon = Math.atan2(oy.y - k.y, oy.x - k.x);
+    if (oy.konu === 'gokce' && k.kim === 'beren' && G.d && G.d.gokce) hedefYon = Math.atan2(G.d.gokce.y - k.y, G.d.gokce.x - k.x);   // bebek: Gökçe'ye bakar
     if (oy.faz === 'git') {
       if (Math.hypot(oy.x - k.x, oy.y - k.y) <= 55) { oy.faz = 'soylen'; return; }
       if (!s.yol && !s.birak) {
@@ -853,12 +896,17 @@ window.G = window.G || {};
         s.birak = false; oy.yolT++;
         if (oy.yolT > 2 || !yolKur(oy.x, oy.y)) { oy.faz = 'soylen'; return; }
       }
-      if (yolTakip(dt, 150, 8)) { oy.faz = 'soylen'; s.yol = null; }
+      if (yolTakip(dt, 150 * bz(), 8)) { oy.faz = 'soylen'; s.yol = null; }
     } else {
       k.hareket = false; s.stuckT = 0;
       don(hedefYon, 6, dt);
+      if (k.kim === 'beren') {   // oyuncağın başına oturur; yanına basan çocuğa sarılır
+        k.oturuyor = true;
+        var od = G.d && G.d.oyuncu;
+        if (od && !od.saklandi && !od.korunan && !(od.gorunmez > 0) && Math.hypot(od.x - k.x, od.y - k.y) < 42 && !engel(k.x, k.y, od.x, od.y)) { k.oturuyor = false; yakala(); return; }
+      }
       oy.sozT -= dt;
-      if (oy.sozT <= 0) { oy.sozT = 2.4; say(rnd(Z(oy.konu && Z(oy.konu) ? oy.konu : 'gokce')), 2.2, true); }
+      if (oy.sozT <= 0) { oy.sozT = 2.4; say(rnd(Z(oy.konu && Z(oy.konu) ? oy.konu : 'gokce')), 2.2, true); if (k.kim === 'beren') bebekSes(Math.random() < 0.4 ? 'kikir' : 'babble'); }
     }
   }
 
@@ -927,8 +975,8 @@ window.G = window.G || {};
         if (!yolKur(s.sHedef.x, s.sHedef.y)) { s.faz = 'bak'; s.zaman = 2.5; s.bakinTemel = k.yon; return; }
       }
       if (!s.yol && s.sGorme && gorunuyor && o && !engel(k.x, k.y, o.x, o.y)) {
-        adimAt(dt, HIZ.suphe, o.x, o.y, 6);
-      } else if (yolTakip(dt, HIZ.suphe, 6)) {
+        adimAt(dt, HIZ.suphe * bz(), o.x, o.y, 6);
+      } else if (yolTakip(dt, HIZ.suphe * bz(), 6)) {
         s.faz = 'bak'; s.zaman = 2.0 + Math.random() * 1.0; s.bakinTemel = k.yon;
       }
     } else {
@@ -961,7 +1009,7 @@ window.G = window.G || {};
         if (ok) s.faz = 'git'; else { s.zaman = 1.0; s.yol = null; }
       }
     } else {
-      if (s.birak || yolTakip(dt, HIZ.arama, 5)) {
+      if (s.birak || yolTakip(dt, HIZ.arama * bz(), 5)) {
         s.birak = false; s.yol = null;
         s.faz = 'bak'; s.zaman = 1.2 + Math.random() * 0.8; s.bakinTemel = k.yon;
       }
@@ -1057,5 +1105,38 @@ window.G = window.G || {};
     }
   }
 
-  G.komsu = { init: init, guncelle: guncelle, dikkatDagit: dikkatDagit, pesindenGit: pesindenGit, tekKisi: tekKisi, _durum: function () { return s; } }; // _durum: yalnız test için
+  // ---------- Bölüm 6 (bebek) uçları: bebek.js çağırır ----------
+  function ispiyon(x, y) {   // Teyze/Enişte çocuğu gördü: Beren o yöne yönelir
+    var d = G.d;
+    if (!k || !s || !d || d.komsu !== k || k.kim !== 'beren') return false;
+    if (k.pasif || s.tasi || s.pg || k.durum === 'yakaladi' || k.durum === 'kovalama' || k.durum === 'yorgun') return false;
+    s.oy = null; k.oyalaniyor = false; k.oturuyor = false;
+    supheBasla(x, y, false, false);
+    k.uyari = Math.max(k.uyari, 0.42);
+    say(rnd(Z('ispiyon')), 2.2, true); bebekSes('gordu');
+    return true;
+  }
+  function tasiBasla(g) {   // Gökçe Beren'i kucağına aldı
+    if (!k || !s || k.durum === 'yakaladi' || k.pasif || !g) return false;
+    s.oy = null; s.pg = null; s.yol = null; k.oyalaniyor = false; k.oturuyor = false;
+    k.durum = 'suphe'; k.uyari = 0; s.tasi = { g: g }; k.kucakta = true; k.kucakY = 0.55;
+    return true;
+  }
+  function tasiBirak() { if (s) s.tasi = null; if (k) { k.kucakta = false; k.oturuyor = false; } }
+  function uyut(d, sure, sessiz) {   // pusete yatır: kestirme sure sn
+    if (!k || !s || k.durum === 'yakaladi') return false;
+    var yl = yatakYanlari(), hd = yl[0], h = H();
+    for (var i = 0; i < yl.length; i++) if (!(h.kati && h.kati(Math.floor(yl[i].x / T), Math.floor(yl[i].y / T)))) { hd = yl[i]; break; }
+    s.yatakHedef = hd || { x: k.x, y: k.y };
+    tasiBirak();
+    kestirBasla(d, sure, sessiz);
+    return true;
+  }
+  function oyalaIptal(konu) { if (s && s.oy && (!konu || s.oy.konu === konu)) oyalanBitir(); }
+  function uyandir(d) {   // telsiz/ses: pusette uyuyan Beren uyanır
+    if (!k || !s || !k.pasif || !d.uyuyan || d.uyanan) return false;
+    kestirBitir(d);
+    return true;
+  }
+  G.komsu = { init: init, guncelle: guncelle, dikkatDagit: dikkatDagit, pesindenGit: pesindenGit, tekKisi: tekKisi, ispiyon: ispiyon, tasiBasla: tasiBasla, tasiBirak: tasiBirak, uyut: uyut, uyandir: uyandir, oyalaIptal: oyalaIptal, _durum: function () { return s; } }; // _durum: yalnız test için
 })();

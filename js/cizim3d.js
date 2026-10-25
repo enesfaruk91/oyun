@@ -117,7 +117,7 @@
     var PL = R.plan, LV = R.level, stripeA = LV === 3 ? 1 : (LV === 4 ? 0.8 : 0.45);
     var colors = { cim: '#8fad66', yol: '#6c7880', kaldirim: '#c7c5b4', parke: '#c39a6d', eski_parke: '#aa825c',
       hali: '#d69a82', kilim: '#a6675b', fayans: '#c8d9d2', bodrum: '#817b76', kiler: '#a89273', toprak: '#b59a71',
-      cakil: '#c8bca2', saha: '#4a82b4', duvar: '#d7c5a6', cit: '#91aa6d', dis: '#76965e', bosluk: '#241f2d' };
+      cakil: '#c8bca2', saha: '#4a82b4', duvar: '#d7c5a6', cit: '#91aa6d', dis: '#76965e', bosluk: '#241f2d', oyun: '#9fd8c0' };
     for (y = 0; y < h.H; y++) for (x = 0; x < h.W; x++) {
       z = h.zemin(x, y); px = x * 48; py = y * 48;
       var base = colors[z] || colors.parke;
@@ -150,6 +150,11 @@
         c.fillStyle = z === 'kilim' ? '#4f7d72' : '#70948a'; c.fillRect(px + 21, py + 21, 6, 6);
         c.strokeStyle = 'rgba(255,255,255,.10)'; c.lineWidth = 1;
         c.strokeRect(px + 4, py + 4, 40, 40);
+      } else if (z === 'oyun') {   // bebek oyun halısı: pastel renkli köpük kareler
+        var oc = ['#ff9eb7', '#ffd66b', '#7fd0f0', '#9be08a'];
+        c.fillStyle = oc[(x + y) % 4]; c.fillRect(px + 2, py + 2, 44, 44);
+        c.fillStyle = oc[(x + y + 2) % 4]; c.fillRect(px + 14, py + 14, 20, 20);
+        c.strokeStyle = 'rgba(255,255,255,.55)'; c.lineWidth = 2; c.strokeRect(px + 2, py + 2, 44, 44);
       } else if (z === 'cim' || z === 'dis' || z === 'cit') {
         c.fillStyle = (x + y) % 2 ? 'rgba(255,251,185,.04)' : 'rgba(47,88,37,.035)'; c.fillRect(px, py, 48, 48);
         // biçilmiş çim şeritleri (2 karo genişliğinde)
@@ -1411,7 +1416,7 @@
     a.root.rotation.z = 0;
     if (sit) {
       var c = 0.5 + 0.5 * Math.sin(t * 5 + a.seed);
-      a.root.position.y = 0.04;
+      a.root.position.y = 0.04 + (ent.oturY != null ? ent.oturY * sc : 0);   // pusette biraz yukarıda oturur
       b.position.y = 0.11; b.rotation.set(0.1 + Math.sin(t * 1.6) * 0.02, 0, Math.sin(t * 1.1) * 0.03);
       h.position.set(0, 0.4, 0); h.rotation.set(-0.06 + Math.sin(t * 1.3) * 0.04, Math.sin(t * 0.8 + a.seed) * 0.3, Math.sin(t * 1.2) * 0.06);
       for (i = 0; i < 2; i++) {
@@ -1785,7 +1790,7 @@
         a.elbows[i].rotation.x = -0.32 - Math.max(0, tz) * 0.1;
       }
       a.head.rotation.x = 0.1; a.head.rotation.z = tz * 0.04;
-    } else if (suruyor && tur === 'pota') {
+    } else if (suruyor && (tur === 'pota' || tur === 'oyunparki')) {
       var ph = d.zaman * 5 + a.seed;
       a.root.position.y = 0.04 + (ent.tirmanY || 0);
       a.body.rotation.x = 0.06; a.body.position.y = Math.abs(Math.sin(ph)) * 0.015;
@@ -2200,6 +2205,12 @@
       col = '#e2694d'; ball(g, 0.3, 0.28, 0.3, 0, 0, 0, '#da7153'); box(g, 0.025, 0.1, 0.025, 0, 0.16, 0, '#6c6348');
     } else if (tur === 'teneke') {
       col = '#b9c9c9'; cyl(g, 0.12, 0.12, 0.28, 0, 0, 0, '#9fb4b5'); cyl(g, 0.124, 0.124, 0.1, 0, 0, 0, '#d98166');
+    } else if (tur === 'cingirak') {
+      col = '#ff9eb7'; ball(g, 0.22, 0.22, 0.22, 0, 0.1, 0, '#ff6b8f'); cyl(g, 0.03, 0.03, 0.26, 0, -0.08, 0, '#ffd66b'); ball(g, 0.1, 0.1, 0.1, 0, -0.22, 0, '#7fd0f0'); ball(g, 0.07, 0.07, 0.07, 0.1, 0.12, 0.06, '#fff3b0');
+    } else if (tur === 'pelus') {
+      col = '#e0b477'; ball(g, 0.3, 0.3, 0.26, 0, 0, 0, '#d9a066'); ball(g, 0.22, 0.2, 0.2, 0, 0.2, 0.02, '#d9a066'); ball(g, 0.09, 0.09, 0.06, -0.09, 0.3, 0, '#d9a066'); ball(g, 0.09, 0.09, 0.06, 0.09, 0.3, 0, '#d9a066'); ball(g, 0.07, 0.05, 0.04, 0, 0.17, 0.12, '#4a2f22'); ball(g, 0.18, 0.12, 0.05, 0, -0.02, 0.13, '#f3d6a8');
+    } else if (tur === 'oyuncak_top') {
+      col = '#ff9eb7'; ball(g, 0.34, 0.34, 0.34, 0, 0, 0, '#ff6b6b'); box(g, 0.36, 0.08, 0.36, 0, 0, 0, '#ffd66b'); box(g, 0.08, 0.36, 0.36, 0, 0, 0, '#4dc3ff');
     } else if (tur === 'oyuncak_ordek') {
       col = '#f0cb5d'; ball(g, 0.29, 0.22, 0.23, 0, 0, 0, '#e8c76d'); ball(g, 0.17, 0.17, 0.17, 0.1, 0.14, 0, '#e8c76d'); ball(g, 0.12, 0.045, 0.07, 0.2, 0.12, 0, '#cc8d50');
     } else {
@@ -2231,8 +2242,9 @@
       var m = new T.MeshBasicMaterial({ color: '#a97a12', transparent: true, opacity: 0.38, side: T.DoubleSide, depthWrite: false });
       mesh = new T.Mesh(g, m); mesh.frustumCulled = false; R.scene.add(mesh); R.cones[index] = mesh;
     }
-    mesh.visible = !!n && !n.pasif && !/yorgun|yakaladi|selam|oyalan/.test(n.durum); if (!mesh.visible) return;
-    mesh.material.opacity = n.durum === 'kovalama' ? 0.46 : (n.durum === 'suphe' ? 0.42 : 0.38);
+    mesh.visible = !!n && !n.pasif && !n.kucakta && !/yorgun|yakaladi|selam|oyalan/.test(n.durum); if (!mesh.visible) return;
+    var ispk = n.kim === 'teyze' || n.kim === 'enistee';   // ispiyoncu: soluk koni (tehlike değil)
+    mesh.material.opacity = ispk ? (n.durum === 'ispiyon' ? 0.3 : 0.17) : (n.durum === 'kovalama' ? 0.46 : (n.durum === 'suphe' ? 0.42 : 0.38));
     var buf = mesh.geometry.attributes.position.array, a = n.gorusAci || 1.2, dist = (n.gorusMesafe || 300) / U, px = n.x / U, pz = n.y / U, pts = [];
     for (var i = 0; i <= 36; i++) {
       var angle = (n.yon || 0) - a / 2 + a * i / 36, dx = Math.cos(angle), dz = Math.sin(angle), r = 0.3;
@@ -2245,7 +2257,7 @@
       buf[j + 6] = pts[i + 1][0]; buf[j + 7] = 0.075; buf[j + 8] = pts[i + 1][1];
     }
     mesh.geometry.attributes.position.needsUpdate = true;
-    mesh.material.color.set(n.durum === 'kovalama' ? '#c23a2a' : n.durum === 'suphe' ? '#b06a10' : n.kim === 'ebe' ? '#6f4a95' : n.kim === 'ogretmen' ? '#a8467a' : n.kim === 'mudur' ? '#3f6e52' : /bekci/.test(n.kim) ? '#2f4f8a' : n.kim === 'dede' ? '#2f6b8f' : n.kim === 'recepdede' ? '#4f6f86' : n.kim === 'dedehassi' ? '#a8452f' : '#b07f16');
+    mesh.material.color.set(n.durum === 'kovalama' ? '#c23a2a' : n.durum === 'suphe' ? '#b06a10' : n.kim === 'ebe' ? '#6f4a95' : n.kim === 'ogretmen' ? '#a8467a' : n.kim === 'mudur' ? '#3f6e52' : /bekci/.test(n.kim) ? '#2f4f8a' : n.kim === 'dede' ? '#2f6b8f' : n.kim === 'recepdede' ? '#4f6f86' : n.kim === 'dedehassi' ? '#a8452f' : n.kim === 'teyze' ? '#e58fc4' : n.kim === 'enistee' ? '#7fb2ee' : n.kim === 'beren' ? '#d98a9e' : '#b07f16');
   }
 
   // ---------------------------------------------------------------- ekran yazıları
@@ -2300,7 +2312,9 @@
     ekle(d.oyuncu, 'Ogeday', 1.62, 100, '#ffe9a8');
     (d.kardesler || []).forEach(function (e, i) { ekle(e, e.ad, i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84, i === 0 ? '#bcdcff' : '#c8e9c0'); });
     if (d.gokce) ekle(d.gokce, 'Gökçe', 1.55, 80, '#e6c8f2');
-    if (d.komsu) ekle(d.komsu, G.kisiAdi(d.komsu.kim), 1.98, 70, '#ffe2bb');
+    if (d.komsu) ekle(d.komsu, G.kisiAdi(d.komsu.kim), d.komsu.kim === 'beren' ? 1.0 : 1.98, 70, '#ffe2bb');
+    if (d.teyze) ekle(d.teyze, 'Nefise Teyze', 1.9, 63, '#ffc9e6');
+    if (d.eniste) ekle(d.eniste, 'Uğurcan Enişte', 2.0, 63, '#c9defa');
     if (d.uyanan) ekle(d.uyanan, G.kisiAdi(d.uyanan.kim), 2.05, 72, '#ffd0c0');
     if (d.kedi) ekle(d.kedi, 'Duman', 0.62, 66, '#d7dde2');
     if (d.recep) ekle(d.recep, 'Recep Dede', 2.02, 71, '#cfe4f2');
@@ -2338,7 +2352,9 @@
     }
     var kovK = function (e) { return (e === d.komsu || e === d.uyanan || e === d.recep) && e.durum === 'kovalama'; };
     balonEkle(d.oyuncu, null, 1.62, 100);
-    if (d.komsu) balonEkle(d.komsu, null, 1.98, kovK(d.komsu) ? 98 : 70);
+    if (d.komsu) balonEkle(d.komsu, null, d.komsu.kim === 'beren' ? 1.0 : 1.98, kovK(d.komsu) ? 98 : 70);
+    if (d.teyze) balonEkle(d.teyze, null, 1.9, d.teyze.durum === 'ispiyon' ? 90 : 66);
+    if (d.eniste) balonEkle(d.eniste, null, 2.0, d.eniste.durum === 'ispiyon' ? 90 : 66);
     if (d.uyanan) balonEkle(d.uyanan, null, 2.05, kovK(d.uyanan) ? 98 : 72);
     (d.kardesler || []).forEach(function (e, i) { balonEkle(e, null, i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84); });
     if (d.gokce) balonEkle(d.gokce, null, 1.55, 80);
@@ -2457,6 +2473,8 @@
         if (ext && R.level === 4) { cM = pal4[Math.floor((ext[1] ? w.tx : w.ty) / 2) % 4]; cT = '#d6503c'; cB = '#6b7d92'; }
         else if (ext && R.level === 3) { cM = '#f3e2bc'; cT = '#d6845c'; cB = '#a07f5b'; }
         else if (ext && R.level === 5) { cM = '#f1dcc0'; cT = '#b4533f'; cB = '#8a6d55'; }
+        else if (ext && R.level === 6) { cM = '#ffe3ee'; cT = '#e58fb0'; cB = '#a8788a'; }
+        else if (R.level === 6) { cM = '#fff0dd'; cT = '#f2a9c4'; cB = '#c79a86'; }
         else if (R.level === 5 && w.ty >= 37) { cM = '#e3d4ee'; cT = '#8a62b0'; cB = '#6b5380'; }
         if (R.wallMesh) R.wallMesh.setColorAt(i, new T.Color(cM));
         if (R.wallTrim) R.wallTrim.setColorAt(i, new T.Color(cT));
@@ -2691,12 +2709,14 @@
     (d.kardesler || []).forEach(function (k, i) {
       updateRig('k' + i, k, i ? 'giray' : 'atilay', d, { scale: i ? 0.8 : 0.65, child: true, ride: k.kaza === 'suruyor', dt: dt });
     });
-    if (d.komsu && !d.komsu.pasif) updateRig('n', d.komsu, d.komsu.kim, d, { scale: 1.12, dt: dt });
+    if (d.komsu && !d.komsu.pasif) updateRig('n', d.komsu, d.komsu.kim, d, { scale: d.komsu.kim === 'beren' ? 1.3 : 1.12, dt: dt });
+    if (d.teyze) updateRig('te', d.teyze, 'teyze', d, { scale: 1.08, dt: dt });
+    if (d.eniste) updateRig('en', d.eniste, 'enistee', d, { scale: 1.12, dt: dt });
     if (d.recep) updateRig('r', d.recep, 'recepdede', d, { scale: 1.12, dt: dt });
     if (d.anneanne) updateRig('an', d.anneanne, 'anneanne', d, { scale: 1.06, dt: dt });
     if (d.abari) updateRig('ab', d.abari, 'abariebe', d, { scale: 1.06, dt: dt });
     if (d.uyanan) updateRig('u', d.uyanan, d.uyanan.kim, d, { scale: 1.12, awake: true, dt: dt });
-    if (d.uyuyan) updateRig('s', d.uyuyan, d.uyuyan.kim, d, { scale: 1.02, sleep: true, dt: dt });
+    if (d.uyuyan) updateRig('s', d.uyuyan, d.uyuyan.kim, d, { scale: d.uyuyan.kim === 'beren' ? 1.3 : 1.02, sleep: true, dt: dt });
     if (d.gokce) updateRig('g', d.gokce, 'gokce', d, { scale: 0.96, dt: dt });
     if (d.kedi) updateKedi('kedi', d.kedi, d, dt);
     // Toplanabilirler.
@@ -2804,7 +2824,7 @@
     var swOn = !!(kz && kz.tur === 'salincak' && kz.asama === 'suruyor' && sal && d.kardesler[kz.idx]);
     R.swing.visible = swOn;
     if (swOn) { R.swing.position.set(sal.tx + sal.w / 2, 1.6, sal.ty + sal.h / 2); R.swing.rotation.x = -(d.kardesler[kz.idx].salincakAci || 0) * 0.7; }
-    cone(0, d.komsu); cone(1, d.uyanan); cone(2, d.recep);
+    cone(0, d.komsu); cone(1, d.uyanan); cone(2, d.recep); cone(3, d.teyze); cone(4, d.eniste);
     // Parçacıklar.
     for (var pi = R.parts.length - 1; pi >= 0; pi--) {
       var pp = R.parts[pi]; pp.life -= dt;

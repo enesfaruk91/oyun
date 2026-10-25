@@ -414,6 +414,7 @@ window.G = window.G || {};
   // ---------- genel ----------
   function uyandir(d, e) {
     if (!d || !d.uyuyan || d.uyanan) return;
+    try { if (G.bolumBilgi().uyananYok) return; } catch (e0) { }   // bebek bölümü: uyanmayı bebek.js yönetir
     var kim = d.uyuyan.kim, yl = yatakYanlari(), p = yl[0];
     u = d.uyanan = {
       x: p.x, y: p.y, r: 17, yon: Math.PI / 2, hareket: false,

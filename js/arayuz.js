@@ -11,9 +11,9 @@ window.G = window.G || {};
   var hudAlan = {};
   var menuAlan = {};          // menü düğmeleri (css px)
   var ustOfs = 0;             // üst uyarı bandı varken diğer üst panellerin kayması           // tıklanabilir HUD alanları (css px)
-  var ADLAR = { scooter: 'Scooter', anahtar_mavi: 'M. Anahtar', anahtar_kirmizi: 'K. Anahtar', top_hazine: 'Top', elma: 'Elma', teneke: 'Teneke', oyuncak_ordek: 'Ördek', kurabiye: 'Kurabiye' };
-  var ATILABILIR = { elma: 1, teneke: 1, oyuncak_ordek: 1, kurabiye: 1 };
-  var RENK = { anahtar_mavi: '#3d8bff', anahtar_kirmizi: '#ff4040', top_hazine: '#ffcc33', elma: '#e53935', teneke: '#9aa5ad', oyuncak_ordek: '#ffd93b', kurabiye: '#c98a4b' };
+  var ADLAR = { scooter: 'Scooter', anahtar_mavi: 'M. Anahtar', anahtar_kirmizi: 'K. Anahtar', top_hazine: 'Top', elma: 'Elma', teneke: 'Teneke', oyuncak_ordek: 'Ördek', kurabiye: 'Kurabiye', cingirak: 'Çıngırak', pelus: 'Peluş', oyuncak_top: 'Oyuncak top' };
+  var ATILABILIR = { elma: 1, teneke: 1, oyuncak_ordek: 1, kurabiye: 1, cingirak: 1, pelus: 1, oyuncak_top: 1 };
+  var RENK = { anahtar_mavi: '#3d8bff', anahtar_kirmizi: '#ff4040', top_hazine: '#ffcc33', elma: '#e53935', teneke: '#9aa5ad', oyuncak_ordek: '#ffd93b', kurabiye: '#c98a4b', cingirak: '#ff6b8f', pelus: '#d9a066', oyuncak_top: '#ff6b6b' };
   var mini = { key: '', cv: null };
 
   // ---------- çizim yardımcıları ----------
@@ -118,7 +118,7 @@ window.G = window.G || {};
     } catch (h) { ok = false; }
     portreVar[kim] = ok; return ok;
   }
-  var YEREL_PORTRE = { bekci: 1, bekci2: 1, kedi: 1, ogretmen: 1, mudur: 1, dedehassi: 1, anneanne: 1, abariebe: 1, recepdede: 1 };
+  var YEREL_PORTRE = { beren: 1, bekci: 1, bekci2: 1, kedi: 1, ogretmen: 1, mudur: 1, dedehassi: 1, anneanne: 1, abariebe: 1, recepdede: 1 };
   function portre(c, kim, x, y, b) {
     if (!YEREL_PORTRE[kim] && portreDestekli(kim)) { try { G.cizim.ikon(c, kim, x, y, b); return; } catch (h) { } }
     var r = b * 0.46;
@@ -187,6 +187,17 @@ window.G = window.G || {};
       c.fillStyle = '#d9dce1'; c.beginPath(); c.arc(0, -r * 0.3, r * 1.0, Math.PI * 1.05, Math.PI * 1.95); c.lineTo(r * 1.1, -r * 0.3); c.lineTo(-r * 1.1, -r * 0.3); c.fill();
       c.strokeStyle = '#2c2c34'; c.lineWidth = 2; c.beginPath(); c.arc(-r * 0.36, -r * 0.08, r * 0.24, 0, 7); c.moveTo(r * 0.6, -r * 0.08); c.arc(r * 0.36, -r * 0.08, r * 0.24, 0, 7); c.stroke();
       c.fillStyle = '#5b6f86'; rr(c, -r * 0.7, r * 0.92, r * 1.4, r * 0.3, r * 0.1); c.fill();
+    } else if (kim === 'beren') {
+      // Bebek Beren: kıvırcık saç tutamı, pembe fiyonk, kocaman gözler, al yanaklar
+      c.fillStyle = '#ffdcc4';
+      c.fillStyle = '#7a4e34'; c.beginPath(); c.arc(0, -r * 0.98, r * 0.3, 0, 7); c.fill(); c.stroke();
+      c.beginPath(); c.arc(-r * 0.2, -r * 1.2, r * 0.18, 0, 7); c.arc(r * 0.18, -r * 1.22, r * 0.16, 0, 7); c.fill();
+      c.fillStyle = '#ffdcc4'; c.beginPath(); c.arc(0, 0, r * 1.04, 0, 7); c.fill(); c.stroke();
+      c.fillStyle = '#7a4e34'; c.beginPath(); c.arc(0, -r * 0.45, r * 0.88, Math.PI * 1.12, Math.PI * 1.88); c.lineTo(0, -r * 0.6); c.fill();
+      c.fillStyle = '#ff8fb8'; c.beginPath(); c.moveTo(r * 0.3, -r * 0.85); c.lineTo(r * 0.82, -r * 1.1); c.lineTo(r * 0.78, -r * 0.6); c.closePath(); c.fill();
+      c.beginPath(); c.moveTo(r * 0.3, -r * 0.85); c.lineTo(r * 0.0, -r * 1.12); c.lineTo(r * -0.02, -r * 0.62); c.closePath(); c.fill();
+      c.fillStyle = '#ffffff'; c.beginPath(); c.arc(-r * 0.36, -r * 0.05, r * 0.2, 0, 7); c.arc(r * 0.36, -r * 0.05, r * 0.2, 0, 7); c.fill();
+      c.fillStyle = '#e88aa0'; c.beginPath(); c.arc(-r * 0.62, r * 0.3, r * 0.17, 0, 7); c.arc(r * 0.62, r * 0.3, r * 0.17, 0, 7); c.fill();
     } else if (kim === 'kedi') {
       // Sokak kedisi Duman: gri yüz, üçgen kulaklar.
       rr(c, -r * 1.0, -r * 0.1, r * 2.0, r * 1.2, r * 0.4); c.fillStyle = '#565860'; c.fill(); c.stroke();
@@ -934,7 +945,7 @@ window.G = window.G || {};
       c.fillStyle = dr; c.strokeStyle = '#3a1c17'; c.lineWidth = 1; c.beginPath(); c.arc(px(d.komsu.x), py(d.komsu.y), 3.2, 0, 7); c.fill(); c.stroke();
     }
     if (d.recep && kf(d.recep)) { c.fillStyle = d.recep.durum === 'kovalama' ? '#ff4545' : (d.recep.durum === 'devriye' ? '#5ed36b' : '#ffb02e'); c.strokeStyle = '#3a1c17'; c.lineWidth = 1; c.beginPath(); c.arc(px(d.recep.x), py(d.recep.y), 3.2, 0, 7); c.fill(); c.stroke(); }
-    [d.anneanne, d.abari].forEach(function (yd) { if (yd && kf(yd)) { c.fillStyle = '#ff9ad0'; c.beginPath(); c.arc(px(yd.x), py(yd.y), 2.3, 0, 7); c.fill(); } });
+    [d.anneanne, d.abari, d.teyze, d.eniste].forEach(function (yd) { if (yd && kf(yd)) { c.fillStyle = '#ff9ad0'; c.beginPath(); c.arc(px(yd.x), py(yd.y), 2.3, 0, 7); c.fill(); } });
     (h.portallar || []).forEach(function (pt) {   // merdiven simgesi: bu kattaki portal karoları
       [pt.a, pt.b].forEach(function (q) { if (q.kat !== kk) return; c.fillStyle = '#ffe14d'; c.fillRect(px(q.x) - 1.6, py(q.y) - 1.6, 3.2, 3.2); });
     });
@@ -975,7 +986,7 @@ window.G = window.G || {};
   }
 
   // ---------- rozet (çıkartma) çizimi: emoji yok, hepsi canvas ----------
-  var ROZET_BG = { dino: '#c4efd0', top: '#d3e6ff', roket: '#ddd6ff', tavuk: '#ffeab9', kurabiye: '#ffe2c6', yumak: '#ffd6e6', kedi: '#ffe8cc', agac: '#d3f0ca', ordek: '#fff4b5', kalem: '#ffe2e2', basket: '#ffddbb', yildiz: '#fff1ad', cay: '#ffe0c8', merdiven: '#e3d9ff', saksi: '#d6f0cf' };
+  var ROZET_BG = { dino: '#c4efd0', top: '#d3e6ff', roket: '#ddd6ff', tavuk: '#ffeab9', kurabiye: '#ffe2c6', yumak: '#ffd6e6', kedi: '#ffe8cc', agac: '#d3f0ca', ordek: '#fff4b5', kalem: '#ffe2e2', basket: '#ffddbb', yildiz: '#fff1ad', cay: '#ffe0c8', merdiven: '#e3d9ff', saksi: '#d6f0cf', cingirak: '#ffd9e6', biberon: '#d9efff', pelus: '#f5e1c8' };
   function rozetPal(renkli) {
     if (renkli) return { w: '#ffffff', y: '#ffcf3d', o: '#ff9a2e', r: '#e8483a', g: '#4cb35a', b: '#4a90e2', br: '#8a5a2b', p: '#ff7aa8', n: '#2a2230', sk: '#f2c9a0', l: '#dfe3e8', ck: '#d9a066' };
     return { w: '#8a91ab', y: '#7a82a0', o: '#6f7692', r: '#646b88', g: '#646b88', b: '#646b88', br: '#5a6180', p: '#6f7692', n: '#454c66', sk: '#7a82a0', l: '#8a91ab', ck: '#6f7692' };
@@ -1060,6 +1071,24 @@ window.G = window.G || {};
       rp(c, [[-4.4, 1.2], [4.4, 1.2], [3.2, 7.4], [-3.2, 7.4]], P.r); c.fillStyle = P.o; c.fillRect(-5, 0, 10, 1.9);
       rl(c, 0, 0, 0, -4.4, P.g, 1); ro(c, -2.6, -2.6, 2.6, 1.3, P.g); ro(c, 2.6, -1.6, 2.6, 1.3, P.g);
       rc(c, 0, -5.6, 2.2, P.p); rc(c, 0, -5.6, 0.9, P.y);
+    } else if (ad === 'cingirak') {
+      // çıngırak: renkli çizgili top, sap, halka
+      rl(c, 0, 2, 0, 8, P.o, 1.7); c.strokeStyle = P.b; c.lineWidth = 1.3; c.beginPath(); c.arc(0, 8.4, 2, 0, 7); c.stroke();
+      rc(c, 0, -2.6, 6.2, P.p); c.save(); c.beginPath(); c.arc(0, -2.6, 6.2, 0, 7); c.clip();
+      c.fillStyle = P.y; c.fillRect(-7, -4.2, 14, 2.3); c.fillStyle = P.b; c.fillRect(-7, 0.4, 14, 2.3); c.restore();
+      c.strokeStyle = P.w; c.lineWidth = 0.6; c.beginPath(); c.arc(0, -2.6, 6.2, 0, 7); c.stroke(); rc(c, -2, -5, 1, 'rgba(255,255,255,0.75)');
+    } else if (ad === 'biberon') {
+      // biberon: sütlü şişe, pembe kapak, emzik
+      rp(c, [[-3.4, -2.6], [3.4, -2.6], [3.4, 7.6], [-3.4, 7.6]], P.w); c.strokeStyle = P.l; c.lineWidth = 0.7; c.stroke();
+      c.fillStyle = renkli ? '#fff7e8' : '#8a91ab'; c.fillRect(-2.6, 2.2, 5.2, 4.8);
+      for (i = 0; i < 3; i++) rl(c, -3.4, -0.6 + i * 2.3, -1.6, -0.6 + i * 2.3, P.b, 0.6);
+      c.fillStyle = P.p; c.fillRect(-4.2, -4.4, 8.4, 2.4); ro(c, 0, -6.4, 2, 2.4, P.sk); rl(c, 0, -8.8, 0, -9.2, P.sk, 1);
+    } else if (ad === 'pelus') {
+      // peluş ayıcık: yuvarlak kafa, kulaklar, burun
+      rc(c, -4.9, -4.9, 2.6, P.ck); rc(c, 4.9, -4.9, 2.6, P.ck); rc(c, -4.9, -4.9, 1.3, P.sk); rc(c, 4.9, -4.9, 1.3, P.sk);
+      rc(c, 0, 0.2, 7.2, P.ck); ro(c, 0, 2.6, 3.4, 2.7, P.sk); ro(c, 0, 1.2, 1.3, 0.9, P.n);
+      rc(c, -2.7, -1.6, 0.9, P.n); rc(c, 2.7, -1.6, 0.9, P.n); rl(c, 0, 2.1, 0, 3.3, P.n, 0.5);
+      rp(c, [[-2, 6.6], [0, 5.6], [2, 6.6], [0, 7.8]], P.p);
     } else if (ad === 'yildiz') {
       yildizYol(c, 7.8, 0.45); c.fillStyle = P.y; c.fill(); c.lineWidth = 0.8; c.strokeStyle = P.o; c.stroke();
       if (renkli) { rc(c, -1.4, -1.6, 1, 'rgba(255,255,255,0.7)'); }

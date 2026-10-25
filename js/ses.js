@@ -186,6 +186,33 @@ window.G = window.G || {};
       var t = ctx.currentTime;
       [[88, 0], [91, 0.1], [95, 0.2], [100, 0.32]].forEach(function (a) { ton(sfx, hz(a[0]), t + a[1], 0.35, 'sine', 0.12, 0.005); ton(sfx, hz(a[0] - 12), t + a[1], 0.3, 'triangle', 0.06, 0.005); });
     },
+    // --- Bölüm 6: bebek sesleri (Beren), ninni, ispiyon, telsiz ---
+    bebekBabble: function (v) {   // "ba-ba-ba!" üç kısa hece
+      v = v == null ? 1 : v; var t = ctx.currentTime, n = 2 + Math.floor(Math.random() * 2), f0 = 520 + Math.random() * 120;
+      for (var i = 0; i < n; i++) { ton(sfx, f0 + i * 25, t + i * 0.14, 0.11, 'triangle', 0.1 * v, 0.012, f0 * 1.3 + i * 20); ton(sfx, f0 * 2, t + i * 0.14, 0.09, 'sine', 0.035 * v, 0.012); }
+    },
+    bebekKikir: function (v) {    // kıkırdama: hızlı tiz ciyaklar
+      v = v == null ? 1 : v; var t = ctx.currentTime;
+      for (var i = 0; i < 6; i++) { var f = 780 + (i % 2) * 260 + Math.random() * 60; ton(sfx, f, t + i * 0.085, 0.07, 'sine', 0.085 * v, 0.006, f * 1.12); }
+    },
+    bebekGordu: function (v) {    // heyecanlı "aaaa!"
+      v = v == null ? 1 : v; var t = ctx.currentTime;
+      ton(sfx, 480, t, 0.32, 'triangle', 0.11 * v, 0.03, 900); ton(sfx, 960, t, 0.3, 'sine', 0.04 * v, 0.03, 1700);
+    },
+    bebekEsneme: function () { var t = ctx.currentTime; ton(sfx, 820, t, 0.45, 'triangle', 0.08, 0.05, 480); },
+    bebekUyku: function (v) { var t = ctx.currentTime; vurus(sfx, t, 0.5, 0.025 * (v || 1), 'lowpass', 500, 300, 1); },
+    ninni: function () {          // yumuşak ninni melodisi
+      var t = ctx.currentTime, N = [[72, 0], [72, 0.5], [76, 1.0], [74, 1.5], [72, 2.0], [71, 2.5], [72, 3.0], [67, 3.8], [69, 4.3], [71, 4.8], [72, 5.3], [67, 6.2]];
+      N.forEach(function (a) { ton(sfx, hz(a[0]), t + a[1], 0.55, 'triangle', 0.07, 0.03); ton(sfx, hz(a[0] - 12), t + a[1], 0.5, 'sine', 0.035, 0.03); });
+    },
+    ispiyon: function () {        // Teyze/Enişte'nin neşeli "yuhuu!" seslenişi
+      var t = ctx.currentTime; ton(sfx, 600, t, 0.2, 'triangle', 0.1, 0.01, 820); ton(sfx, 880, t + 0.22, 0.32, 'triangle', 0.1, 0.01, 1040);
+    },
+    telsizCizirti: function (v) { // bebek telsizi: cızırtı + iki bip
+      v = v == null ? 1 : v; var t = ctx.currentTime, i;
+      for (i = 0; i < 5; i++) vurus(sfx, t + i * 0.07, 0.05, 0.12 * v, 'highpass', 3000 + i * 400);
+      ton(sfx, 1200, t + 0.4, 0.1, 'square', 0.05 * v, 0.004); ton(sfx, 1200, t + 0.56, 0.1, 'square', 0.05 * v, 0.004);
+    },
     // Atılay'ın mikrofonu: yankılı, hoparlör cızırtılı komik "ALOOOO!" + feedback ıslığı
     mikrofon: function (v) {
       v = v || 1;
@@ -327,7 +354,15 @@ window.G = window.G || {};
     G.dinle('kapi_ac', function () { efekt('kapiAc'); });
     G.dinle('misafir_zil', function () { efekt('kapiZili'); setTimeout(function () { efekt('selamSes'); }, 2300); });
     G.dinle('kat_gecti', function () { efekt('merdiven'); });
-    G.dinle('kestirme_basladi', function () { efekt('esneme'); setTimeout(function () { efekt('horlama', 0.12); }, 900); });
+    G.dinle('kestirme_basladi', function (e) { if (e && e.kim === 'beren') { efekt('bebekEsneme'); return; } efekt('esneme'); setTimeout(function () { efekt('horlama', 0.12); }, 900); });
+    G.dinle('bebek_ses', function (e) {
+      var d = G.d, v = 0.7;
+      if (d && d.oyuncu && e && e.x != null) v = Math.max(0, 1 - Math.hypot(e.x - d.oyuncu.x, e.y - d.oyuncu.y) / 560);
+      if (v < 0.05) return;
+      efekt(e && e.tur === 'kikir' ? 'bebekKikir' : (e && e.tur === 'gordu' ? 'bebekGordu' : 'bebekBabble'), v);
+    });
+    G.dinle('ninni', function () { efekt('ninni'); });
+    G.dinle('ispiyon', function () { efekt('ispiyon'); });
     G.dinle('kapi_kapa', function () { efekt('kapiKapa'); });
     G.dinle('kapi_kilitli', function () { efekt('kilitli'); });
     G.dinle('kilit_acildi', function () { efekt('kilitAcildi'); });
@@ -358,9 +393,9 @@ window.G = window.G || {};
     G.dinle('arama_bitti', function (e) { if (e && !e.bulundu) efekt('bosArama'); });
     G.dinle('ipucu', function () { efekt('ipucu'); });
     G.dinle('zil', function () { efekt('zil'); });
-    G.dinle('anons', function () { efekt('anonsGong'); });
+    G.dinle('anons', function () { var bb = false; try { bb = !!G.bolumBilgi().bebek; } catch (e) { } efekt(bb ? 'telsizCizirti' : 'anonsGong'); });
     G.dinle('baslat', function () { efekt('baslat'); });
-    G.dinle('nobet_degisti', function () { efekt('esneme'); setTimeout(function () { efekt('horlama', 0.12); }, 900); setTimeout(function () { efekt('horlama', 0.09); }, 2100); });
+    G.dinle('nobet_degisti', function (e) { if (e && e.kim === 'beren') { efekt('bebekKikir'); return; } efekt('esneme'); setTimeout(function () { efekt('horlama', 0.12); }, 900); setTimeout(function () { efekt('horlama', 0.09); }, 2100); });
     G.dinle('sihir', function (e) { efekt(e && e.tur === 'isinlanma' ? 'sihirI' : 'sihirG'); });
     G.dinle('gokce_cagrildi', function () { efekt('gokce'); });
     G.dinle('kaza', function () { efekt('gum'); setTimeout(function () { efekt('uhuu', kazaSes()); }, 250); uhuT = 3; });
@@ -396,7 +431,7 @@ window.G = window.G || {};
       if (as === 'dustu') { uhuT -= dt; if (uhuT <= 0) { uhuT = 3; efekt('uhuu', kazaSes()); } }
       if (d && d.mod === 'oyun' && d.uyuyan && d.oyuncu) {
         horT -= dt;
-        if (horT <= 0 && Math.hypot(d.uyuyan.x - d.oyuncu.x, d.uyuyan.y - d.oyuncu.y) <= 250) { horT = 3.2; efekt('horlama', 0.06); }
+        if (horT <= 0 && Math.hypot(d.uyuyan.x - d.oyuncu.x, d.uyuyan.y - d.oyuncu.y) <= 250) { horT = 3.2; efekt(d.uyuyan.kim === 'beren' ? 'bebekUyku' : 'horlama', 0.06); }
       }
     }
   };

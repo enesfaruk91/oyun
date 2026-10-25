@@ -131,7 +131,7 @@ window.G = window.G || {};
 
   var ZEMIN = { 'D': 'dis', 'c': 'cit', '.': 'cim', '-': 'kaldirim', '=': 'yol', '#': 'duvar', 't': 'toprak',
     'p': 'parke', 'f': 'fayans', 'h': 'hali', 'b': 'bodrum', 'd': 'parke', 'M': 'parke', 'K': 'parke',
-    'k': 'kilim', 'e': 'eski_parke', 'r': 'kiler', 'g': 'cakil', 's': 'saha', 'V': 'bosluk' };
+    'k': 'kilim', 'e': 'eski_parke', 'r': 'kiler', 'g': 'cakil', 's': 'saha', 'V': 'bosluk', 'o': 'oyun' };
   var KAPI_ZEMIN2 = 'eski_parke';
 
   // ---- BOLUM 1 verisi --------------------------------------------------
@@ -201,7 +201,8 @@ window.G = window.G || {};
     2: [[36, 17], [28, 19], [6, 33]],
     3: [[14, 28], [40, 14], [7, 10]],
     4: [[23, 26], [34, 17], [11, 26]],
-    5: [[32, 27], [13, 50], [4, 30]]
+    5: [[32, 27], [13, 50], [4, 30]],
+    6: [[37, 29], [15, 9], [20, 28]]
   };
 
   var ODALAR1 = [
@@ -596,6 +597,104 @@ window.G = window.G || {};
     ['anahtar_kirmizi', 29, 46, 'Sepette sadece yün yumakları!'], ['anahtar_kirmizi', 28, 42, 'Saksıda sadece toprak ve bir solucan!']
   ];
 
+  // ---- BOLUM 6 verisi: Teyze Evi (tek kat; Beren emekler, Nefise Teyze ve Uğurcan Enişte ispiyonlar) ----------------------------------------
+  function ascii6() {
+    var GEN = 44, TOP = 35, rows = [], yy, xx, i;
+    for (yy = 0; yy < TOP; yy++) { var r = []; for (xx = 0; xx < GEN; xx++) r.push('D'); rows.push(r); }
+    function boya(x0, y0, x1, y1, ch) { for (var b = y0; b <= y1; b++) for (var a = x0; a <= x1; a++) rows[b][a] = ch; }
+    function koy(a, b, ch) { rows[b][a] = ch; }
+    boya(0, 1, 43, 1, '-'); boya(0, 2, 43, 3, '='); boya(0, 4, 43, 4, '-');
+    boya(2, 5, 42, 33, 'c'); boya(3, 6, 41, 32, '.');
+    koy(10, 5, 'd'); koy(33, 5, 'd');
+    boya(10, 6, 10, 9, 'g'); boya(33, 6, 33, 9, 'g'); boya(10, 9, 33, 9, 'g');
+    boya(10, 10, 36, 30, '#');
+    boya(11, 11, 17, 17, 'f');            // Mutfak
+    boya(19, 11, 22, 21, 'p');            // Giris Holu
+    boya(24, 11, 35, 17, 'h');            // Salon
+    boya(26, 13, 31, 16, 'o');            // Oyun halisi
+    boya(11, 19, 35, 21, 'p');            // Koridor
+    boya(11, 23, 17, 29, 'k');            // Bebek Odasi
+    boya(19, 23, 22, 29, 'f');            // Banyo
+    boya(24, 23, 29, 29, 'e');            // Yatak Odasi (mavi kilit)
+    boya(31, 23, 35, 29, 'f');            // Balkon (kirmizi kilit, hedef)
+    koy(21, 10, 'd'); koy(18, 14, 'd'); koy(23, 14, 'd'); koy(14, 18, 'd'); koy(30, 18, 'd'); koy(10, 20, 'd'); koy(36, 20, 'd');
+    koy(14, 22, 'd'); koy(20, 22, 'd'); koy(26, 22, 'M'); koy(33, 22, 'K');
+    var out = []; for (i = 0; i < TOP; i++) out.push(rows[i].join(''));
+    return out;
+  }
+  var ASCII6 = ascii6();
+
+  // [tur, tx, ty, w, h, kati, saklanma, ad, yon]  (ilk 'puset' = Beren'in uyku yeri: EN ÜSTTE)
+  var ESYA6 = [
+    ['puset', 12, 25, 1, 1, 1, 0, "Beren'in Pusesi"],
+    // Mutfak
+    ['buzdolabi', 11, 11, 1, 2, 1, 0, 'Buzdolabı'], ['tezgah', 12, 11, 3, 1, 1, 0, 'Tezgâh'], ['ocak', 15, 11, 1, 1, 1, 0, 'Ocak'], ['lavabo', 16, 11, 1, 1, 1, 0, 'Evye'],
+    ['mama_sandalyesi', 17, 12, 1, 1, 1, 0, 'Mama Sandalyesi'],
+    ['masa', 13, 14, 3, 2, 1, 0, 'Yemek Masası'], ['sandalye', 12, 14, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 16, 14, 1, 1, 1, 0, 'Sandalye'], ['sandalye', 14, 16, 1, 1, 1, 0, 'Sandalye'],
+    ['dolap', 11, 16, 1, 1, 1, 1, 'Dolap'], ['cop_kutusu', 17, 16, 1, 1, 1, 1, 'Çöp Kutusu'],
+    // Giris Holu
+    ['saksi', 19, 11, 1, 1, 1, 0, 'Saksı'], ['duvar_saati', 22, 11, 1, 1, 1, 0, 'Duvar Saati'], ['dolap', 19, 17, 1, 1, 1, 1, 'Ayakkabılık'], ['saksi', 22, 17, 1, 1, 1, 0, 'Saksı'],
+    // Salon: oyun halisi, oyuncaklar, oyun parki
+    ['tv', 28, 11, 2, 1, 1, 0, 'Televizyon'], ['masa', 30, 11, 2, 1, 1, 0, 'Sehpa'], ['koltuk', 24, 12, 1, 2, 1, 0, 'Koltuk'], ['sallanan_koltuk', 24, 16, 1, 1, 1, 0, 'Sallanan Koltuk'],
+    ['kanepe', 25, 17, 3, 1, 1, 0, 'Kanepe'], ['bebek_telsizi', 24, 15, 1, 1, 1, 0, 'Bebek Telsizi'],
+    ['oyun_parki', 33, 12, 2, 2, 1, 0, 'Oyun Parkı'], ['oyuncak_sandigi', 34, 16, 2, 1, 1, 1, 'Oyuncak Sandığı'], ['kitaplik', 35, 14, 1, 2, 1, 0, 'Kitaplık'], ['saksi', 35, 11, 1, 1, 1, 0, 'Saksı'],
+    // Koridor + Gokce'nin kosesi
+    ['calisma_masasi', 12, 19, 2, 1, 1, 0, 'Çalışma Masası'], ['sandalye', 12, 20, 1, 1, 0, 0, 'Sandalye', 2],
+    ['kutu', 11, 19, 1, 1, 1, 1, 'Kutu'], ['dolap', 18, 21, 1, 1, 1, 1, 'Dolap'], ['saksi', 35, 19, 1, 1, 1, 0, 'Saksı'], ['saksi', 35, 21, 1, 1, 1, 0, 'Saksı'],
+    // Bebek Odasi
+    ['besik', 16, 23, 2, 1, 1, 0, 'Beşik'], ['telsiz_bebek', 17, 27, 1, 1, 1, 0, 'Bebek Telsizi'], ['oyuncak_sandigi', 11, 28, 2, 1, 1, 1, 'Oyuncak Sandığı'],
+    ['kitaplik', 11, 23, 1, 2, 1, 0, 'Kitaplık'], ['sallanan_koltuk', 16, 28, 1, 1, 1, 0, 'Sallanan Koltuk'], ['saksi', 17, 29, 1, 1, 1, 0, 'Saksı'],
+    // Banyo
+    ['lavabo', 19, 23, 1, 1, 1, 0, 'Lavabo'], ['klozet', 22, 23, 1, 1, 1, 0, 'Klozet'], ['kuvet', 21, 28, 2, 2, 1, 0, 'Küvet'], ['camasir_makinesi', 19, 28, 1, 1, 1, 0, 'Çamaşır Makinesi'], ['saksi', 19, 26, 1, 1, 1, 0, 'Saksı'],
+    // Yatak Odasi (kirmizi anahtar adaylari)
+    ['gardirop', 24, 23, 2, 1, 1, 0, 'Gardırop'], ['yatak', 27, 26, 2, 3, 1, 0, 'Yatak'], ['kutu', 24, 26, 1, 1, 1, 0, 'Komodin'], ['orgu_sepeti', 29, 23, 1, 1, 1, 0, 'Örgü Sepeti'],
+    ['sandalye', 25, 28, 1, 1, 1, 0, 'Sandalye'], ['saksi', 29, 29, 1, 1, 1, 0, 'Saksı'],
+    // Balkon (hedef)
+    ['saksi', 31, 23, 1, 1, 1, 0, 'Saksı'], ['saksi', 35, 23, 1, 1, 1, 0, 'Saksı'], ['bank', 32, 28, 2, 1, 1, 0, 'Balkon Bankı'], ['cicek', 35, 28, 1, 1, 0, 0, 'Çiçek'], ['saksi', 31, 26, 1, 1, 1, 0, 'Saksı'],
+    // Bahce
+    ['agac', 4, 7, 2, 2, 1, 0, 'Ağaç'], ['agac', 38, 8, 2, 2, 1, 0, 'Ağaç'], ['agac', 4, 26, 2, 2, 1, 0, 'Ağaç'], ['agac', 38, 26, 2, 2, 1, 0, 'Ağaç'], ['agac', 5, 31, 2, 2, 1, 0, 'Ağaç'], ['agac', 30, 31, 2, 2, 1, 0, 'Ağaç'],
+    ['kum_havuzu', 4, 15, 3, 3, 1, 0, 'Kum Havuzu'], ['bank', 38, 19, 2, 1, 1, 0, 'Bahçe Bankı'], ['cesme', 39, 13, 1, 1, 1, 0, 'Çeşme'], ['posta_kutusu', 11, 7, 1, 1, 1, 0, 'Posta Kutusu'],
+    ['cali', 3, 11, 1, 1, 0, 1, 'Çalı'], ['cali', 8, 13, 1, 1, 0, 1, 'Çalı'], ['cali', 3, 22, 1, 1, 0, 1, 'Çalı'], ['cali', 9, 27, 1, 1, 0, 1, 'Çalı'],
+    ['cali', 37, 12, 1, 1, 0, 1, 'Çalı'], ['cali', 40, 22, 1, 1, 0, 1, 'Çalı'], ['cali', 24, 31, 1, 1, 0, 1, 'Çalı'], ['cali', 17, 31, 1, 1, 0, 1, 'Çalı'],
+    ['cicek', 14, 8, 1, 1, 0, 0, 'Çiçek'], ['cicek', 17, 8, 1, 1, 0, 0, 'Çiçek'], ['cicek', 26, 8, 1, 1, 0, 0, 'Çiçek'], ['cicek', 29, 8, 1, 1, 0, 0, 'Çiçek'],
+    ['cicek', 8, 18, 1, 1, 0, 0, 'Çiçek'], ['cicek', 39, 16, 1, 1, 0, 0, 'Çiçek'], ['cicek', 13, 32, 1, 1, 0, 0, 'Çiçek'], ['cicek', 35, 32, 1, 1, 0, 0, 'Çiçek']
+  ];
+
+  var TOPLA6 = [
+    ['mavi_anahtar', 'anahtar_mavi', 12, 12], ['kirmizi_anahtar', 'anahtar_kirmizi', 27, 25], ['top', 'top_hazine', 34, 26],
+    ['elma1', 'elma', 6, 12], ['elma2', 'elma', 22, 19], ['elma3', 'elma', 38, 15],
+    ['teneke1', 'teneke', 8, 27], ['teneke2', 'teneke', 36, 31],
+    ['ordek1', 'oyuncak_ordek', 40, 20],
+    ['kurabiye1', 'kurabiye', 16, 16], ['kurabiye2', 'kurabiye', 20, 15],
+    ['cingirak1', 'cingirak', 27, 14], ['cingirak2', 'cingirak', 15, 20], ['cingirak3', 'cingirak', 39, 11],
+    ['pelus1', 'pelus', 29, 16], ['pelus2', 'pelus', 21, 19], ['pelus3', 'pelus', 7, 24],
+    ['oyuncak_top1', 'oyuncak_top', 31, 14], ['oyuncak_top2', 'oyuncak_top', 21, 13], ['oyuncak_top3', 'oyuncak_top', 20, 31]
+  ];
+
+  var ODALAR6 = [
+    { ad: 'Mutfak', x: 11, y: 11, w: 7, h: 7 }, { ad: 'Giriş Holü', x: 19, y: 11, w: 4, h: 11 }, { ad: 'Salon', x: 24, y: 11, w: 12, h: 7 },
+    { ad: 'Koridor', x: 11, y: 19, w: 25, h: 3 }, { ad: 'Bebek Odası', x: 11, y: 23, w: 7, h: 7 }, { ad: 'Banyo', x: 19, y: 23, w: 4, h: 7 },
+    { ad: 'Yatak Odası', x: 24, y: 23, w: 6, h: 7 }, { ad: 'Balkon', x: 31, y: 23, w: 5, h: 7 }
+  ];
+
+  // Beren'in emekleme turu (kilitli odalar yok)
+  var DEVRIYE6 = [
+    [14, 25, 2], [14, 20, 1], [14, 13, 2], [20, 13, 1.5], [28, 15, 2.5], [33, 15, 1.5], [30, 20, 1], [38, 20, 1.5],
+    [36, 8, 1], [21, 8, 1.5], [20, 20, 1], [20, 26, 1.5], [7, 20, 1.5], [12, 20, 1]
+  ];
+  // Beren'in oyuncaklara dalıp oturacağı yedek noktalar (oyun halısı, oyun parkı, oyuncak sandıkları, bahçe)
+  var OYUN6 = [[28, 14], [30, 15], [32, 14], [33, 15], [13, 27], [15, 26], [33, 17], [38, 22], [6, 19]];
+
+  var KAPI6 = { '10,5': 'bahce_kapi_bati', '33,5': 'bahce_kapi_dogu', '21,10': 'on', '18,14': 'mutfak_hol', '23,14': 'salon_hol', '14,18': 'mutfak_koridor',
+    '30,18': 'salon_koridor', '10,20': 'arka_bati', '36,20': 'arka_dogu', '14,22': 'bebek_odasi', '20,22': 'banyo', '26,22': 'yatak_odasi', '33,22': 'balkon' };
+
+  var ARAMA6 = [
+    ['anahtar_mavi', 12, 11, 'Çekmecede sadece kaşıklar var!'], ['anahtar_mavi', 25, 17, 'Kanepe minderinin altında sadece bozuk paralar!'],
+    ['anahtar_mavi', 4, 15, 'Kumun içinde sadece bir plastik kova!'], ['anahtar_mavi', 38, 19, 'Bankın altında sadece bir sakız!'],
+    ['anahtar_kirmizi', 24, 23, 'Gardırobun dibinde sadece tek bir çorap!'], ['anahtar_kirmizi', 27, 26, 'Yatağın altında sadece bir terlik!'],
+    ['anahtar_kirmizi', 29, 23, 'Sepette sadece yün yumakları!'], ['anahtar_kirmizi', 24, 26, 'Komodinde sadece bir tarak!']
+  ];
+
   // ---- Bölüm tanımları ------------------------------------------------
   var BOLUMLER = {
     1: {
@@ -627,10 +726,19 @@ window.G = window.G || {};
       // Portal çiftleri [zemin tx, ty, üst tx, ty]: merdiven ayak karoları (E ile geçilir; yapay zekâ kendiliğinden geçer)
       portal: [[25, 16, 25, 47], [26, 16, 26, 47], [13, 14, 13, 45], [14, 14, 14, 45]],
       yardimci: [31, 23], misafirKapi: [23, 9]
+    },
+    6: {
+      ascii: ASCII6, esya: ESYA6, topla: TOPLA6, odalar: ODALAR6, devriye: DEVRIYE6, kapi: KAPI6, kapiZemin: 'parke', oyun: OYUN6,
+      teyzeYol: [[14, 13, 2.5], [16, 12, 2], [20, 14, 1.5], [27, 14, 2.5], [31, 15, 2], [22, 19, 1.5], [15, 17, 2]],
+      enisteYol: [[29, 15, 3], [33, 16, 2], [26, 12, 2], [25, 16, 2], [22, 15, 1.5], [14, 19, 2], [14, 13, 2]],
+      oyuncu: [10, 3], komsu: [13, 25], kaza: [32, 13], gokce: [12, 20],
+      mikrofon: [25, 15], sokakSon: 5, arama: ARAMA6
     }
   };
 
   var YUKSEK = { buzdolabi: 1, kitaplik: 1, gardirop: 1, raf_kavanoz: 1 };
+  // Bebek (ent.altGec) boyu: masa/sandalye gibi alçak bacaklı eşyaların ALTINDAN geçebilir (EK-12)
+  var ALT_GEC = { masa: 1, sandalye: 1, calisma_masasi: 1, mama_sandalyesi: 1 };
 
   // ---- Durum -----------------------------------------------------------
   var cur = BOLUMLER[1];
@@ -639,6 +747,7 @@ window.G = window.G || {};
   var grid = [];
   var solidGrid = [];
   var yuksekGrid = [];
+  var altGrid = [];
   var kapiGrid = [];
   var yakinGrid = [];
   var kapiOrijinal = [];
@@ -670,11 +779,11 @@ window.G = window.G || {};
     harita.bolum = bolum;
     ASCII = cur.ascii; ODALAR = cur.odalar; TOPLA_VERI = cur.topla; zeminKapi = cur.kapiZemin;
     harita.ascii = ASCII; harita.odalar = ODALAR;
-    grid = []; solidGrid = []; yuksekGrid = []; kapiGrid = []; yakinGrid = [];
+    grid = []; solidGrid = []; yuksekGrid = []; altGrid = []; kapiGrid = []; yakinGrid = [];
     harita.W = W = ASCII[0].length; harita.H = H = ASCII.length;
     harita.kapilar.length = 0; harita.esyalar.length = 0; kapiOrijinal = [];
     for (y = 0; y < H; y++) {
-      grid.push([]); solidGrid.push(new Uint8Array(W)); yuksekGrid.push(new Uint8Array(W));
+      grid.push([]); solidGrid.push(new Uint8Array(W)); yuksekGrid.push(new Uint8Array(W)); altGrid.push(new Uint8Array(W));
       kapiGrid.push([]); yakinGrid.push(new Uint8Array(W));
       for (x = 0; x < W; x++) {
         var ch = ASCII[y].charAt(x);
@@ -704,6 +813,7 @@ window.G = window.G || {};
         if (yy < 0 || xx < 0 || yy >= H || xx >= W) continue;
         if (es.kati) solidGrid[yy][xx] = 1;
         if (YUKSEK[es.tur]) yuksekGrid[yy][xx] = 1;
+        if (es.kati && ALT_GEC[es.tur]) altGrid[yy][xx] = 1;
       }
     }
     for (y = 0; y < H; y++) for (x = 0; x < W; x++) {
@@ -722,10 +832,13 @@ window.G = window.G || {};
     // kaza yeri: B1/B2 scooter, B3 salıncak, B4 pota (bolum.js kazaTur)
     var kz = cur.kaza || cur.scooter;
     harita.kazaYeri = kz ? { x: merkez(kz[0]), y: merkez(kz[1]), tur: (G.bolumler && G.bolumler[bolum] && G.bolumler[bolum].kazaTur) || 'scooter' } : null;
+    harita.teyzeYol = (cur.teyzeYol || []).map(function (p) { return { x: merkez(p[0]), y: merkez(p[1]), bekle: p[2] }; });
+    harita.enisteYol = (cur.enisteYol || []).map(function (p) { return { x: merkez(p[0]), y: merkez(p[1]), bekle: p[2] }; });
+    harita.bebekOyun = (cur.oyun || []).map(function (p) { return { x: merkez(p[0]), y: merkez(p[1]) }; });
     harita.yardimciYeri = cur.yardimci ? { x: merkez(cur.yardimci[0]), y: merkez(cur.yardimci[1]) } : null;
     harita.misafirKapi = cur.misafirKapi ? { x: merkez(cur.misafirKapi[0]), y: merkez(cur.misafirKapi[1]) } : null;
     harita.zilYeri = cur.zil ? { x: merkez(cur.zil[0]), y: merkez(cur.zil[1]) } : null;
-    harita.hoparlorler = harita.esyalar.filter(function (e) { return e.tur === 'hoparlor_direk' || e.tur === 'okul_hoparlor'; })
+    harita.hoparlorler = harita.esyalar.filter(function (e) { return e.tur === 'hoparlor_direk' || e.tur === 'okul_hoparlor' || e.tur === 'telsiz_bebek'; })
       .map(function (e) { return { x: (e.tx + e.w / 2) * T, y: (e.ty + e.h / 2) * T, tur: e.tur }; });
     harita.gokceMasa = { x: merkez(cur.gokce[0]), y: merkez(cur.gokce[1]), yon: -Math.PI / 2 };
     harita.mikrofonYeri = { x: merkez(cur.mikrofon[0]), y: merkez(cur.mikrofon[1]), yon: -Math.PI / 2 };
@@ -882,6 +995,7 @@ window.G = window.G || {};
       var n = [[1, 0], [-1, 0], [0, 1], [0, -1]];
       for (var i = 0; i < 4; i++) { r = ara(tx + n[i][0], ty + n[i][1]); if (r) return r; }
     }
+    if (harita.bolum === 6) return ty <= cur.sokakSon ? 'Sokak' : 'Bahçe';
     if (harita.bolum === 5) return ty <= cur.sokakSon ? 'Sokak' : 'Bahçe';
     if (harita.bolum === 4) return ty <= cur.sokakSon ? 'Sokak' : 'Okul Bahçesi';
     if (harita.bolum === 3) return ty <= cur.sokakSon ? 'Sokak' : 'Park';
@@ -909,20 +1023,20 @@ window.G = window.G || {};
   };
 
   // ---- Hareket ---------------------------------------------------------
-  function katiH(tx, ty, kapiGec) {
-    if (ssol(tx, ty)) return true;
+  function katiH(tx, ty, kapiGec, alt) {
+    if (ssol(tx, ty)) { if (!(alt && altGrid[ty] && altGrid[ty][tx])) return true; }
     if (!kapiGec) { var k = kapiGrid[ty][tx]; if (k && !k.acik) return true; }
     return false;
   }
 
   function adimX(ent, dx, kapiGec) {
-    var r = ent.r || 14;
+    var r = ent.r || 14, alt = !!ent.altGec;
     ent.x += dx;
     var y = ent.y;
     var x0 = Math.floor((ent.x - r) / T), x1 = Math.floor((ent.x + r) / T);
     var y0 = Math.floor((y - r) / T), y1 = Math.floor((y + r) / T);
     for (var ty = y0; ty <= y1; ty++) for (var tx = x0; tx <= x1; tx++) {
-      if (!katiH(tx, ty, kapiGec)) continue;
+      if (!katiH(tx, ty, kapiGec, alt)) continue;
       var cy = Math.max(ty * T, Math.min(ty * T + T, y));
       var ddy = cy - y;
       if (Math.abs(ddy) >= r) continue;
@@ -933,13 +1047,13 @@ window.G = window.G || {};
     }
   }
   function adimY(ent, dy, kapiGec) {
-    var r = ent.r || 14;
+    var r = ent.r || 14, alt = !!ent.altGec;
     ent.y += dy;
     var x = ent.x;
     var x0 = Math.floor((x - r) / T), x1 = Math.floor((x + r) / T);
     var y0 = Math.floor((ent.y - r) / T), y1 = Math.floor((ent.y + r) / T);
     for (var ty = y0; ty <= y1; ty++) for (var tx = x0; tx <= x1; tx++) {
-      if (!katiH(tx, ty, kapiGec)) continue;
+      if (!katiH(tx, ty, kapiGec, alt)) continue;
       var cx = Math.max(tx * T, Math.min(tx * T + T, x));
       var ddx = cx - x;
       if (Math.abs(ddx) >= r) continue;
@@ -961,22 +1075,22 @@ window.G = window.G || {};
   };
 
   // ---- Yol bulma (A*) --------------------------------------------------
-  function gecilebilir(tx, ty, kapiGec) {
-    if (ssol(tx, ty)) return false;
+  function gecilebilir(tx, ty, kapiGec, alt) {
+    if (ssol(tx, ty) && !(alt && altGrid[ty] && altGrid[ty][tx])) return false;
     if (!kapiGec) { var k = kapiGrid[ty][tx]; if (k && !k.acik) return false; }
     return true;
   }
 
-  function enYakinBos(tx, ty, kapiGec) {
+  function enYakinBos(tx, ty, kapiGec, alt) {
     tx = Math.max(0, Math.min(W - 1, tx)); ty = Math.max(0, Math.min(H - 1, ty));
-    if (gecilebilir(tx, ty, kapiGec)) return [tx, ty];
+    if (gecilebilir(tx, ty, kapiGec, alt)) return [tx, ty];
     for (var r = 1; r < 12; r++) {
       var best = null, bd = 1e9;
       for (var oy = -r; oy <= r; oy++) for (var ox = -r; ox <= r; ox++) {
         if (Math.max(Math.abs(ox), Math.abs(oy)) !== r) continue;
         var a = tx + ox, b = ty + oy;
         if (a < 0 || b < 0 || a >= W || b >= H) continue;
-        if (!gecilebilir(a, b, kapiGec)) continue;
+        if (!gecilebilir(a, b, kapiGec, alt)) continue;
         var dd = ox * ox + oy * oy;
         if (dd < bd) { bd = dd; best = [a, b]; }
       }
@@ -985,10 +1099,11 @@ window.G = window.G || {};
     return null;
   }
 
-  harita.yolBul = function (x1, y1, x2, y2, kapiGec) {
+  harita.yolBul = function (x1, y1, x2, y2, kapiGec, alt) {
     if (kapiGec === undefined) kapiGec = true;
-    var s = enYakinBos(Math.floor(x1 / T), Math.floor(y1 / T), kapiGec);
-    var g = enYakinBos(Math.floor(x2 / T), Math.floor(y2 / T), kapiGec);
+    alt = !!alt;
+    var s = enYakinBos(Math.floor(x1 / T), Math.floor(y1 / T), kapiGec, alt);
+    var g = enYakinBos(Math.floor(x2 / T), Math.floor(y2 / T), kapiGec, alt);
     if (!s || !g) return null;
     if (s[0] === g[0] && s[1] === g[1]) return [{ x: merkez(g[0]), y: merkez(g[1]) }];
     var N = W * H, si = s[1] * W + s[0], gi = g[1] * W + g[0];
@@ -1047,8 +1162,8 @@ window.G = window.G || {};
       var cx = cur % W, cy = (cur / W) | 0;
       for (var d = 0; d < 8; d++) {
         var nx = cx + DX[d], ny = cy + DY[d];
-        if (!gecilebilir(nx, ny, kapiGec)) continue;
-        if (d >= 4 && (!gecilebilir(cx + DX[d], cy, kapiGec) || !gecilebilir(cx, cy + DY[d], kapiGec))) continue;
+        if (!gecilebilir(nx, ny, kapiGec, alt)) continue;
+        if (d >= 4 && (!gecilebilir(cx + DX[d], cy, kapiGec, alt) || !gecilebilir(cx, cy + DY[d], kapiGec, alt))) continue;
         var ni = ny * W + nx;
         if (kapali[ni]) continue;
         var ng = gS[cur] + (d >= 4 ? 1.4142 : 1) + yakinGrid[ny][nx] * 0.35;
