@@ -1237,10 +1237,11 @@ window.G = window.G || {};
   }
   function kardesCiz(c, k, d) {
     if (!k || k.gizli || !isFinite(k.x) || !isFinite(k.y)) return;
-    var rn = k.renk || '#2f7de1';
+    var kim = d.kardesler.indexOf(k) === 0 ? 'atilay' : G.karakter.gorunum('takipci');
+    var rn = cocukRenk(kim);
     var t = (d && d.zaman) || S.t, al = Math.min(gorunmezAlfa(d && d.oyuncu, t), gorunmezAlfa(k, t));
-    var kz = k.kaza, boy = (k.boy > 0 ? k.boy : 1);
-    var op = { renk: rn, koyu: koyult(rn, 0.78), boy: boy, ad: k.ad }, hareket = !!k.hareket, yon = k.yon, ky = k.y, kx = k.x;
+    var kz = k.kaza, boy = cocukBoy(kim);
+    var op = { kim: kim, renk: rn, koyu: koyult(rn, 0.78), boy: boy, ad: G.karakter.ad(kim), bere: kim === 'gokce' }, hareket = !!k.hareket, yon = k.yon, ky = k.y, kx = k.x;
     c.save(); c.globalAlpha = al;
     if (kz === 'suruyor') {
       var b = bak(yon), sg = b.fx < -0.05 ? -1 : 1;
@@ -1275,7 +1276,8 @@ window.G = window.G || {};
   }
   function gokceCiz(c, g, d) {
     if (!g || !isFinite(g.x) || !isFinite(g.y)) return;
-    var t = (d && d.zaman) || S.t, dur = g.durum, rn = g.renk || '#9b4fd6';
+    var kim = G.karakter.gorunum('yardimci');
+    var t = (d && d.zaman) || S.t, dur = g.durum, rn = cocukRenk(kim);
     var zip = dur === 'bagiriyor' ? Math.abs(Math.sin(t * 7)) * 9 : 0;
     var calis = dur === 'calisiyor', kos = dur === 'kaciyor' || dur === 'eveDonuyor';
     if (kos) {
@@ -1289,7 +1291,7 @@ window.G = window.G || {};
     var yon = dil ? PI / 2 : g.yon;
     if (calis) yon = isFinite(g.yon) ? g.yon : -PI / 2;
     ogeday(c, { x: g.x, y: g.y, r: 14, yon: yon, hareket: !calis && (!!g.hareket || kos || dur === 'geliyor'), adimFaz: g.adimFaz || 0, kosuyor: kos || dur === 'geliyor' },
-      d, { renk: rn, koyu: koyult(rn, 0.78), boy: 0.95, ad: calis ? null : (g.ad || 'Gökçe'), bere: true, zipla: zip, agiz: dur === 'bagiriyor' || (dur === 'kaciyor' && !dil), dil: dil, el: dur === 'bagiriyor' || dil, calis: calis });
+      d, { kim: kim, renk: rn, koyu: koyult(rn, 0.78), boy: cocukBoy(kim), ad: calis ? null : G.karakter.ad(kim), bere: kim === 'gokce', zipla: zip, agiz: dur === 'bagiriyor' || (dur === 'kaciyor' && !dil), dil: dil, el: dur === 'bagiriyor' || dil, calis: calis });
     if (calis) {
       // başın üstünde küçük kitap simgesi (ara sıra sayfa çevirir) + uçuşan matematik işaretleri
       var sy = g.y - 64 - Math.sin(t * 2) * 1.5, acik = (t % 6) < 5.2;
@@ -1346,10 +1348,12 @@ window.G = window.G || {};
     return 'rgb(' + [1, 2, 3].map(function (i) { return Math.round(parseInt(m[i], 16) * k); }).join(',') + ')';
   }
 
+  function cocukBoy(kim) { return G.karakter.olcek(kim) * 1.2 / 0.94; }
+  function cocukRenk(kim) { return ({ ogeday: '#e63b2e', gokce: '#9b4fd6', giray: '#3fae4a', atilay: '#2f7de1' })[kim]; }
   function ogeday(c, o, d, op) {
     op = op || {};
     var RC = op.renk || '#e63b2e', RD = op.koyu || '#c92d22', zip = op.zipla || 0;
-    var r = o.r || 14, s = r / 14 * (op.boy || 1), f = o.adimFaz || 0, mv = !!o.hareket, kos = !!o.kosuyor, egik = !!o.egik;
+    var r = o.r || 14, s = (op.kim ? 1 : r / 14) * (op.boy || 1), f = o.adimFaz || 0, mv = !!o.hareket, kos = !!o.kosuyor, egik = !!o.egik;
     var sal = mv ? Math.sin(f) : 0, amp = kos ? 7 : 5;
     var b = bak(o.yon), fx = b.fx, fy = b.fy, arka = fy < -0.55;
     var bounce = (mv ? Math.abs(Math.sin(f)) * (kos ? 3 : 2) : 0) + zip;
@@ -2041,7 +2045,8 @@ window.G = window.G || {};
         if (o.saklandi) { try { saklanGozler(ctx, o, d, t); } catch (er3) {} }
         else if (gorunur(o.x, o.y, 40, v)) {
           var ga = gorunmezAlfa(o, t);
-          ctx.save(); ctx.globalAlpha = ga; ogeday(ctx, o, d, { ad: 'Ogeday', boy: 1.2 }); ctx.restore();
+          var kim = G.karakter.gorunum('oyuncu'), renk = cocukRenk(kim);
+          ctx.save(); ctx.globalAlpha = ga; ogeday(ctx, o, d, { kim: kim, ad: G.karakter.ad(kim), boy: cocukBoy(kim), renk: renk, koyu: koyult(renk, 0.78), bere: kim === 'gokce' }); ctx.restore();
           if (o.gorunmez > 0) parildar(ctx, o.x, o.y, t, 6);
         }
       }

@@ -2427,12 +2427,12 @@
       }
       list.push({ e: e, ad: ad, p: p, prio: prio, renk: renk || '#fff8e4' });
     }
-    ekle(d.oyuncu, G.karakter.adRol('oyuncu'), 1.62, 100, '#ffe9a8');
-    (d.kardesler || []).forEach(function (e, i) { ekle(e, G.karakter.metin(e.ad), i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84, i === 0 ? '#bcdcff' : '#c8e9c0'); });
+    ekle(d.oyuncu, G.karakter.adRol('oyuncu'), 1.75 * G.karakter.olcek(G.karakter.gorunum('oyuncu')), 100, '#ffe9a8');
+    (d.kardesler || []).forEach(function (e, i) { ekle(e, G.karakter.metin(e.ad), 1.75 * G.karakter.olcek(i ? G.karakter.gorunum('takipci') : 'atilay'), e.kaza ? 96 : 84, i === 0 ? '#bcdcff' : '#c8e9c0'); });
     (d.oturanlar || []).forEach(function (e) { ekle(e, G.kisiAdi(e.kim), 1.5, 50, '#fff1da'); });
     if (d.superbear) ekle(d.superbear, 'Super Bear', 1.75, 65, '#ffe6b4');
     if (d.beatrice) ekle(d.beatrice, 'Beatrice', d.beatrice.yukseklik + 1.6, 73, '#fff3a3');
-    if (d.gokce) ekle(d.gokce, G.karakter.adRol('yardimci'), 1.55, 80, '#e6c8f2');
+    if (d.gokce) ekle(d.gokce, G.karakter.adRol('yardimci'), 1.75 * G.karakter.olcek(G.karakter.gorunum('yardimci')), 80, '#e6c8f2');
     if (d.komsu) ekle(d.komsu, G.kisiAdi(d.komsu.kim), d.komsu.kim === 'beren' ? 1.0 : 1.98, 70, '#ffe2bb');
     if (d.teyze) ekle(d.teyze, 'Nefise Teyze', 1.9, 63, '#ffc9e6');
     if (d.eniste) ekle(d.eniste, 'Uğurcan Enişte', 2.0, 63, '#c9defa');
@@ -2472,15 +2472,15 @@
       bubbles.push({ e: e, p: p, prio: prio });
     }
     var kovK = function (e) { return (e === d.komsu || e === d.uyanan || e === d.recep) && e.durum === 'kovalama'; };
-    balonEkle(d.oyuncu, null, 1.62, 100);
+    balonEkle(d.oyuncu, null, 1.75 * G.karakter.olcek(G.karakter.gorunum('oyuncu')), 100);
     if (d.komsu) balonEkle(d.komsu, null, d.komsu.kim === 'beren' ? 1.0 : 1.98, kovK(d.komsu) ? 98 : 70);
     if (d.superbear) balonEkle(d.superbear, null, 1.9, 85);
     if (d.beatrice) balonEkle(d.beatrice, null, d.beatrice.yukseklik + 1.75, 90);
     if (d.teyze) balonEkle(d.teyze, null, 1.9, d.teyze.durum === 'ispiyon' ? 90 : 66);
     if (d.eniste) balonEkle(d.eniste, null, 2.0, d.eniste.durum === 'ispiyon' ? 90 : 66);
     if (d.uyanan) balonEkle(d.uyanan, null, 2.05, kovK(d.uyanan) ? 98 : 72);
-    (d.kardesler || []).forEach(function (e, i) { balonEkle(e, null, i === 0 ? 1.15 : 1.35, e.kaza ? 96 : 84); });
-    if (d.gokce) balonEkle(d.gokce, null, 1.55, 80);
+    (d.kardesler || []).forEach(function (e, i) { balonEkle(e, null, 1.75 * G.karakter.olcek(i ? G.karakter.gorunum('takipci') : 'atilay'), e.kaza ? 96 : 84); });
+    if (d.gokce) balonEkle(d.gokce, null, 1.75 * G.karakter.olcek(G.karakter.gorunum('yardimci')), 80);
     if (d.kedi) balonEkle(d.kedi, null, 0.62, 68);
     if (d.recep) balonEkle(d.recep, null, 2.02, d.recep.durum === 'kovalama' ? 97 : 71);
     if (d.anneanne) balonEkle(d.anneanne, null, 1.9, 76);
@@ -2837,9 +2837,10 @@
       v.lock.material = material(v.data.kilit === 'anahtar_mavi' ? '#458ed9' : v.data.kilit ? '#dc6556' : '#e5c47e');
     });
     Object.keys(R.rigs).forEach(function (k) { R.rigs[k].root.visible = false; R.rigs[k].shadow.visible = false; });
-    if (d.oyuncu) updateRig('o', d.oyuncu, G.karakter.gorunum('oyuncu'), d, { scale: 0.94, dt: dt });
+    if (d.oyuncu) updateRig('o', d.oyuncu, G.karakter.gorunum('oyuncu'), d, { scale: G.karakter.olcek(G.karakter.gorunum('oyuncu')), dt: dt });
     (d.kardesler || []).forEach(function (k, i) {
-      updateRig('k' + i, k, i ? G.karakter.gorunum('takipci') : 'atilay', d, { scale: i ? 0.8 : 0.65, child: true, ride: k.kaza === 'suruyor', dt: dt });
+      var kim = i ? G.karakter.gorunum('takipci') : 'atilay';
+      updateRig('k' + i, k, kim, d, { scale: G.karakter.olcek(kim), child: true, ride: k.kaza === 'suruyor', dt: dt });
     });
     if (d.komsu && !d.komsu.pasif) updateRig('n', d.komsu, d.komsu.kim, d, { scale: d.komsu.kim === 'beren' ? 1.3 : 1.12, dt: dt });
     (d.oturanlar || []).forEach(function (e, i) { updateRig('oturan'+i, e, e.kim, d, { scale: 1.08, dt: dt }); });
@@ -2853,7 +2854,7 @@
     if (d.abari) updateRig('ab', d.abari, 'abariebe', d, { scale: 1.06, dt: dt });
     if (d.uyanan) updateRig('u', d.uyanan, d.uyanan.kim, d, { scale: 1.12, awake: true, dt: dt });
     if (d.uyuyan) updateRig('s', d.uyuyan, d.uyuyan.kim, d, { scale: d.uyuyan.kim === 'beren' ? 1.3 : 1.02, sleep: true, dt: dt });
-    if (d.gokce) updateRig('g', d.gokce, G.karakter.gorunum('yardimci'), d, { scale: 0.96, dt: dt });
+    if (d.gokce) updateRig('g', d.gokce, G.karakter.gorunum('yardimci'), d, { scale: G.karakter.olcek(G.karakter.gorunum('yardimci')), dt: dt });
     // Bölüm 7 kalabalığı ve bölüm 8 köy canlıları: aynı rig'ler dizin bazlı havuzda kalır.
     (d.kalabalik || []).forEach(function (e, i) {
       var sc = e.olcek || (/^cocuk_/.test(e.kim) ? 0.72 : 0.96);

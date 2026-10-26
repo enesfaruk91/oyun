@@ -129,7 +129,8 @@ G.ayikoyu = (function () {
         d.gokceHakki++;s.asama='donuyor';s.ayi=yeniYol();a.bitti=true;
         say(a,'Yol kapalı, tekrar deneyelim!');G.mesaj('Super Bear ulaşamadı. Yardım hakkın sende kaldı!',2.5);
       }else{
-        yuruyus(a,s.ayi,o,dt,225,90);
+        // Yakınlık tek başına varış sayılmaz; duvarın öbür yanındaysa yol etrafından sürmelidir.
+        yuruyus(a,s.ayi,o,dt,225,10);
       }
     }else if(s.asama==='oyalama'){
       s.kalan-=dt;yuruyus(a,s.ayi,s.hedef,dt,190,18);
@@ -162,7 +163,7 @@ G.ayikoyu = (function () {
     if(!s||!bilgi().ayikoyu||!d.superbear)return;
     var g=d.gokce,o=d.oyuncu;
     if(g){
-      konus(dt,g);g.gizli=!!o.saklandi;g.hareket=false;
+      konus(dt,g);g.gizli=!!o.saklandi;
       if(!g.morBal&&d.zaman>=60&&!s.balHedef){
         var sec=(d.morBallar||[]).filter(function(p){return !p.yendi;}).sort(function(a,b){return uzak(g,a)-uzak(g,b);});
         if(sec.length){s.balHedef=sec[0];g.morBalAsama='bal_gidis';s.abla=yeniYol();}
@@ -173,8 +174,8 @@ G.ayikoyu = (function () {
       }else if(!g.gizli&&g.morBalAsama==='bal_gidis'&&s.balHedef){
         if(yuruyus(g,s.abla,s.balHedef,dt,115,14)){g.morBalAsama='bal_yiyor';s.balYemeT=2.5;g.balYiyor=true;g.oyunPoz='bal';s.abla=yeniYol();}
       }else if(!g.gizli&&g.morBal){
-        var ayi=d.komsu||o;g.durum='takip';yuruyus(g,s.abla,ayi,dt,112,44);
-      }else if(!g.gizli){g.morBalAsama='bekliyor';g.durum='takip';yuruyus(g,s.abla,o,dt,235,85);}
+        var ayi=d.uyanan||d.komsu||o;g.durum='takip';yuruyus(g,s.abla,ayi,dt,112,44);
+      }else if(!g.gizli){g.morBalAsama='bekliyor';g.durum='takip';}
       else s.abla.yol=null;
     }
     ayiGuncelle(d,dt);kraliceGuncelle(d,dt);koylulerGuncelle(d,dt);

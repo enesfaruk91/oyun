@@ -1,7 +1,6 @@
 window.G = window.G || {};
 G.kardesler = (function () {
   var T = 48;
-  var GECIKME = [42, 80];     // Atılay, Giray ne kadar iz geride (px)
   var KAC_HIZ = 205;
   var hist = [];              // Ogeday'ın konum izi
   var sonSaklandi = false, durduSure = 0;
@@ -17,13 +16,20 @@ G.kardesler = (function () {
   function sifirlaIz(o) {
     hist = [];
     var yon = o.yon || 0;
-    for (var i = 12; i >= 0; i--) hist.push({ x: o.x - Math.cos(yon) * i * 8, y: o.y - Math.sin(yon) * i * 8 });
+    for (var i = 20; i >= 0; i--) hist.push({ x: o.x - Math.cos(yon) * i * 8, y: o.y - Math.sin(yon) * i * 8 });
+  }
+  // Roller yerinde kalır; yürüyüş sırası görünen kardeşin kimliğine bağlıdır.
+  function takipciler(d) {
+    var liste = (d.kardesler || []).filter(function (k) { return !ayrik(k); });
+    var g = d.gokce;
+    if (g && g.durum === 'takip' && !g.morBal && (!g.morBalAsama || g.morBalAsama === 'bekliyor')) liste.push(g);
+    function kim(k) { return k === g ? G.karakter.gorunum('yardimci') : k === d.kardesler[0] ? 'atilay' : G.karakter.gorunum('takipci'); }
+    return liste.sort(function (a, b) { return G.karakter.sira(kim(a)) - G.karakter.sira(kim(b)); });
   }
   function kardesYerles(d) {
     var o = d.oyuncu;
-    d.kardesler.forEach(function (k, i) {
-      if (ayrik(k)) return;
-      var p = izdeNokta(GECIKME[i]);
+    takipciler(d).forEach(function (k, i) {
+      var p = izdeNokta(42 + i * 42);
       k.x = p.x; k.y = p.y; k.yon = o.yon || 0; k.hareket = false;
     });
   }
@@ -39,6 +45,7 @@ G.kardesler = (function () {
   }
 
   function init(d, korunsun) {
+    d.ekipYurudu = false;
     var onceki = d.gokceHakki;
     d.gokceHakki = (korunsun && typeof onceki === 'number') ? onceki : (zorluk().gokceHakki || 1);
     d.gokce = masadaGokce(d);
@@ -85,24 +92,21 @@ G.kardesler = (function () {
     var o = d.oyuncu;
     if (!o) return;
     var saklanmis = !!o.saklandi;
-    if (saklanmis) { d.kardesler.forEach(function (k) { if (ayrik(k)) return; k.gizli = true; k.hareket = false; }); sonSaklandi = true; return; }
+    if (saklanmis) { takipciler(d).forEach(function (k) { k.gizli = true; k.hareket = false; }); sonSaklandi = true; return; }
     if (sonSaklandi) { sonSaklandi = false; sifirlaIz(o); kardesYerles(d); d.kardesler.forEach(function (k) { if (!ayrik(k)) k.gizli = false; }); }
     var son = hist[hist.length - 1];
     if (!son) { sifirlaIz(o); son = hist[hist.length - 1]; }
     var ds = Math.hypot(o.x - son.x, o.y - son.y);
     if (ds > 300) { sifirlaIz(o); kardesYerles(d); ds = 0; }   // ışınlanma
-    if (ds > 4) { hist.push({ x: o.x, y: o.y }); if (hist.length > 160) hist.shift(); durduSure = 0; }
+    if (ds > 4) { hist.push({ x: o.x, y: o.y }); if (hist.length > 160) hist.shift(); durduSure = 0; d.ekipYurudu = true; }
     else durduSure += dt;
-    d.kardesler.forEach(function (k, i) {
-      if (ayrik(k)) return;
+    var g = d.gokce;
+    if (d.ekipYurudu && g && /^(calisiyor|oynuyor|eveDonuyor)$/.test(g.durum)) {
+      g.durum = 'takip'; g.oyunPoz = null; g.konusma = null;
+    }
+    takipciler(d).forEach(function (k, i) {
       k.gizli = false;
-      var hedef = izdeNokta(GECIKME[i]);
-      if (durduSure > 0.6) { // yanında dur, hafif kıpırdan
-        var ac = (o.yon || 0) + Math.PI / 2 * (i === 0 ? 1 : -1);
-        var bx = o.x + Math.cos(ac) * 30 + Math.sin(d.zaman * 1.7 + i * 2) * 3;
-        var by = o.y + Math.sin(ac) * 30 + Math.cos(d.zaman * 1.3 + i) * 3;
-        if (!katiMi(bx, by)) { hedef = { x: bx, y: by }; }
-      }
+      var hedef = izdeNokta(42 + i * 42);
       var dx = hedef.x - k.x, dy = hedef.y - k.y, m = Math.hypot(dx, dy);
       var maks = 260 * dt;
       if (m > 160) { k.x = hedef.x; k.y = hedef.y; k.hareket = false; return; }
@@ -245,6 +249,7 @@ G.kardesler = (function () {
     kacYol = null;
     if (!g) return;
     g.bitti = true; efektEkle(d, 'parilti', g.x, g.y, 1.0);
+    if (d.ekipYurudu) { g.durum = 'takip'; g.oyunPoz = null; g.konusma = null; return; }
     var m = masa();
     if (!m) { d.gokce = null; return; }
     g.durum = 'eveDonuyor'; g.hareket = false; donusT = 0; donusYol = null; donusYolT = 0;
@@ -421,7 +426,8 @@ G.kardesler = (function () {
 
   // ---- kaza (EK-4, EK-8): Giray scooter (B1/B2), salıncak (B3) ya da pota (B4) ile kaçar, düşer; Ogeday süresinde yanına gider ----
   var kazaAt = 70, kazaGurT = 0, kazaYol = null, kazaZorla = false, kazaSurT = 0, kazaKonT = 0, kazaDinle = false, kazaBekT = 0;
-  var AGLA = ['Ühüüü! Ogedaaay!', 'Dizim acıyor... ühüü!', 'Gel bana, Ogedaaay!', 'Ühüüü... Yalnız kaldım!'];
+  // Kanonik ana karakter adı çizimde seçili isme çevrilir; uzatılmış yazım eşlemeyi bozmaz.
+  var AGLA = ['Ühüüü! Ogeday!', 'Dizim acıyor... ühüü!', 'Gel bana, Ogeday!', 'Ühüüü... Yalnız kaldım!'];
   var KAZA = {
     kovan_agaci: { bin: 'Bal ağacına bakacağım!', sur: 'Yukarı tırmanıyorum!', surMsg: 'bal ağacına tırmanıyor!', kosMsg: ' bal ağacına koştu!', dus: ' yumuşak çimene düştü!', sureS: 3.6 },
     trambolin: { bin: 'Trambolinde zıplayacağım!', sur: 'Hop hop!', surMsg: 'trambolinde zıplıyor!', kosMsg: ' tramboline koştu!', dus: ' yumuşak mindere düştü!', sureS: 3.2 },

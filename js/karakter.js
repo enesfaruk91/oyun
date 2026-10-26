@@ -5,6 +5,8 @@ window.G = window.G || {};
 (function () {
   var ANAHTAR = 'abk_karakter', KIMLER = ['ogeday', 'gokce', 'giray'];
   var AD = { ogeday: 'Ogeday', gokce: 'Gökçe', giray: 'Giray', atilay: 'Atılay' };
+  var SIRA = ['gokce', 'ogeday', 'giray', 'atilay'];
+  var OLCEK = { gokce: 1.02, ogeday: 0.94, giray: 0.8, atilay: 0.65 };
   var secili = 'ogeday', onbellek = {};
   var EK = { acc: ['ı', 'yi'], dat: ['a', 'ye'], gen: ['ın', 'nin'], loc: ['da', 'de'], abl: ['dan', 'den'] };
   function ekTur(e) {
@@ -69,6 +71,8 @@ window.G = window.G || {};
     get secili() { return secili; },
     sec: sec, yukle: yukle, metin: metin, portre: portre,
     gorunum: karakterOf,                  // 'oyuncu'|'yardimci'|'takipci' -> rig türü
+    sira: function (kim) { return SIRA.indexOf(kim); },
+    olcek: function (kim) { return OLCEK[kim] || 1; },
     adRol: function (rol) { return AD[karakterOf(rol)]; }
   };
   yukle();
